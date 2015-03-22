@@ -82,11 +82,11 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
         R::dlnorm(exp(prior_log_mean_minus_log2),
           prior_log_mean_minus_log2, prior_log_sd, 0);
         if (tmp < test &&
-          min(bt) > 0 &&
-          max(bt) <= k &&
-          bt(interyr_index_minus_one)/k >= interbio_lim(0) && // -1 because C++
-          bt(interyr_index_minus_one)/k <= interbio_lim(1)) { // -1 because C++
-          ell = 1;
+            min(bt) > 0 &&
+            max(bt) <= k &&
+            bt(interyr_index_minus_one)/k >= interbio_lim(0) && // -1 because C++
+            bt(interyr_index_minus_one)/k <= interbio_lim(1)) { // -1 because C++
+              ell = 1;
         }
         J = j;
       }
@@ -97,8 +97,8 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     out(ii, 3) = J;
   }
   return DataFrame::create(
-    Named("r")   = out(_, 0),
-    Named("k")   = out(_, 1),
-    Named("ell") = out(_, 2),
-    Named("biomass")   = out(_, 3));
+    Named("r")       = out(_, 0),
+    Named("k")       = out(_, 1),
+    Named("ell")     = out(_, 2),
+    Named("biomass") = out(_, 3));
 }
