@@ -47,6 +47,12 @@ cmsy <- function(
   startbio = if (ct[1] / max(ct) < 0.2) c(0.5, 0.9) else c(0.2, 0.6),
   sig_r = 0.05,
   reps = 1e4) {
+  if (!identical(length(interbio), 2L))
+    stop("interbio must be a vector of length 2")
+  if (!identical(length(start_k), 2L))
+    stop("start_k must be a vector of length 2")
+  if (!identical(length(yr), length(ct)))
+    stop("yr and ct must be the same length")
 
   start_r <- switch(resilience[1],
     "Very low" = c(0.015, 0.1),
