@@ -195,7 +195,7 @@ DataFrame comsir_est(NumericVector N1,
   NumericMatrix temp1(Nsim, 2);
   NumericMatrix temp2(Nsim, 2);
   NumericVector CumLogLike(Nsim);
-  NumericVector Mysd;
+  NumericVector Mysd(Nsim);
   double TotLike;
 
   // the parameters come from the resampling part
@@ -211,9 +211,10 @@ DataFrame comsir_est(NumericVector N1,
   CumLogLike = rep(0.0, Nsim);
 
   for (int i=0; i<(Catch.size()-i); i++) { // TODO check this for errors
+      //Rcout << "i = " << i << std::endl;
     if (i==0) {
       predbio = N1;
-      predcatch = Catch(0); // first catch is assumed known -- BIG ASSUMPTION ---
+      predcatch = rep(Catch(0), Nsim); // first catch is assumed known -- BIG ASSUMPTION ---
       predprop = predcatch / predbio;
       inipredprop = predprop;
     } else {
