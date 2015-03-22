@@ -79,7 +79,7 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
         double tmp = R::runif(0, 1);
         double test = R::dlnorm(current_bio_ratio,
           prior_log_mean_minus_log2, prior_log_sd, 0) /
-        R::dlnorm(exp(prior_log_mean - log(2)),
+        R::dlnorm(exp(prior_log_mean_minus_log2),
           prior_log_mean_minus_log2, prior_log_sd, 0);
         if (tmp < test &&
           min(bt) > 0 &&
