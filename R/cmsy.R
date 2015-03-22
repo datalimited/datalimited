@@ -14,6 +14,11 @@
 #' @param sig_r
 #' @param reps
 #'
+#' @return A data frame containing columns for intrinsic population growth rates
+#'   (\code{r}), carrying capacity (\code{k}), log likelihood (\code{ell}), and
+#'   biomass (\code{biomass}). Each row contains an iteration for a total length
+#'   of \code{reps}.
+#'
 #' @seealso \code{\link{shaefer_cmsy}}
 #' @export
 #' @examples
