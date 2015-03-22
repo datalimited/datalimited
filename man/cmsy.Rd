@@ -4,7 +4,7 @@
 \alias{cmsy}
 \title{Catch-msy method}
 \usage{
-cmsy(yr, ct, prior_log_mean, prior_log_sd, interyr_index = 2,
+cmsy(yr, ct, prior_log_mean, prior_log_sd, interyr_index = 2L,
   interbio = c(0, 1), bio_step = 0.05, resilience = c(NA, "Very low",
   "Low", "Medium", "High"), start_k = c(max(ct), 50 * max(ct)),
   startbio = if (ct[1]/max(ct) < 0.2) c(0.5, 0.9) else c(0.2, 0.6),
