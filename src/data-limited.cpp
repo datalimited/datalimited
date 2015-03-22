@@ -22,6 +22,8 @@ using namespace Rcpp;
 //' @importFrom Rcpp sourceCpp
 //' @export
 //'
+//' @seealso \code{\link{cmsy}}
+//'
 //' @references
 //' Martell, S., & Froese, R. (2013). A simple method for estimating MSY from
 //' catch and resilience. Fish and Fisheries, 14(4), 504-514.

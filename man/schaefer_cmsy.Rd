@@ -47,4 +47,7 @@ Martell, S., & Froese, R. (2013). A simple method for estimating MSY from
 catch and resilience. Fish and Fisheries, 14(4), 504-514.
 \url{http://doi.org/10.1111/j.1467-2979.2012.00485.x}
 }
+\seealso{
+\code{\link{cmsy}}
+}
 
