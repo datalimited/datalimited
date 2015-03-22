@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // schaefer_cmsy
-DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r, NumericVector startbt, NumericVector yr, NumericVector ct, int interyr_index, double prior_log_mean, double prior_log_sd, NumericVector interbio_lim, int reps);
-RcppExport SEXP datalimited_schaefer_cmsy(SEXP r_limSEXP, SEXP k_limSEXP, SEXP sig_rSEXP, SEXP startbtSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP interyr_indexSEXP, SEXP prior_log_meanSEXP, SEXP prior_log_sdSEXP, SEXP interbio_limSEXP, SEXP repsSEXP) {
+DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r, NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index, double prior_log_mean, double prior_log_sd, NumericVector interbio, int reps);
+RcppExport SEXP datalimited_schaefer_cmsy(SEXP r_limSEXP, SEXP k_limSEXP, SEXP sig_rSEXP, SEXP startbioSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP interyr_indexSEXP, SEXP prior_log_meanSEXP, SEXP prior_log_sdSEXP, SEXP interbioSEXP, SEXP repsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -15,15 +15,15 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< NumericVector >::type r_lim(r_limSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type k_lim(k_limSEXP );
         Rcpp::traits::input_parameter< double >::type sig_r(sig_rSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type startbt(startbtSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type startbio(startbioSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type yr(yrSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP );
         Rcpp::traits::input_parameter< int >::type interyr_index(interyr_indexSEXP );
         Rcpp::traits::input_parameter< double >::type prior_log_mean(prior_log_meanSEXP );
         Rcpp::traits::input_parameter< double >::type prior_log_sd(prior_log_sdSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type interbio_lim(interbio_limSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type interbio(interbioSEXP );
         Rcpp::traits::input_parameter< int >::type reps(repsSEXP );
-        DataFrame __result = schaefer_cmsy(r_lim, k_lim, sig_r, startbt, yr, ct, interyr_index, prior_log_mean, prior_log_sd, interbio_lim, reps);
+        DataFrame __result = schaefer_cmsy(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, prior_log_mean, prior_log_sd, interbio, reps);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

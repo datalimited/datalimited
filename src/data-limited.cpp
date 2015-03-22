@@ -1,46 +1,22 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' Schaefer production model for catch-MSY method
-//'
 //' @param r_lim Numeric vector of lower and upper intrinsic population growth
 //'   rates
 //' @param k_lim Numeric vector of lower and upper carrying capacities
-//' @param sig_r Standard deviation of process noise
-//' @param startbt A vector of possible starting biomasses to loop over
-//' @param yr Numeric vector of years
-//' @param ct Numeric vector of catch
-//' @param interyr_index Index of the interim year within time series for which
-//'   biomass estimate is available
-//' @param interbio_lim A numeric vector that gives the lower and upper biomass
-//'   limits in the interim year
-//' @param prior_log_mean Prior log mean
-//' @param prior_log_sd Prior log sd
-//' @param reps Number of repititions
+//' @param startbio A vector of possible starting biomasses to loop over
 //'
 //' @useDynLib datalimited
 //' @importFrom Rcpp sourceCpp
 //' @export
-//'
-//' @seealso \code{\link{cmsy}}
-//'
-//' @references
-//' Martell, S., & Froese, R. (2013). A simple method for estimating MSY from
-//' catch and resilience. Fish and Fisheries, 14(4), 504-514.
-//' \url{http://doi.org/10.1111/j.1467-2979.2012.00485.x}
-//'
-//' @examples
-//' schaefer_cmsy(c(0.1, 0.3), c(80, 100), sig_r = 0.1,
-//'   startbt = seq(0.2, 0.6, by = 0.05), yr = 1:10, ct = rnorm(10),
-//'   prior_log_mean = 0.3, prior_log_sd = 0.1, interyr_index = 2,
-//'   interbio_lim = c(0, 1), reps = 10L)
+//' @rdname cmsy
 // [[Rcpp::export]]
 DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
-  NumericVector startbt, NumericVector yr, NumericVector ct, int interyr_index,
+  NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index,
   double prior_log_mean, double prior_log_sd,
-  NumericVector interbio_lim, int reps) {
+  NumericVector interbio, int reps) {
 
-  int nstartbt = startbt.size();
+  int nstartbio = startbio.size();
   int nyr = yr.size();
   double ell;
   double j;
@@ -63,8 +39,8 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     k = ki(ii);
     ell = 0;
 
-    for (int a=0; a<nstartbt; a++) {
-      j = startbt(a);
+    for (int a=0; a<nstartbio; a++) {
+      j = startbio(a);
       if (ell == 0) {
         bt(0) = j * k * exp(R::rnorm(0, sig_r)); // set biomass in first year
         for (int i=0; i<nyr; i++) {
@@ -86,8 +62,8 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
         if (tmp < test &&
             min(bt) > 0 &&
             max(bt) <= k &&
-            bt(interyr_index_minus_one)/k >= interbio_lim(0) && // -1 because C++
-            bt(interyr_index_minus_one)/k <= interbio_lim(1)) { // -1 because C++
+            bt(interyr_index_minus_one)/k >= interbio(0) && // -1 because C++
+            bt(interyr_index_minus_one)/k <= interbio(1)) { // -1 because C++
               ell = 1;
         }
         J = j;
@@ -104,3 +80,9 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     Named("ell")     = out(_, 2),
     Named("biomass") = out(_, 3));
 }
+
+// @examples
+// schaefer_cmsy(r_lim = c(0.1, 0.3), k_lim = c(80, 100), sig_r = 0.1,
+//   startbio = seq(0.2, 0.6, by = 0.05), yr = 1:10, ct = rnorm(10),
+//   prior_log_mean = 0.3, prior_log_sd = 0.1, interyr_index = 2,
+//   interbio = c(0, 1), reps = 10L)
