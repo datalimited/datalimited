@@ -41,8 +41,22 @@ cmsy(yr, ct, prior_log_mean, prior_log_sd, interyr_index = 2,
 Catch-msy method
 }
 \examples{
-x <- cmsy(1:30, ct = rlnorm(30), prior_log_mean = 1, prior_log_sd = 0.5)
+# "BGRDRSE" (Blue Grenadier Southeast Australia) from the RAM Legacy database:
+d <- structure(list(
+  yr = 1979:2011,
+  ct = c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050, 3290,
+    4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700, 9130, 9160,
+    8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)),
+  .Names = c("yr", "ct"),
+  class = "data.frame",
+  row.names = 1:33)
+x <- cmsy(d$yr, ct = d$ct, prior_log_mean = 0.035, prior_log_sd = 0.68)
 head(x)
+x1 <- x[x$ell == 1, ]
+par(mfrow = c(1, 3))
+plot(d, type = "o")
+plot(density(x1$biomass))
+plot(x1$r, x1$k)
 }
 \seealso{
 \code{\link{shaefer_cmsy}}
