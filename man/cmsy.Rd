@@ -57,11 +57,12 @@ A data frame containing columns for intrinsic population growth rates
 Apply the catch-MSY method from Martell and Froese (2013).
 }
 \details{
-\code{cmsy} is a wrapper for \code{shaefer_cmsy} that implements
-suggested argument values and translates resiliency categories into ranges
-of intrinsic growth rate. \code{shaefer_cmsy} is also an exported function
-so it can be used to enter customized ranges of intrinsic growth rate.
-The \code{shaefer_cmsy} is written in C++ for speed.
+\code{cmsy} is a wrapper for \code{shaefer_cmsy} that implements suggested
+argument values and translates resiliency categories into ranges of intrinsic
+growth rate. \code{shaefer_cmsy} is also an exported function so it can be
+used to enter customized ranges of intrinsic growth rate. The
+\code{shaefer_cmsy} function is written in C++ with the \pkg{Rcpp} package
+for speed.
 }
 \examples{
 # An example using cmsy() with a stock from the RAM Legacy database:
@@ -79,8 +80,8 @@ x <- cmsy(d$yr, ct = d$ct, prior_log_mean = 0.035, prior_log_sd = 0.68)
 head(x)
 par(mfrow = c(1, 3))
 plot(d, type = "o", xlab = "Year", ylab = "Catch (t)")
-plot(density(x1$biomass))
-plot(x1$r, x1$k)
+plot(density(x$biomass))
+plot(x$r, x$k)
 }
 \references{
 Martell, S., & Froese, R. (2013). A simple method for estimating MSY from

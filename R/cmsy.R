@@ -3,11 +3,12 @@
 #' Apply the catch-MSY method from Martell and Froese (2013).
 #'
 #' @details
-#' \code{cmsy} is a wrapper for \code{shaefer_cmsy} that implements
-#' suggested argument values and translates resiliency categories into ranges
-#' of intrinsic growth rate. \code{shaefer_cmsy} is also an exported function
-#' so it can be used to enter customized ranges of intrinsic growth rate.
-#' The \code{shaefer_cmsy} is written in C++ for speed.
+#' \code{cmsy} is a wrapper for \code{shaefer_cmsy} that implements suggested
+#' argument values and translates resiliency categories into ranges of intrinsic
+#' growth rate. \code{shaefer_cmsy} is also an exported function so it can be
+#' used to enter customized ranges of intrinsic growth rate. The
+#' \code{shaefer_cmsy} function is written in C++ with the \pkg{Rcpp} package
+#' for speed.
 #'
 #' @param yr Numeric vector of years
 #' @param ct Numeric vector of catch
@@ -53,8 +54,8 @@ NULL
 #' head(x)
 #' par(mfrow = c(1, 3))
 #' plot(d, type = "o", xlab = "Year", ylab = "Catch (t)")
-#' plot(density(x1$biomass))
-#' plot(x1$r, x1$k)
+#' plot(density(x$biomass))
+#' plot(x$r, x$k)
 cmsy <- function(
   yr,
   ct,
