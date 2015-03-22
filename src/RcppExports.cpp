@@ -5,6 +5,37 @@
 
 using namespace Rcpp;
 
+// comsir_priors
+DataFrame comsir_priors(NumericVector Catch, double K, double r, double x, double a, NumericVector start_r, double minK, double maxK, bool logK = true, double CV = 0.4, bool NormK = false, bool Normr = false, bool Norma = false, bool Normx = false, bool LogisticModel = true, bool Obs = false, int Nsim = 2000L);
+RcppExport SEXP datalimited_comsir_priors(SEXP CatchSEXP, SEXP KSEXP, SEXP rSEXP, SEXP xSEXP, SEXP aSEXP, SEXP start_rSEXP, SEXP minKSEXP, SEXP maxKSEXP, SEXP logKSEXP, SEXP CVSEXP, SEXP NormKSEXP, SEXP NormrSEXP, SEXP NormaSEXP, SEXP NormxSEXP, SEXP LogisticModelSEXP, SEXP ObsSEXP, SEXP NsimSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericVector >::type Catch(CatchSEXP );
+        Rcpp::traits::input_parameter< double >::type K(KSEXP );
+        Rcpp::traits::input_parameter< double >::type r(rSEXP );
+        Rcpp::traits::input_parameter< double >::type x(xSEXP );
+        Rcpp::traits::input_parameter< double >::type a(aSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type start_r(start_rSEXP );
+        Rcpp::traits::input_parameter< double >::type minK(minKSEXP );
+        Rcpp::traits::input_parameter< double >::type maxK(maxKSEXP );
+        Rcpp::traits::input_parameter< bool >::type logK(logKSEXP );
+        Rcpp::traits::input_parameter< double >::type CV(CVSEXP );
+        Rcpp::traits::input_parameter< bool >::type NormK(NormKSEXP );
+        Rcpp::traits::input_parameter< bool >::type Normr(NormrSEXP );
+        Rcpp::traits::input_parameter< bool >::type Norma(NormaSEXP );
+        Rcpp::traits::input_parameter< bool >::type Normx(NormxSEXP );
+        Rcpp::traits::input_parameter< bool >::type LogisticModel(LogisticModelSEXP );
+        Rcpp::traits::input_parameter< bool >::type Obs(ObsSEXP );
+        Rcpp::traits::input_parameter< int >::type Nsim(NsimSEXP );
+        DataFrame __result = comsir_priors(Catch, K, r, x, a, start_r, minK, maxK, logK, CV, NormK, Normr, Norma, Normx, LogisticModel, Obs, Nsim);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // schaefer_cmsy
 DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r, NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index, double prior_log_mean, double prior_log_sd, NumericVector interbio, int reps);
 RcppExport SEXP datalimited_schaefer_cmsy(SEXP r_limSEXP, SEXP k_limSEXP, SEXP sig_rSEXP, SEXP startbioSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP interyr_indexSEXP, SEXP prior_log_meanSEXP, SEXP prior_log_sdSEXP, SEXP interbioSEXP, SEXP repsSEXP) {

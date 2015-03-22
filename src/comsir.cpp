@@ -1,16 +1,22 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// comsir on first RAM stock
-// priors = 60 seconds
-// estimate = 120 seconds
-// sumpars = 7 seconds
-
+//' @examples
+//'  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
+//'    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
+//'    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
+//'
+//' out <- comsir_priors(Catch = ct,
+//'    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
+//'    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e5))
 // [[Rcpp::export]]
-DataFrame comsir_priors(int Nsim, bool logK, double K, double r, double x,
-  double a, double CV, bool NormK, bool Normr, bool Norma, bool Normx,
-  NumericVector Catch, double minK, double maxK, NumericVector start_r,
-  bool LogisticModel, bool Obs) {
+DataFrame comsir_priors(NumericVector Catch, double K, double r, double x,
+  double a, NumericVector start_r,
+  double minK, double maxK,
+  bool logK = true,
+  double CV = 0.4, bool NormK = false, bool Normr = false,
+  bool Norma = false, bool Normx = false,
+  bool LogisticModel = true, bool Obs = false, int Nsim = 2000L) {
 
   NumericVector K_vec(Nsim);
   NumericVector r_vec(Nsim);
@@ -109,3 +115,8 @@ DataFrame comsir_priors(int Nsim, bool logK, double K, double r, double x,
       Named("Prop")  = predprop,
       Named("Like")  = Like);
 }
+
+// R comsir on first RAM stock
+// priors = ~60 seconds
+// estimate = ~120 seconds
+// sumpars = ~7 seconds
