@@ -43,10 +43,6 @@ posfun <- function(x, eps = 0.00001) {
 #' o <- o[o$Like != 0, ]
 #' out <- with(o, comsir_est(N1 = N1, K = K, r = r, a = a, x = x, h = h, z = z,
 #'    Like = Like, ct))
-#' par(mfrow = c(1, 3))
-#' plot(ct, type = "o", xlab = "Year", ylab = "Catch (t)")
-#' plot(density(out$B))
-#' plot(out$r, out$K)
 comsir_est <- function(N1, K, r, a, x, h, z, Like, Catch, CV = 0.4, LogisticModel = FALSE, NormalL = TRUE) {
     .Call('datalimited_comsir_est', PACKAGE = 'datalimited', N1, K, r, a, x, h, z, Like, Catch, CV, LogisticModel, NormalL)
 }

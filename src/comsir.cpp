@@ -279,5 +279,5 @@ DataFrame comsir_est(NumericVector N1,
 
 // R comsir on first RAM stock
 // priors = ~60 seconds | new time = ~6 seconds
-// estimate = ~120 seconds | new time = ~7 seconds
+// estimate = ~120 seconds | new time = ~7 seconds = ~15-fold speed increase
 // sumpars = ~7 seconds
