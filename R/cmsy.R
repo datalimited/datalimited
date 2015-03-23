@@ -102,3 +102,59 @@ cmsy <- function(
 
   out
 }
+
+
+# may or may not need to re-write in C++:
+#' @return A matrix: each column is an iteration of the algorithm and each row
+#'   is a year of biomass
+get_cmsy_biomass <- function(r, k, j, sigR, nyr, ct) {
+  msy = r * k / 4
+  mean_ln_msy = mean(log(msy))
+  BT <- matrix(nrow = nyr, ncol = length(r))
+  bt <- vector(length = nyr + 1)
+  for (v in 1:length(r)) {
+    xt <- rnorm(nyr, 0, sigR)
+    bt[1] <- j[v] * k[v] * exp(rnorm(1, 0, sigR))  # set biomass in first year
+    for(i in 1:nyr) { # for all years in the time series
+      # calculate biomass as function of previous year's biomass plus
+      # net production minus catch:
+      bt[i+1] <- (bt[i] + r[v] * bt[i] * (1 - bt[i]/k[v]) - ct[i]) * exp(xt[i])
+    }
+    BT[ ,v] <- bt[-1]
+  }
+  BT
+}
+
+# TODO finish:
+get_cmsy_quantities <- function(k) {
+  bmsy <- k * 0.5
+}
+
+# ##
+# R2<-getBiomass(r, k, j)
+# R2<-R2[-1,]
+# runs<-rep(1:length(r), each=nyr+1)
+# count<-rep(1:(nyr+1), length=length(r)*(nyr+1))
+# runs<-t(runs)
+# count<-t(count)
+# R3<-cbind(as.numeric(runs), as.numeric(count), stock_id[stockNumber], as.numeric(R2) )
+# ##R4<-data.frame(R3)
+# ## CM: changed this, as otherwise biomass is the
+# ## level of the factor below
+# R4<-data.frame(R3, stringsAsFactors=FALSE)
+# ##
+# names(R4)<-c("Run", "Count", "Stock","Biomass")
+# ##B0x<-R4$Biomass[R4$Count==1] # / j [for each sample]
+# ##B0_x<-as.numeric(paste(B0x))
+# B0_x <- k
+# Bmsy_x<-B0_x*0.5
+# Run<-c(1:length(r))
+# BMSY<-cbind(Run, Bmsy_x)
+# R5<-merge(R4, BMSY, by="Run", all.x=T, all.y=F)
+# R5$B_Bmsy<-as.numeric(paste(R5$Biomass))/R5$Bmsy_x
+# ## CM, changed to get quantiles
+# ##R6<-aggregate(log(B_Bmsy)~as.numeric(Count)+Stock, data=R5, mean) # WHY NOT GETTING THE QUANTILES DIRECTLY FROM R5?
+# R6<-aggregate(log(B_Bmsy)~as.numeric(Count)+Stock, data=R5, FUN=function(z){c(mean=mean(z),sd=sd(z),upr=exp(quantile(z, p=0.975)), lwr=exp(quantile(z, p=0.025)), lwrQ=exp(quantile(z, p=0.25)), uprQ=exp(quantile(z, p=0.75)))})
+# ##R6<-aggregate(B_Bmsy~as.numeric(Count)+Stock, data=R5, FUN=function(z){c(mean=mean(z),sd=sd(z),upr=exp(quantile(z, p=0.975)), lwr=exp(quantile(z, p=0.025)))})
+# ## CM: sort out columns
+# R6<-data.frame(cbind(R6[,1:2],R6[,3][,1],R6[,3][,2],R6[,3][,3],R6[,3][,4],R6[,3][,5], R6[,3][,6]))
