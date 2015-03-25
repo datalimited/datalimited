@@ -96,7 +96,8 @@ comsir_resample<- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch, Plot =
 
   ##novo
   MIR <- max(Post$Like) / sum(Post$Like) ###maximum importance ratio or maximm importance weight
-  CV.IR <- ((1/length(Post$Like))*sum((Post$Like)^2)) - ((1/length(Post$Like))*sum(Post$Like))^2
+  CV.IR <- ((1/length(Post$Like))*sum((Post$Like)^2)) -
+           ((1/length(Post$Like))*sum(Post$Like))^2
   CV.IR <- sqrt(CV.IR)/((length(Post$Like)^(-0.5))*sum(Post$Like))
   print(repeatedSamples)
 
@@ -106,7 +107,6 @@ comsir_resample<- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch, Plot =
   #print("CV.IR - CV importance ratio, should be less than 0.04")
   if (CV.IR >= 0.04) warning(paste0("CV importance ratio was ", CV.IR, " but ",
     "should probably be < 0.04."))
-
 
   ##new lines 06 Jan 2013  create a file with the results
   #write.table(repeatedSamples, "MSD.txt")
@@ -131,5 +131,6 @@ comsir_resample<- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch, Plot =
     "Var.RW", "Entropy", "Exp.N", "ESS")
 
   # TODO return the data frame part as one big data frame:
-  list(posterior=Post, BoverBmsy=g$BoverBmsy,Biomass=g$biomass,E=g$predprop,C.hat=g$predcatch,Res=g$residual,Diagno=diagnostics, MSD = MSD)
+  list(posterior=Post, BoverBmsy=g$BoverBmsy,Biomass=g$biomass,E=g$predprop,
+    C.hat=g$predcatch,Res=g$residual,Diagno=diagnostics, MSD = MSD)
 }
