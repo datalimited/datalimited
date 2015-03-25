@@ -3,12 +3,51 @@
 \name{comsir}
 \alias{comsir}
 \title{COM-SIR method}
+\arguments{
+\item{x}{Intrinsic rate of increase in effort}
+
+\item{Catch}{A time series of catch}
+
+\item{yrs}{A time series of years associated with the catch}
+
+\item{K}{Stock size at carrying capacity}
+
+\item{r}{Intrinsic rate of population growth}
+
+\item{a}{Fraction of K at bioeconomic equilibrium TODO: is this correct?}
+
+\item{resilience}{A character value describing the stock resilience}
+
+\item{minK}{Minimum possible stock size at carrying capacity}
+
+\item{maxK}{Max possible stock size at carrying capacity}
+
+\item{logK}{Logical:}
+
+\item{NormK}{Logical:}
+
+\item{Normr}{Logical:}
+
+\item{Norma}{Logical:}
+
+\item{Normx}{Logical:}
+
+\item{Nsim}{Number of iterations to run before sampling}
+
+\item{CV}{Coefficient of variation on ... TODO}
+
+\item{LogisticModel}{}
+
+\item{Obs}{Logical:}
+
+\item{Npost}{Number of posterior samples to draw}
+}
 \description{
-COM-SIR method
+Catch-only model with sample importance resampling.
 }
 \examples{
 out <- comsir(Catch = rlnorm(10), yrs = 1:10, K = 100, r = 0.1, x = 1, a = 1,
-  start_r = c(0.05, 0.2))
+  resilience = "Low")
 head(out)
 par(mfrow = c(1, 2))
 hist(out$BoverBmsy)

@@ -1,35 +1,65 @@
 #' COM-SIR method
 #'
+#' Catch-only model with sample importance resampling.
+#'
+#' @param x Intrinsic rate of increase in effort
+#' @param Catch A time series of catch
+#' @param yrs A time series of years associated with the catch
+#' @param K Stock size at carrying capacity
+#' @param r Intrinsic rate of population growth
+#' @param a Fraction of K at bioeconomic equilibrium TODO: is this correct?
+#' @param resilience A character value describing the stock resilience
+#' @param minK Minimum possible stock size at carrying capacity
+#' @param maxK Max possible stock size at carrying capacity
+#' @param logK Logical:
+#' @param NormK Logical:
+#' @param Normr Logical:
+#' @param Norma Logical:
+#' @param Normx Logical:
+#' @param Nsim Number of iterations to run before sampling
+#' @param CV Coefficient of variation on ... TODO
+#' @param LogisticModel
+#' @param Obs Logical:
+#' @param Npost Number of posterior samples to draw
+#'
 #' @name comsir
 #' @examples
 #' out <- comsir(Catch = rlnorm(10), yrs = 1:10, K = 100, r = 0.1, x = 1, a = 1,
-#'   start_r = c(0.05, 0.2))
+#'   resilience = "Low")
 #' head(out)
 #' par(mfrow = c(1, 2))
 #' hist(out$BoverBmsy)
 #' with(out$posterior, plot(r, K))
 NULL
 
-# Main wrapper function for COMSIR:
-comsir <- function(Catch, yrs, K, r, x, a, start_r, minK = max(Catch),
+comsir <- function(Catch, yrs, K, r, x = 0.5, a = 0.8,
+  resilience = c("Very low", "Low", "High", NA),
+  minK = max(Catch),
   maxK = max(Catch) * 100, logK = TRUE, NormK = FALSE, Normr = FALSE,
   Norma = FALSE, Normx = FALSE, Nsim = 2000L, CV = 0.4, LogisticModel = TRUE,
   Obs = FALSE, Npost = 1000L) {
 
-o <- comsir_priors(Catch = Catch,
-   K = K, r = r, x = x, a = a, start_r = start_r,
-   minK = minK, maxK = maxK, logK = logK, NormK = NormK, Normr = Normr,
-  Norma = Norma, Normx = Normx, LogisticModel = LogisticModel, Obs = Obs,
-  CV = CV, Nsim = Nsim)
+  # TODO: note that this is different than CMSY! If they can be the same, pull this
+  # out into a function
+  start_r <- switch(resilience[1],
+    "Very low"     = c(0.015, 0.1),
+    "Low"          = c(0.050, 0.5),
+    "Medium"       = c(0.200, 1.0),
+    "High"         = c(0.600, 1.5),
+    "NA"           = c(0.200, 1.0)) # TODO this one is different from CMSY
 
-o <- o[o$Like != 0, ]
-out <- comsir_est(N1 = o$N1, K = o$K, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
-   Like = o$Like, Catch = Catch, )
+  o <- comsir_priors(Catch = Catch,
+    K = K, r = r, x = x, a = a, start_r = start_r,
+    minK = minK, maxK = maxK, logK = logK, NormK = NormK, Normr = Normr,
+    Norma = Norma, Normx = Normx, LogisticModel = LogisticModel, Obs = Obs,
+    CV = CV, Nsim = Nsim)
+  o <- o[o$Like != 0, ]
 
-o <- comsir_resample(out$K, out$r, out$a, out$x, out$h, out$Like, yrs = yrs,
-  Npost = Npost, Catch, Plot = FALSE)
+  est <- comsir_est(N1 = o$N1, K = o$K, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
+    Like = o$Like, Catch = Catch, )
 
-o
+  comsir_resample(out$K, out$r, out$a, out$x, out$h, out$Like, yrs = yrs,
+    Npost = Npost, Catch, Plot = FALSE)
 }
 
 # TODO Clean up these functions!
