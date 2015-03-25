@@ -104,23 +104,5 @@ cmsy <- function(
 }
 
 
-# may or may not need to re-write in C++:
-#' @return A matrix: each column is an iteration of the algorithm and each row
-#'   is a year of biomass
-get_cmsy_biomass <- function(r, k, j, sigR, nyr, ct) {
-  msy = r * k / 4
-  mean_ln_msy = mean(log(msy))
-  BT <- matrix(nrow = nyr, ncol = length(r))
-  bt <- vector(length = nyr + 1)
-  for (v in 1:length(r)) {
-    xt <- rnorm(nyr, 0, sigR)
-    bt[1] <- j[v] * k[v] * exp(rnorm(1, 0, sigR))  # set biomass in first year
-    for(i in 1:nyr) { # for all years in the time series
-      # calculate biomass as function of previous year's biomass plus
-      # net production minus catch:
-      bt[i+1] <- (bt[i] + r[v] * bt[i] * (1 - bt[i]/k[v]) - ct[i]) * exp(xt[i])
-    }
-    BT[ ,v] <- bt[-1]
-  }
-  BT
+  list(biomass = biomass_out, shaefer = shaefer_out)
 }

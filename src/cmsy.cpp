@@ -78,7 +78,30 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     Named("r")       = out(_, 0),
     Named("k")       = out(_, 1),
     Named("ell")     = out(_, 2),
-    Named("biomass") = out(_, 3));
+    Named("J")       = out(_, 3));
+}
+
+//' @return A matrix: each column is an iteration of the algorithm and each row
+//'   is a year of biomass
+// [[Rcpp::export]]
+NumericMatrix get_cmsy_biomass(NumericVector r, NumericVector k, NumericVector j,
+  double sigR, int nyr, NumericVector ct) {
+  NumericMatrix BT(nyr + 1, r.size());
+  NumericVector bt(nyr + 1);
+  NumericVector xt(nyr);
+
+  for (int v=0; v<r.size(); v++) {
+    xt = rnorm(nyr, 0, sigR);
+    bt(0) = j(v) * k(v) * exp(R::rnorm(0, sigR)); // set biomass in first year
+
+  for (int i=0; i<nyr; i++) { // for all years in the time series
+      // calculate biomass as function of previous year's biomass plus
+      // net production minus catch:
+      bt(i+1) = (bt(i) + r(v) * bt(i) * (1 - bt(i)/k(v)) - ct(i)) * exp(xt(i));
+    }
+    BT(_, v) = bt; // exclude the initial year
+  }
+  return BT;
 }
 
 // @examples
