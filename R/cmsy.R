@@ -54,7 +54,7 @@ NULL
 #' head(x)
 #' par(mfrow = c(1, 3))
 #' plot(d, type = "o", xlab = "Year", ylab = "Catch (t)")
-#' plot(density(x$biomass))
+#' plot(density(x$J))
 #' plot(x$r, x$k)
 cmsy <- function(
   yr,
@@ -85,7 +85,7 @@ cmsy <- function(
     "High"         = c(0.600, 1.5),
     "NA"           = c(0.015, 1.5))
 
-  out <- schaefer_cmsy(
+  shaefer_out <- schaefer_cmsy(
     r_lim          = start_r,
     k_lim          = start_k,
     sig_r          = sig_r,
@@ -98,11 +98,18 @@ cmsy <- function(
     interbio       = interbio,
     reps           = reps)
 
-  if (remove_ell0) out <- out[out$ell == 1, ]
+  shaefer_out <- shaefer_out[shaefer_out$ell == 1, ]
+  shaefer_out$bmsy <- shaefer_out$k * 0.5
+  shaefer_out$msy  <- shaefer_out$r * shaefer_out$k / 4
+  shaefer_out$mean_ln_msy <- mean(log(shaefer_out$msy))
 
-  out
-}
-
+  biomass_out <- get_cmsy_biomass(
+    r = shaefer_out$r,
+    k = shaefer_out$k,
+    j = shaefer_out$J,
+    sigR = sig_r,
+    nyr = length(yr),
+    ct = ct)
 
   list(biomass = biomass_out, shaefer = shaefer_out)
 }
