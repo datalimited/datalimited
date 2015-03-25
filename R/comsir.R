@@ -3,7 +3,7 @@ effortdyn <- function(h, K, r, x, a, yrs, Catch, LogisticModel) {
   # true parameters
   hrate <- h
   m <- length(Catch)
-  predbio=predprop=predcatch <- rep(0, m)
+  predbio<-predprop<-predcatch <- rep(0, m)
 
   # initial conditions
   predbio[1] <- (1.0 - hrate) * K
@@ -12,18 +12,20 @@ effortdyn <- function(h, K, r, x, a, yrs, Catch, LogisticModel) {
 
   for (t in 2:m) {
     #biomass dynamics
-    predbio[t] = predbio[t-1]+ (r*predbio[t-1] * (1-(predbio[t-1]/K))) - predcatch[t-1]
+    predbio[t] <- predbio[t-1]+ (r*predbio[t-1] * (1-(predbio[t-1]/K))) - predcatch[t-1]
     #effort dynamics
-    if (LogisticModel) #logistic model with Bt-1
-      predprop[t] = predprop[t-1]*(1+x*((predbio[t-1]/(K*a)) -1))
-    else #linear model
-      predprop[t] = predprop[t-1] + x*predprop[1];
-    predcatch[t] = predbio[t]*predprop[t]
+    if (LogisticModel) { # logistic model with Bt-1
+      predprop[t] <- predprop[t-1]*(1+x*((predbio[t-1]/(K*a)) -1))
+    }
+    else { # linear model
+      predprop[t] <- predprop[t-1] + x*predprop[1]
+    }
+    predcatch[t] <- predbio[t]*predprop[t]
   }
   BMSY <- K/2.0
   BoverBmsy <- predbio/BMSY
-  xx <- cbind(BoverBmsy,predbio,predprop,predcatch,Catch,yrs)
-  names(xx) <- c("BoverBmsy","biomass","predprop","predcatch","obscatch","years")
+  xx <- cbind(BoverBmsy, predbio, predprop, predcatch, Catch, yrs)
+  names(xx) <- c("BoverBmsy", "biomass", "predprop", "predcatch", "obscatch", "years")
   as.data.frame(xx)
 }
 
