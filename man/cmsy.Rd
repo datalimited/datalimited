@@ -80,7 +80,7 @@ x <- cmsy(d$yr, ct = d$ct, prior_log_mean = 0.035, prior_log_sd = 0.68)
 head(x)
 par(mfrow = c(1, 3))
 plot(d, type = "o", xlab = "Year", ylab = "Catch (t)")
-plot(density(x$biomass))
+plot(density(x$J))
 plot(x$r, x$k)
 }
 \references{

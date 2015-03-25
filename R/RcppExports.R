@@ -14,6 +14,12 @@ schaefer_cmsy <- function(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, 
     .Call('datalimited_schaefer_cmsy', PACKAGE = 'datalimited', r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, prior_log_mean, prior_log_sd, interbio, reps)
 }
 
+#' @return A matrix: each column is an iteration of the algorithm and each row
+#'   is a year of biomass
+get_cmsy_biomass <- function(r, k, j, sigR, nyr, ct) {
+    .Call('datalimited_get_cmsy_biomass', PACKAGE = 'datalimited', r, k, j, sigR, nyr, ct)
+}
+
 #' @examples
 #'  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
 #'    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,

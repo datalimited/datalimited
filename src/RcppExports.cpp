@@ -30,6 +30,26 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// get_cmsy_biomass
+NumericMatrix get_cmsy_biomass(NumericVector r, NumericVector k, NumericVector j, double sigR, int nyr, NumericVector ct);
+RcppExport SEXP datalimited_get_cmsy_biomass(SEXP rSEXP, SEXP kSEXP, SEXP jSEXP, SEXP sigRSEXP, SEXP nyrSEXP, SEXP ctSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type k(kSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type j(jSEXP );
+        Rcpp::traits::input_parameter< double >::type sigR(sigRSEXP );
+        Rcpp::traits::input_parameter< int >::type nyr(nyrSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP );
+        NumericMatrix __result = get_cmsy_biomass(r, k, j, sigR, nyr, ct);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // comsir_priors
 DataFrame comsir_priors(NumericVector Catch, double K, double r, double x, double a, NumericVector start_r, double minK, double maxK, bool logK = true, double CV = 0.4, bool NormK = false, bool Normr = false, bool Norma = false, bool Normx = false, bool LogisticModel = true, bool Obs = false, int Nsim = 2000L);
 RcppExport SEXP datalimited_comsir_priors(SEXP CatchSEXP, SEXP KSEXP, SEXP rSEXP, SEXP xSEXP, SEXP aSEXP, SEXP start_rSEXP, SEXP minKSEXP, SEXP maxKSEXP, SEXP logKSEXP, SEXP CVSEXP, SEXP NormKSEXP, SEXP NormrSEXP, SEXP NormaSEXP, SEXP NormxSEXP, SEXP LogisticModelSEXP, SEXP ObsSEXP, SEXP NsimSEXP) {
