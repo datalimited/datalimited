@@ -1,3 +1,37 @@
+#' COM-SIR method
+#'
+#' @name comsir
+#' @examples
+#' out <- comsir(Catch = rlnorm(10), yrs = 1:10, K = 100, r = 0.1, x = 1, a = 1,
+#'   start_r = c(0.05, 0.2))
+#' head(out)
+#' par(mfrow = c(1, 2))
+#' hist(out$BoverBmsy)
+#' with(out$posterior, plot(r, K))
+NULL
+
+# Main wrapper function for COMSIR:
+comsir <- function(Catch, yrs, K, r, x, a, start_r, minK = max(Catch),
+  maxK = max(Catch) * 100, logK = TRUE, NormK = FALSE, Normr = FALSE,
+  Norma = FALSE, Normx = FALSE, Nsim = 2000L, CV = 0.4, LogisticModel = TRUE,
+  Obs = FALSE, Npost = 1000L) {
+
+o <- comsir_priors(Catch = Catch,
+   K = K, r = r, x = x, a = a, start_r = start_r,
+   minK = minK, maxK = maxK, logK = logK, NormK = NormK, Normr = Normr,
+  Norma = Norma, Normx = Normx, LogisticModel = LogisticModel, Obs = Obs,
+  CV = CV, Nsim = Nsim)
+
+o <- o[o$Like != 0, ]
+out <- comsir_est(N1 = o$N1, K = o$K, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
+   Like = o$Like, Catch = Catch, )
+
+o <- comsir_resample(out$K, out$r, out$a, out$x, out$h, out$Like, yrs = yrs,
+  Npost = Npost, Catch, Plot = FALSE)
+
+o
+}
+
 # TODO Clean up these functions!
 effortdyn <- function(h, K, r, x, a, yrs, Catch, LogisticModel) {
   # true parameters
