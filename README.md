@@ -4,7 +4,7 @@ The R package datalimited can be installed from GitHub with:
 
 ```R
 # install.packages("devtools")
-devtools::install_github("data-limited-wg/datalimited", 
+devtools::install_github("datalimited/datalimited", 
   auth_token = "625bc066956a5f285e4fe45f4084bb6a26afb9ed")
 ```
 
