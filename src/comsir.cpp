@@ -1,14 +1,14 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' @examples
-//'  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
-//'    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
-//'    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
-//'
-//' out <- comsir_priors(Catch = ct,
-//'    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-//'    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e5))
+// @examples
+//  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
+//    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
+//    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
+//
+// out <- comsir_priors(Catch = ct,
+//    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
+//    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e5))
 // [[Rcpp::export]]
 DataFrame comsir_priors(NumericVector Catch, double K, double r, double x,
   double a, NumericVector start_r,
@@ -116,8 +116,8 @@ DataFrame comsir_priors(NumericVector Catch, double K, double r, double x,
       Named("Like")  = Like);
 }
 
-//' @examples
-//' posfun(c(0.0, 0.1, 0.2))
+// @examples
+// posfun(c(0.0, 0.1, 0.2))
 // [[Rcpp::export]]
 NumericMatrix posfun(NumericVector x, double eps = 0.00001) {
   // returns a new value to replace the old and a penalty for the likelihood
@@ -142,17 +142,17 @@ NumericMatrix posfun(NumericVector x, double eps = 0.00001) {
   return out;
 }
 
-//' @examples
-//'  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
-//'    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
-//'    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
-//'
-//' o <- comsir_priors(Catch = ct,
-//'    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-//'    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e3)
-//' o <- o[o$Like != 0, ]
-//' out <- with(o, comsir_est(N1 = N1, K = K, r = r, a = a, x = x, h = h, z = z,
-//'    Like = Like, ct))
+// @examples
+//  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
+//    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
+//    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
+//
+// o <- comsir_priors(Catch = ct,
+//    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
+//    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e3)
+// o <- o[o$Like != 0, ]
+// out <- with(o, comsir_est(N1 = N1, K = K, r = r, a = a, x = x, h = h, z = z,
+//    Like = Like, ct))
 // [[Rcpp::export]]
 DataFrame comsir_est(NumericVector N1,
     NumericVector K,

@@ -14,41 +14,18 @@ schaefer_cmsy <- function(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, 
     .Call('datalimited_schaefer_cmsy', PACKAGE = 'datalimited', r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, prior_log_mean, prior_log_sd, interbio, reps)
 }
 
-#' @return A matrix: each column is an iteration of the algorithm and each row
-#'   is a year of biomass
 get_cmsy_biomass <- function(r, k, j, sigR, nyr, ct) {
     .Call('datalimited_get_cmsy_biomass', PACKAGE = 'datalimited', r, k, j, sigR, nyr, ct)
 }
 
-#' @examples
-#'  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
-#'    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
-#'    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
-#'
-#' out <- comsir_priors(Catch = ct,
-#'    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-#'    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e5))
 comsir_priors <- function(Catch, K, r, x, a, start_r, minK, maxK, logK = TRUE, CV = 0.4, NormK = FALSE, Normr = FALSE, Norma = FALSE, Normx = FALSE, LogisticModel = TRUE, Obs = FALSE, Nsim = 2000L) {
     .Call('datalimited_comsir_priors', PACKAGE = 'datalimited', Catch, K, r, x, a, start_r, minK, maxK, logK, CV, NormK, Normr, Norma, Normx, LogisticModel, Obs, Nsim)
 }
 
-#' @examples
-#' posfun(c(0.0, 0.1, 0.2))
 posfun <- function(x, eps = 0.00001) {
     .Call('datalimited_posfun', PACKAGE = 'datalimited', x, eps)
 }
 
-#' @examples
-#'  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
-#'    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
-#'    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
-#'
-#' o <- comsir_priors(Catch = ct,
-#'    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-#'    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e3)
-#' o <- o[o$Like != 0, ]
-#' out <- with(o, comsir_est(N1 = N1, K = K, r = r, a = a, x = x, h = h, z = z,
-#'    Like = Like, ct))
 comsir_est <- function(N1, K, r, a, x, h, z, Like, Catch, CV = 0.4, LogisticModel = FALSE, NormalL = TRUE) {
     .Call('datalimited_comsir_est', PACKAGE = 'datalimited', N1, K, r, a, x, h, z, Like, Catch, CV, LogisticModel, NormalL)
 }

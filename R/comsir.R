@@ -18,22 +18,24 @@
 #' @param Normx Logical:
 #' @param Nsim Number of iterations to run before sampling
 #' @param CV Coefficient of variation on ... TODO
-#' @param LogisticModel
+#' @param LogisticModel Logical:
 #' @param Obs Logical:
 #' @param Npost Number of posterior samples to draw
 #'
 #' @name comsir
+#' @export
+#' @importFrom plyr adply
 #' @examples
-#' out <- comsir(Catch = rlnorm(10), yrs = 1:10, K = 100, r = 0.1, x = 1, a = 1,
-#'   resilience = "Low")
-#' head(out)
+#' # TODO K and r values?
+#' x <- comsir(Catch = blue_gren$ct, yrs = blue_gren$yrs, K = 800, r = 0.6)
+#' head(x)
 #' par(mfrow = c(1, 2))
-#' hist(out$BoverBmsy)
-#' with(out$posterior, plot(r, K))
+#' hist(x$BoverBmsy)
+#' with(x$posterior, plot(r, K))
 NULL
 
 comsir <- function(Catch, yrs, K, r, x = 0.5, a = 0.8,
-  resilience = c("Very low", "Low", "High", NA),
+  resilience = c(NA, "Very low", "Low", "Medium", "High"),
   minK = max(Catch),
   maxK = max(Catch) * 100, logK = TRUE, NormK = FALSE, Normr = FALSE,
   Norma = FALSE, Normx = FALSE, Nsim = 2000L, CV = 0.4, LogisticModel = TRUE,
@@ -58,11 +60,12 @@ comsir <- function(Catch, yrs, K, r, x = 0.5, a = 0.8,
   est <- comsir_est(N1 = o$N1, K = o$K, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
     Like = o$Like, Catch = Catch, )
 
-  comsir_resample(out$K, out$r, out$a, out$x, out$h, out$Like, yrs = yrs,
+  comsir_resample(est$K, est$r, est$a, est$x, est$h, est$Like, yrs = yrs,
     Npost = Npost, Catch, Plot = FALSE)
 }
 
 # TODO Clean up these functions!
+# TODO C++ effortdyn()
 effortdyn <- function(h, K, r, x, a, yrs, Catch, LogisticModel) {
   # true parameters
   hrate <- h
@@ -93,11 +96,13 @@ effortdyn <- function(h, K, r, x, a, yrs, Catch, LogisticModel) {
   as.data.frame(xx)
 }
 
-#' @examples
-#' comsir_resample(K = c(100, 101, 102), h = c(0.5, 0.5, 0.5),
-#'   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), Like = c(0, 1, 1),
-#'   Npost = 2, Catch = rlnorm(10), yrs = 1:10)
-comsir_resample<- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch, Plot = FALSE) {
+# @examples
+# comsir_resample(K = c(100, 101, 102), h = c(0.5, 0.5, 0.5),
+#   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), Like = c(0, 1, 1),
+#   Npost = 2, Catch = rlnorm(10), yrs = 1:10)
+comsir_resample <- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch,
+  Plot = FALSE) {
+
   Nsim <- length(K)
 
   # if NA the prob will be zero 20 Jan 2013
@@ -112,7 +117,7 @@ comsir_resample<- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch, Plot =
   Ind <- sort(Ind)
   Post <- data.frame(h, K, r, a, x, Like)[Ind, ]
 
-  g <- plyr::adply(Post, 1, function(x) effortdyn(h = x$h, K = x$K, r = x$r,
+  g <- adply(Post, 1, function(x) effortdyn(h = x$h, K = x$K, r = x$r,
     a = x$a, x = x$x, yrs = yrs, Catch = Catch, LogisticModel = TRUE))
   g$residual <- g$Catch-g$predcatch
 
@@ -121,7 +126,7 @@ comsir_resample<- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch, Plot =
   repeatedSamples <- table(table(Ind)) #number of Ind with 1, 2 or more samples
   #MSD - maximum single density,should be less than 1%
   MSD <- max(table(Ind)) / Npost * 100
-  if (MSD >= 1) warning(paste0("Maximum single density was ", MSD, "% but ",
+  if (MSD >= 1) warning(paste0("Maximum single density was ", round(MSD, 2), "% but ",
     "should probably be < 1%."))
 
   ##novo
@@ -129,13 +134,13 @@ comsir_resample<- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch, Plot =
   CV.IR <- ((1/length(Post$Like))*sum((Post$Like)^2)) -
            ((1/length(Post$Like))*sum(Post$Like))^2
   CV.IR <- sqrt(CV.IR)/((length(Post$Like)^(-0.5))*sum(Post$Like))
-  print(repeatedSamples)
+  # print(repeatedSamples)
 
-  if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", MIR, " but ",
+  if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2), " but ",
     "should probably be < 0.04."))
 
   #print("CV.IR - CV importance ratio, should be less than 0.04")
-  if (CV.IR >= 0.04) warning(paste0("CV importance ratio was ", CV.IR, " but ",
+  if (CV.IR >= 0.04) warning(paste0("CV importance ratio was ", round(CV.IR, 2), " but ",
     "should probably be < 0.04."))
 
   ##new lines 06 Jan 2013  create a file with the results

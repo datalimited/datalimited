@@ -15,6 +15,8 @@
 #' @param sig_r Standard deviation of process noise
 #' @param bio_step Step size between lower and upper biomass limits in the iterim year
 #' @param resilience A character value designating the resilience of the stock
+#' @param start_k Numeric vector of length 2 giving the lower and upper starting
+#'   bounds on stock biomass at carrying capacity
 #' @param interyr_index Index of the interim year within time series for which
 #'   biomass estimate is available
 #' @param interbio A numeric vector that gives the lower and upper biomass

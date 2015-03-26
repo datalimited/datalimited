@@ -44,6 +44,9 @@ limits in the interim year}
 
 \item{resilience}{A character value designating the resilience of the stock}
 
+\item{start_k}{Numeric vector of length 2 giving the lower and upper starting
+bounds on stock biomass at carrying capacity}
+
 \item{remove_ell0}{Should sampled rows with \code{ell == 0} be removed
 internally?}
 }

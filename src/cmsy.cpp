@@ -81,8 +81,8 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     Named("J")       = out(_, 3));
 }
 
-//' @return A matrix: each column is an iteration of the algorithm and each row
-//'   is a year of biomass
+// @return A matrix: each column is an iteration of the algorithm and each row
+//   is a year of biomass
 // [[Rcpp::export]]
 NumericMatrix get_cmsy_biomass(NumericVector r, NumericVector k, NumericVector j,
   double sigR, int nyr, NumericVector ct) {

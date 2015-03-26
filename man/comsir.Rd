@@ -36,7 +36,7 @@
 
 \item{CV}{Coefficient of variation on ... TODO}
 
-\item{LogisticModel}{}
+\item{LogisticModel}{Logical:}
 
 \item{Obs}{Logical:}
 
@@ -46,11 +46,11 @@
 Catch-only model with sample importance resampling.
 }
 \examples{
-out <- comsir(Catch = rlnorm(10), yrs = 1:10, K = 100, r = 0.1, x = 1, a = 1,
-  resilience = "Low")
-head(out)
+# TODO K and r values?
+x <- comsir(Catch = blue_gren$ct, yrs = blue_gren$yrs, K = 800, r = 0.6)
+head(x)
 par(mfrow = c(1, 2))
-hist(out$BoverBmsy)
-with(out$posterior, plot(r, K))
+hist(x$BoverBmsy)
+with(x$posterior, plot(r, K))
 }
 
