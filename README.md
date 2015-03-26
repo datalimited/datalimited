@@ -10,12 +10,14 @@ devtools::install_github("datalimited/datalimited",
 
 The `auth_token` argument is only required as long as this repository is private.
 
-Because the package includes C++ code, you will need a C++ compiler to install from the source code. RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up. We will also release compiled versions of the package via GitHub and CRAN.
+Because the package includes C++ code, you will need a C++ compiler to install from the source code. RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up. We can also easily release compiled versions of the package for OS X, Windows, and Linux via GitHub and presumably CRAN that will install without a C++ compiler.
 
 The package currently implements the following methods:
 
 - Catch-only method with sample importance resampling (Vasconcellos and Cochrane 2005) via the function `comsir()`
 - Catch-MSY (Martell and Froese 2013) via the function `cmsy()`
+
+C++ functions are in the `src` folder and loaded via [the Rcpp package](http://cran.r-project.org/web/packages/Rcpp/index.html) and R functions are in the `R` folder. Documentation is written with [Roxygen comments](http://r-pkgs.had.co.nz/man.html) following [the devtools package development philosophy](http://r-pkgs.had.co.nz).
 
 ### References
 
