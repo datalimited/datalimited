@@ -1,6 +1,6 @@
 ## Stock assessment methods for data-limited fisheries
 
-The R package datalimited can be installed with:
+The R package datalimited can be installed from GitHub with:
 
 ```R
 # install.packages("devtools")
@@ -8,15 +8,14 @@ devtools::install_github("data-limited-wg/datalimited",
   auth_token = "625bc066956a5f285e4fe45f4084bb6a26afb9ed")
 ```
 
-The package implements the following methods:
+The `auth_token` argument is only required as long as this repository is private.
 
-### Catch-only method with sample importance resampling: `comsir()`
+Because the package includes C++ code, you will need a C++ compiler to install from the source code. RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up. We will also release compiled versions of the package via GitHub and CRAN.
 
-Vasconcellos and Cochrane (2005)
+The package currently implements the following methods:
 
-### Catch-MSY: `cmsy()`
-
-Martell and Froese (2013)
+- Catch-only method with sample importance resampling (Vasconcellos and Cochrane 2005) via the function `comsir()`
+- Catch-MSY (Martell and Froese 2013) via the function `cmsy()`
 
 ### References
 
