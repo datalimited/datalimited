@@ -6,11 +6,11 @@
 \arguments{
 \item{x}{Intrinsic rate of increase in effort}
 
-\item{Catch}{A time series of catch}
+\item{ct}{A time series of catch}
 
 \item{yrs}{A time series of years associated with the catch}
 
-\item{K}{Stock size at carrying capacity}
+\item{k}{Stock size at carrying capacity}
 
 \item{r}{Intrinsic rate of population growth}
 
@@ -21,39 +21,39 @@ bounds on the population growth rate parameter. This can either be
 specified manually or by translating resiliency categories via the function
 \code{\link{resilience}}}
 
-\item{minK}{Minimum possible stock size at carrying capacity}
+\item{mink}{Minimum possible stock size at carrying capacity}
 
-\item{maxK}{Max possible stock size at carrying capacity}
+\item{maxk}{Max possible stock size at carrying capacity}
 
-\item{logK}{Logical:}
+\item{logk}{Logical:}
 
-\item{NormK}{Logical:}
+\item{norm_k}{Logical:}
 
-\item{Normr}{Logical:}
+\item{norm_r}{Logical:}
 
-\item{Norma}{Logical:}
+\item{norm_a}{Logical:}
 
-\item{Normx}{Logical:}
+\item{norm_x}{Logical:}
 
-\item{Nsim}{Number of iterations to run before sampling}
+\item{nsim}{Number of iterations to run before sampling}
 
-\item{CV}{Coefficient of variation on ... TODO}
+\item{cv}{Coefficient of variation on ... TODO}
 
-\item{LogisticModel}{Logical:}
+\item{logistic_model}{Logical:}
 
-\item{Obs}{Logical:}
+\item{obs}{Logical:}
 
-\item{Npost}{Number of posterior samples to draw}
+\item{n_posterior}{Number of posterior samples to draw}
 }
 \description{
 Catch-only model with sample importance resampling.
 }
 \examples{
 # TODO K and r values?
-x <- comsir(Catch = blue_gren$ct, yrs = blue_gren$yrs, K = 800, r = 0.6)
+x <- comsir(ct = blue_gren$ct, yrs = blue_gren$yrs, k = 800, r = 0.6)
 head(x)
 par(mfrow = c(1, 2))
 hist(x$BoverBmsy)
-with(x$posterior, plot(r, K))
+with(x$posterior, plot(r, k))
 }
 

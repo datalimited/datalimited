@@ -18,15 +18,15 @@ get_cmsy_biomass <- function(r, k, j, sigR, nyr, ct) {
     .Call('datalimited_get_cmsy_biomass', PACKAGE = 'datalimited', r, k, j, sigR, nyr, ct)
 }
 
-comsir_priors <- function(Catch, K, r, x, a, start_r, minK, maxK, logK = TRUE, CV = 0.4, NormK = FALSE, Normr = FALSE, Norma = FALSE, Normx = FALSE, LogisticModel = TRUE, Obs = FALSE, Nsim = 2000L) {
-    .Call('datalimited_comsir_priors', PACKAGE = 'datalimited', Catch, K, r, x, a, start_r, minK, maxK, logK, CV, NormK, Normr, Norma, Normx, LogisticModel, Obs, Nsim)
+comsir_priors <- function(ct, k, r, x, a, start_r, mink, maxk, logk = TRUE, cv = 0.4, norm_k = FALSE, norm_r = FALSE, norm_a = FALSE, norm_x = FALSE, logistic_model = TRUE, obs = FALSE, nsim = 2000L) {
+    .Call('datalimited_comsir_priors', PACKAGE = 'datalimited', ct, k, r, x, a, start_r, mink, maxk, logk, cv, norm_k, norm_r, norm_a, norm_x, logistic_model, obs, nsim)
 }
 
 posfun <- function(x, eps = 0.00001) {
     .Call('datalimited_posfun', PACKAGE = 'datalimited', x, eps)
 }
 
-comsir_est <- function(N1, K, r, a, x, h, z, Like, Catch, CV = 0.4, LogisticModel = FALSE, NormalL = TRUE) {
-    .Call('datalimited_comsir_est', PACKAGE = 'datalimited', N1, K, r, a, x, h, z, Like, Catch, CV, LogisticModel, NormalL)
+comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv = 0.4, logistic_model = FALSE, normal_like = TRUE) {
+    .Call('datalimited_comsir_est', PACKAGE = 'datalimited', n1, k, r, a, x, h, z, like, ct, cv, logistic_model, normal_like)
 }
 

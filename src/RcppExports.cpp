@@ -51,30 +51,30 @@ BEGIN_RCPP
 END_RCPP
 }
 // comsir_priors
-DataFrame comsir_priors(NumericVector Catch, double K, double r, double x, double a, NumericVector start_r, double minK, double maxK, bool logK = true, double CV = 0.4, bool NormK = false, bool Normr = false, bool Norma = false, bool Normx = false, bool LogisticModel = true, bool Obs = false, int Nsim = 2000L);
-RcppExport SEXP datalimited_comsir_priors(SEXP CatchSEXP, SEXP KSEXP, SEXP rSEXP, SEXP xSEXP, SEXP aSEXP, SEXP start_rSEXP, SEXP minKSEXP, SEXP maxKSEXP, SEXP logKSEXP, SEXP CVSEXP, SEXP NormKSEXP, SEXP NormrSEXP, SEXP NormaSEXP, SEXP NormxSEXP, SEXP LogisticModelSEXP, SEXP ObsSEXP, SEXP NsimSEXP) {
+DataFrame comsir_priors(NumericVector ct, double k, double r, double x, double a, NumericVector start_r, double mink, double maxk, bool logk = true, double cv = 0.4, bool norm_k = false, bool norm_r = false, bool norm_a = false, bool norm_x = false, bool logistic_model = true, bool obs = false, int nsim = 2000L);
+RcppExport SEXP datalimited_comsir_priors(SEXP ctSEXP, SEXP kSEXP, SEXP rSEXP, SEXP xSEXP, SEXP aSEXP, SEXP start_rSEXP, SEXP minkSEXP, SEXP maxkSEXP, SEXP logkSEXP, SEXP cvSEXP, SEXP norm_kSEXP, SEXP norm_rSEXP, SEXP norm_aSEXP, SEXP norm_xSEXP, SEXP logistic_modelSEXP, SEXP obsSEXP, SEXP nsimSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericVector >::type Catch(CatchSEXP );
-        Rcpp::traits::input_parameter< double >::type K(KSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP );
+        Rcpp::traits::input_parameter< double >::type k(kSEXP );
         Rcpp::traits::input_parameter< double >::type r(rSEXP );
         Rcpp::traits::input_parameter< double >::type x(xSEXP );
         Rcpp::traits::input_parameter< double >::type a(aSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type start_r(start_rSEXP );
-        Rcpp::traits::input_parameter< double >::type minK(minKSEXP );
-        Rcpp::traits::input_parameter< double >::type maxK(maxKSEXP );
-        Rcpp::traits::input_parameter< bool >::type logK(logKSEXP );
-        Rcpp::traits::input_parameter< double >::type CV(CVSEXP );
-        Rcpp::traits::input_parameter< bool >::type NormK(NormKSEXP );
-        Rcpp::traits::input_parameter< bool >::type Normr(NormrSEXP );
-        Rcpp::traits::input_parameter< bool >::type Norma(NormaSEXP );
-        Rcpp::traits::input_parameter< bool >::type Normx(NormxSEXP );
-        Rcpp::traits::input_parameter< bool >::type LogisticModel(LogisticModelSEXP );
-        Rcpp::traits::input_parameter< bool >::type Obs(ObsSEXP );
-        Rcpp::traits::input_parameter< int >::type Nsim(NsimSEXP );
-        DataFrame __result = comsir_priors(Catch, K, r, x, a, start_r, minK, maxK, logK, CV, NormK, Normr, Norma, Normx, LogisticModel, Obs, Nsim);
+        Rcpp::traits::input_parameter< double >::type mink(minkSEXP );
+        Rcpp::traits::input_parameter< double >::type maxk(maxkSEXP );
+        Rcpp::traits::input_parameter< bool >::type logk(logkSEXP );
+        Rcpp::traits::input_parameter< double >::type cv(cvSEXP );
+        Rcpp::traits::input_parameter< bool >::type norm_k(norm_kSEXP );
+        Rcpp::traits::input_parameter< bool >::type norm_r(norm_rSEXP );
+        Rcpp::traits::input_parameter< bool >::type norm_a(norm_aSEXP );
+        Rcpp::traits::input_parameter< bool >::type norm_x(norm_xSEXP );
+        Rcpp::traits::input_parameter< bool >::type logistic_model(logistic_modelSEXP );
+        Rcpp::traits::input_parameter< bool >::type obs(obsSEXP );
+        Rcpp::traits::input_parameter< int >::type nsim(nsimSEXP );
+        DataFrame __result = comsir_priors(ct, k, r, x, a, start_r, mink, maxk, logk, cv, norm_k, norm_r, norm_a, norm_x, logistic_model, obs, nsim);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -98,25 +98,25 @@ BEGIN_RCPP
 END_RCPP
 }
 // comsir_est
-DataFrame comsir_est(NumericVector N1, NumericVector K, NumericVector r, NumericVector a, NumericVector x, NumericVector h, NumericVector z, NumericVector Like, NumericVector Catch, double CV = 0.4, bool LogisticModel = false, bool NormalL = true);
-RcppExport SEXP datalimited_comsir_est(SEXP N1SEXP, SEXP KSEXP, SEXP rSEXP, SEXP aSEXP, SEXP xSEXP, SEXP hSEXP, SEXP zSEXP, SEXP LikeSEXP, SEXP CatchSEXP, SEXP CVSEXP, SEXP LogisticModelSEXP, SEXP NormalLSEXP) {
+DataFrame comsir_est(NumericVector n1, NumericVector k, NumericVector r, NumericVector a, NumericVector x, NumericVector h, NumericVector z, NumericVector like, NumericVector ct, double cv = 0.4, bool logistic_model = false, bool normal_like = true);
+RcppExport SEXP datalimited_comsir_est(SEXP n1SEXP, SEXP kSEXP, SEXP rSEXP, SEXP aSEXP, SEXP xSEXP, SEXP hSEXP, SEXP zSEXP, SEXP likeSEXP, SEXP ctSEXP, SEXP cvSEXP, SEXP logistic_modelSEXP, SEXP normal_likeSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericVector >::type N1(N1SEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type K(KSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type n1(n1SEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type k(kSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type a(aSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type h(hSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type z(zSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type Like(LikeSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type Catch(CatchSEXP );
-        Rcpp::traits::input_parameter< double >::type CV(CVSEXP );
-        Rcpp::traits::input_parameter< bool >::type LogisticModel(LogisticModelSEXP );
-        Rcpp::traits::input_parameter< bool >::type NormalL(NormalLSEXP );
-        DataFrame __result = comsir_est(N1, K, r, a, x, h, z, Like, Catch, CV, LogisticModel, NormalL);
+        Rcpp::traits::input_parameter< NumericVector >::type like(likeSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP );
+        Rcpp::traits::input_parameter< double >::type cv(cvSEXP );
+        Rcpp::traits::input_parameter< bool >::type logistic_model(logistic_modelSEXP );
+        Rcpp::traits::input_parameter< bool >::type normal_like(normal_likeSEXP );
+        DataFrame __result = comsir_est(n1, k, r, a, x, h, z, like, ct, cv, logistic_model, normal_like);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

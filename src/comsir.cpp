@@ -6,96 +6,96 @@ using namespace Rcpp;
 //    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
 //    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
 //
-// out <- comsir_priors(Catch = ct,
-//    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-//    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e5))
+// out <- comsir_priors(ct = ct,
+//    k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
+//    mink = max(ct), maxk = max(ct) * 100, nsim = 1e5))
 // [[Rcpp::export]]
-DataFrame comsir_priors(NumericVector Catch, double K, double r, double x,
+DataFrame comsir_priors(NumericVector ct, double k, double r, double x,
   double a, NumericVector start_r,
-  double minK, double maxK,
-  bool logK = true,
-  double CV = 0.4, bool NormK = false, bool Normr = false,
-  bool Norma = false, bool Normx = false,
-  bool LogisticModel = true, bool Obs = false, int Nsim = 2000L) {
+  double mink, double maxk,
+  bool logk = true,
+  double cv = 0.4, bool norm_k = false, bool norm_r = false,
+  bool norm_a = false, bool norm_x = false,
+  bool logistic_model = true, bool obs = false, int nsim = 2000L) {
 
-  NumericVector K_vec(Nsim);
-  NumericVector r_vec(Nsim);
-  NumericVector a_vec(Nsim);
-  NumericVector x_vec(Nsim);
-  NumericVector h(Nsim);
-  NumericVector z(Nsim);
-  NumericVector N1(Nsim);
-  NumericVector Like(Nsim);
-  NumericVector predbio(Nsim);
-  NumericVector predcatch(Nsim);
-  NumericVector predprop(Nsim);
-  NumericVector inipredprop(Nsim);
+  NumericVector k_vec(nsim);
+  NumericVector r_vec(nsim);
+  NumericVector a_vec(nsim);
+  NumericVector x_vec(nsim);
+  NumericVector h(nsim);
+  NumericVector z(nsim);
+  NumericVector n1(nsim);
+  NumericVector like(nsim);
+  NumericVector predbio(nsim);
+  NumericVector predcatch(nsim);
+  NumericVector predprop(nsim);
+  NumericVector inipredprop(nsim);
 
-  if (logK) {
-    K_vec = exp(runif(Nsim, log(minK), log(maxK)));
+  if (logk) {
+    k_vec = exp(runif(nsim, log(mink), log(maxk)));
   } else {
-    K_vec = runif(Nsim, minK, maxK); // prior on arithmetic scale for K
+    k_vec = runif(nsim, mink, maxk); // prior on arithmetic scale for K
   }
 
-  if (!logK && NormK) { // normal prior on the arithmetic scale
-    K_vec = rnorm(Nsim, K, CV * K);
+  if (!logk && norm_k) { // normal prior on the arithmetic scale
+    k_vec = rnorm(nsim, k, cv * k);
   }
 
-  if (Normr) {
-    r_vec = rnorm(Nsim, r, CV * r);
+  if (norm_r) {
+    r_vec = rnorm(nsim, r, cv * r);
   } else {
-    r_vec = runif(Nsim, start_r(0), start_r(1)); // prior for r
+    r_vec = runif(nsim, start_r(0), start_r(1)); // prior for r
   }
 
-  if (Normx) {
-    x_vec = rnorm(Nsim, x, CV * x);
+  if (norm_x) {
+    x_vec = rnorm(nsim, x, cv * x);
   } else {
-    x_vec = runif(Nsim, 0.000001, 1.0); // prior for x
+    x_vec = runif(nsim, 0.000001, 1.0); // prior for x
   }
 
-  if (Norma) {
-    a_vec = rnorm(Nsim, a, CV * a);
+  if (norm_a) {
+    a_vec = rnorm(nsim, a, cv * a);
   } else {
-    a_vec = runif(Nsim, 0.0, 1.0); // prior for a
+    a_vec = runif(nsim, 0.0, 1.0); // prior for a
   }
 
-  h = rep(0.0, Nsim); // h=0, start from unexploited state
-  z = rep(1.0, Nsim); // z=1 is the Schaeffer model
-  N1 = (1.0 - h) * K_vec; // initial population size
+  h = rep(0.0, nsim); // h=0, start from unexploited state
+  z = rep(1.0, nsim); // z=1 is the Schaeffer model
+  n1 = (1.0 - h) * k_vec; // initial population size
 
-  // Like=1 if the model does not crashes, Like=0 if the model crashes
-  Like = rep(1.0, Nsim);
+  // like=1 if the model does not crashes, like=0 if the model crashes
+  like = rep(1.0, nsim);
 
   // Set up the numbers and project to the start of the first "real" year
-  // (i.e. N1 to Nm), all simulations at once
+  // (i.e. n1 to Nm), all simulations at once
   // initial conditions
-  predbio = N1;
-  predcatch = rep(Catch(0), Nsim); // the first year of catches in assumed known
+  predbio = n1;
+  predcatch = rep(ct(0), nsim); // the first year of catches in assumed known
   predprop = predcatch / predbio;
   inipredprop = predprop;
 
-  for (int i=0; i<(Catch.size()-1); i++) { // TODO check this for errors
+  for (int i=0; i<(ct.size()-1); i++) { // TODO check this for errors
 
     // effort dynamics
-    if (LogisticModel) { // logistic model with Bt-1
-      predprop = predprop * (1.0 + x_vec * ((predbio / (a_vec * K_vec) - 1.0)));
+    if (logistic_model) { // logistic model with Bt-1
+      predprop = predprop * (1.0 + x_vec * ((predbio / (a_vec * k_vec) - 1.0)));
     } else { //linear model
       predprop = predprop + x_vec * inipredprop;
     }
 
     // biomass dynamics
-    if (Obs) {
-      predbio = predbio + (r_vec * predbio * ( 1.0 - (predbio / K_vec ))) - Catch(i);
+    if (obs) {
+      predbio = predbio + (r_vec * predbio * ( 1.0 - (predbio / k_vec ))) - ct(i);
     } else {
-      predbio = predbio + (r_vec * predbio * ( 1.0 - (predbio / K_vec ))) - predcatch;
+      predbio = predbio + (r_vec * predbio * ( 1.0 - (predbio / k_vec ))) - predcatch;
     }
 
     predcatch = predbio * predprop;
 
-    for (int j=0; j<Nsim; j++) {
-      if ((Like(j) != 0.0 && (predbio(j) <= 0.0 || predprop(j) < 0.0 )) ||
-          NumericVector::is_na(Like(j))) {
-        Like(j) = 0.0;
+    for (int j=0; j<nsim; j++) {
+      if ((like(j) != 0.0 && (predbio(j) <= 0.0 || predprop(j) < 0.0 )) ||
+          NumericVector::is_na(like(j))) {
+        like(j) = 0.0;
       }
     }
   }
@@ -104,16 +104,16 @@ DataFrame comsir_priors(NumericVector Catch, double K, double r, double x,
   // because the population is still there (because of the catches)
 
   return DataFrame::create(
-      Named("N1")    = N1,
-      Named("K")     = K_vec,
-      Named("r")     = r_vec,
-      Named("z")     = z,
-      Named("a")     = a_vec,
-      Named("x")     = x_vec,
-      Named("h")     = h,
-      Named("B")     = predbio,
-      Named("Prop")  = predprop,
-      Named("Like")  = Like);
+      Named("n1")      = n1,
+      Named("k")       = k_vec,
+      Named("r")       = r_vec,
+      Named("z")       = z,
+      Named("a")       = a_vec,
+      Named("x")       = x_vec,
+      Named("h")       = h,
+      Named("biomass") = predbio,
+      Named("prop")    = predprop,
+      Named("like")    = like);
 }
 
 // @examples
@@ -147,28 +147,28 @@ NumericMatrix posfun(NumericVector x, double eps = 0.00001) {
 //    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
 //    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
 //
-// o <- comsir_priors(Catch = ct,
-//    K = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-//    minK = max(ct), maxK = max(ct) * 100, Nsim = 1e3)
-// o <- o[o$Like != 0, ]
-// out <- with(o, comsir_est(N1 = N1, K = K, r = r, a = a, x = x, h = h, z = z,
-//    Like = Like, ct))
+// o <- comsir_priors(ct = ct,
+//    k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
+//    mink = max(ct), maxk = max(ct) * 100, nsim = 1e3)
+// o <- o[o$like != 0, ]
+// out <- with(o, comsir_est(n1 = n1, k = k, r = r, a = a, x = x, h = h, z = z,
+//    like = like, ct))
 // [[Rcpp::export]]
-DataFrame comsir_est(NumericVector N1,
-    NumericVector K,
+DataFrame comsir_est(NumericVector n1,
+    NumericVector k,
     NumericVector r,
     NumericVector a,
     NumericVector x,
     NumericVector h,
     NumericVector z,
-    NumericVector Like,
-    NumericVector Catch,
-    double CV = 0.4,
-    bool LogisticModel = false,
-    bool NormalL = true) {
+    NumericVector like,
+    NumericVector ct,
+    double cv = 0.4,
+    bool logistic_model = false,
+    bool normal_like = true) {
 
-  // NormallL=T #for normal likelihood
-  // NormalL=F for lognormal likelihood
+  // normal_like=true for normal likelihood
+  // normal_like=false for lognormal likelihood
   //
   // The log normal distribution has density
   //  f(x) = 1/(sqrt(2 pi) sigma x) e^-((log x - mu)^2 / (2 sigma^2))
@@ -184,47 +184,44 @@ DataFrame comsir_est(NumericVector N1,
   //    plot(log(x),y,type="l")
   //    plot(log(x),z,type="l")
 
-  int Nsim = K.size();
-  NumericVector predbio(Nsim);
-  NumericVector predcatch(Nsim);
-  NumericVector predprop(Nsim);
-  NumericVector inipredprop(Nsim);
-  NumericVector logLike(Nsim);
-  NumericVector pen1(Nsim);
-  NumericVector pen2(Nsim);
-  NumericMatrix temp1(Nsim, 2);
-  NumericMatrix temp2(Nsim, 2);
-  NumericVector CumLogLike(Nsim);
-  NumericVector Mysd(Nsim);
-  double TotLike;
+  int nsim = k.size();
+  NumericVector predbio(nsim);
+  NumericVector predcatch(nsim);
+  NumericVector predprop(nsim);
+  NumericVector inipredprop(nsim);
+  NumericVector loglike(nsim);
+  NumericVector pen1(nsim);
+  NumericVector pen2(nsim);
+  NumericMatrix temp1(nsim, 2);
+  NumericMatrix temp2(nsim, 2);
+  NumericVector cum_loglike(nsim);
+  NumericVector my_sd(nsim);
+  double Totlike;
 
   // the parameters come from the resampling part
-  // sigma = rnorm(Nsim,0.001,0.0001)//  normal informative prior for sigma
+  // sigma = rnorm(nsim,0.001,0.0001)//  normal informative prior for sigma
   // Set up the numbers and project to the start of the first "real" year
-  // (i.e. N1 to Nm), all simulations at once
+  // (i.e. n1 to Nm), all simulations at once
   // initial conditions
-  logLike    = rep(0.0, Nsim);
-  pen1       = rep(0.0, Nsim);
-  pen2       = rep(0.0, Nsim);
-  //temp1      = NumericMatrix(Nsim, 2);
-  //temp2      = NumericMatrix(Nsim, 2);
-  CumLogLike = rep(0.0, Nsim);
+  loglike    = rep(0.0, nsim);
+  pen1       = rep(0.0, nsim);
+  pen2       = rep(0.0, nsim);
+  cum_loglike = rep(0.0, nsim);
 
-  for (int i=0; i<(Catch.size()-i); i++) { // TODO check this for errors
-      //Rcout << "i = " << i << std::endl;
+  for (int i=0; i<(ct.size()-i); i++) { // TODO check this for errors
     if (i==0) {
-      predbio = N1;
-      predcatch = rep(Catch(0), Nsim); // first catch is assumed known -- BIG ASSUMPTION ---
+      predbio = n1;
+      predcatch = rep(ct(0), nsim); // first catch is assumed known -- BIG ASSUMPTION ---
       predprop = predcatch / predbio;
       inipredprop = predprop;
     } else {
       // effort dynamics
-      if (LogisticModel) { // logistic model with Bt-1
-        temp1 = posfun(predprop * (1 + x * ((predbio / (a * K) - 1))));
+      if (logistic_model) { // logistic model with Bt-1
+        temp1 = posfun(predprop * (1 + x * ((predbio / (a * k) - 1))));
       } else { // linear model
         temp1 = posfun(predprop + x * inipredprop);
       }
-      for (int j=0; j<Nsim; j++) {
+      for (int j=0; j<nsim; j++) {
         if (temp1(j, 0) > 0.99) {
           predprop(j) = 0.99;
         } else {
@@ -234,50 +231,45 @@ DataFrame comsir_est(NumericVector N1,
       }
 
       // biomass dynamics
-      temp2 = posfun(predbio + (r * predbio * (1 - (predbio / K ))) - predcatch);
-      for (int j=0; j<Nsim; j++) {
+      temp2 = posfun(predbio + (r * predbio * (1 - (predbio / k ))) - predcatch);
+      for (int j=0; j<nsim; j++) {
         predbio(j) = temp2(j, 0);
         pen2(j) = pen2(j) + temp2(j, 1);
         predcatch(j) = predbio(j) * predprop(j);
       }
     }
-    //  assumption of CV=0.4 in Vasconcellos and Cochrane
-    if (NormalL) {
-      Mysd = CV * predcatch;
-      for (int j=0; j<Nsim; j++) {
-        logLike(j) = R::dnorm(Catch(i), predcatch(j), Mysd(j), 1); // normal Log likelihood
-        CumLogLike(j) = CumLogLike(j) + logLike(j); // cummulative normal loglikelihood
+    //  assumption of cv=0.4 in Vasconcellos and Cochrane
+    if (normal_like) {
+      my_sd = cv * predcatch;
+      for (int j=0; j<nsim; j++) {
+        loglike(j) = R::dnorm(ct(i), predcatch(j), my_sd(j), 1); // normal Log likelihood
+        cum_loglike(j) = cum_loglike(j) + loglike(j); // cummulative normal loglikelihood
       }
     } else {
-      for (int j=0; j<Nsim; j++) {
-        logLike(j) = R::dlnorm(Catch(i), log(predcatch(j)), CV, 1);
-        CumLogLike(j) = CumLogLike(j) + logLike(j);
+      for (int j=0; j<nsim; j++) {
+        loglike(j) = R::dlnorm(ct(i), log(predcatch(j)), cv, 1);
+        cum_loglike(j) = cum_loglike(j) + loglike(j);
       }
     }
   }
-  logLike = rep(0.0, Nsim); //  set vector to 0
-  logLike = CumLogLike - pen1 - pen2; // the penalties turn out too big
-  TotLike = sum(logLike);
-  Like    = exp(logLike) / sum(exp(logLike)); // re-normalize so it will add up to 1
+  loglike = rep(0.0, nsim); //  set vector to 0
+  loglike = cum_loglike - pen1 - pen2; // the penalties turn out too big
+  Totlike = sum(loglike);
+  like    = exp(loglike) / sum(exp(loglike)); // re-normalize so it will add up to 1
 
   // in some of the years the population crashes, we know this is impossible,
   // because the population is still there (because of the catches
 
   return DataFrame::create(
-      Named("N1")       = N1,
-      Named("K")        = K,
+      Named("n1")       = n1,
+      Named("k")        = k,
       Named("r")        = r,
       Named("z")        = z,
       Named("a")        = a,
       Named("x")        = x,
       Named("h")        = h,
       Named("B")        = predbio,    // biomass in the latest year
-      Named("Prop")     = predprop,   // harvest rate in the latest year
-      Named("LogLike")  = CumLogLike, // log likelihood used for DIC
-      Named("Like")     = Like);      // normalized likelihood for SIR
+      Named("prop")     = predprop,   // harvest rate in the latest year
+      Named("loglike")  = cum_loglike, // log likelihood used for DIC
+      Named("like")     = like);      // normalized likelihood for SIR
 }
-
-// R comsir on first RAM stock
-// priors = ~60 seconds | new time = ~6 seconds
-// estimate = ~120 seconds | new time = ~7 seconds = ~15-fold speed increase
-// sumpars = ~7 seconds

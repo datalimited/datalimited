@@ -3,163 +3,163 @@
 #' Catch-only model with sample importance resampling.
 #'
 #' @param x Intrinsic rate of increase in effort
-#' @param Catch A time series of catch
+#' @param ct A time series of catch
 #' @param yrs A time series of years associated with the catch
-#' @param K Stock size at carrying capacity
+#' @param k Stock size at carrying capacity
 #' @param r Intrinsic rate of population growth
 #' @param a Fraction of K at bioeconomic equilibrium TODO: is this correct?
 #' @param start_r A numeric vector of length 2 giving the lower and upper
 #'   bounds on the population growth rate parameter. This can either be
 #'   specified manually or by translating resiliency categories via the function
 #'   \code{\link{resilience}}
-#' @param minK Minimum possible stock size at carrying capacity
-#' @param maxK Max possible stock size at carrying capacity
-#' @param logK Logical:
-#' @param NormK Logical:
-#' @param Normr Logical:
-#' @param Norma Logical:
-#' @param Normx Logical:
-#' @param Nsim Number of iterations to run before sampling
-#' @param CV Coefficient of variation on ... TODO
-#' @param LogisticModel Logical:
-#' @param Obs Logical:
-#' @param Npost Number of posterior samples to draw
+#' @param mink Minimum possible stock size at carrying capacity
+#' @param maxk Max possible stock size at carrying capacity
+#' @param logk Logical:
+#' @param norm_k Logical:
+#' @param norm_r Logical:
+#' @param norm_a Logical:
+#' @param norm_x Logical:
+#' @param nsim Number of iterations to run before sampling
+#' @param cv Coefficient of variation on ... TODO
+#' @param logistic_model Logical:
+#' @param obs Logical:
+#' @param n_posterior Number of posterior samples to draw
 #'
 #' @name comsir
 #' @export
 #' @importFrom plyr adply
 #' @examples
 #' # TODO K and r values?
-#' x <- comsir(Catch = blue_gren$ct, yrs = blue_gren$yrs, K = 800, r = 0.6)
+#' x <- comsir(ct = blue_gren$ct, yrs = blue_gren$yrs, k = 800, r = 0.6)
 #' head(x)
 #' par(mfrow = c(1, 2))
 #' hist(x$BoverBmsy)
-#' with(x$posterior, plot(r, K))
+#' with(x$posterior, plot(r, k))
 NULL
 
-comsir <- function(Catch, yrs, K, r, x = 0.5, a = 0.8,
+comsir <- function(ct, yrs, k, r, x = 0.5, a = 0.8,
   start_r = resilience(NA),
-  minK = max(Catch),
-  maxK = max(Catch) * 100, logK = TRUE, NormK = FALSE, Normr = FALSE,
-  Norma = FALSE, Normx = FALSE, Nsim = 2000L, CV = 0.4, LogisticModel = TRUE,
-  Obs = FALSE, Npost = 1000L) {
+  mink = max(ct),
+  maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
+  norm_a = FALSE, norm_x = FALSE, nsim = 2000L, cv = 0.4, logistic_model = TRUE,
+  obs = FALSE, n_posterior = 1000L) {
 
   # TODO: note that the resilience categories weres lightly different from
   # CMSY initially. Was missing 'medium'.
 
-  o <- comsir_priors(Catch = Catch,
-    K = K, r = r, x = x, a = a, start_r = start_r,
-    minK = minK, maxK = maxK, logK = logK, NormK = NormK, Normr = Normr,
-    Norma = Norma, Normx = Normx, LogisticModel = LogisticModel, Obs = Obs,
-    CV = CV, Nsim = Nsim)
-  o <- o[o$Like != 0, ]
+  o <- comsir_priors(ct = ct,
+    k = k, r = r, x = x, a = a, start_r = start_r,
+    mink = mink, maxk = maxk, logk = logk, norm_k = norm_k, norm_r = norm_r,
+    norm_a = norm_a, norm_x = norm_x, logistic_model = logistic_model, obs = obs,
+    cv = cv, nsim = nsim)
+  o <- o[o$like != 0, ]
 
-  est <- comsir_est(N1 = o$N1, K = o$K, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
-    Like = o$Like, Catch = Catch, )
+  est <- comsir_est(n1 = o$n1, k = o$k, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
+    like = o$like, ct = ct, )
 
-  comsir_resample(est$K, est$r, est$a, est$x, est$h, est$Like, yrs = yrs,
-    Npost = Npost, Catch, Plot = FALSE)
+  comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yrs = yrs,
+    n_posterior = n_posterior, ct, Plot = FALSE)
 }
 
 # TODO Clean up these functions!
 # TODO C++ effortdyn()
-effortdyn <- function(h, K, r, x, a, yrs, Catch, LogisticModel) {
+effortdyn <- function(h, k, r, x, a, yrs, ct, logistic_model) {
   # true parameters
   hrate <- h
-  m <- length(Catch)
+  m <- length(ct)
   predbio<-predprop<-predcatch <- rep(0, m)
 
   # initial conditions
-  predbio[1] <- (1.0 - hrate) * K
-  predprop[1] <- Catch[1]/predbio[1]
-  predcatch[1] <- Catch[1]
+  predbio[1] <- (1.0 - hrate) * k
+  predprop[1] <- ct[1]/predbio[1]
+  predcatch[1] <- ct[1]
 
   for (t in 2:m) {
     #biomass dynamics
-    predbio[t] <- predbio[t-1]+ (r*predbio[t-1] * (1-(predbio[t-1]/K))) - predcatch[t-1]
+    predbio[t] <- predbio[t-1]+ (r*predbio[t-1] * (1-(predbio[t-1]/k))) - predcatch[t-1]
     #effort dynamics
-    if (LogisticModel) { # logistic model with Bt-1
-      predprop[t] <- predprop[t-1]*(1+x*((predbio[t-1]/(K*a)) -1))
+    if (logistic_model) { # logistic model with Bt-1
+      predprop[t] <- predprop[t-1]*(1+x*((predbio[t-1]/(k*a)) -1))
     }
     else { # linear model
       predprop[t] <- predprop[t-1] + x*predprop[1]
     }
     predcatch[t] <- predbio[t]*predprop[t]
   }
-  BMSY <- K/2.0
+  BMSY <- k/2.0
   BoverBmsy <- predbio/BMSY
-  xx <- cbind(BoverBmsy, predbio, predprop, predcatch, Catch, yrs)
+  xx <- cbind(BoverBmsy, predbio, predprop, predcatch, ct, yrs)
   names(xx) <- c("BoverBmsy", "biomass", "predprop", "predcatch", "obscatch", "years")
   as.data.frame(xx)
 }
 
 # @examples
-# comsir_resample(K = c(100, 101, 102), h = c(0.5, 0.5, 0.5),
-#   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), Like = c(0, 1, 1),
-#   Npost = 2, Catch = rlnorm(10), yrs = 1:10)
-comsir_resample <- function(K, r, a, x, h, Like, yrs, Npost = 1000, Catch,
+# comsir_resample(k = c(100, 101, 102), h = c(0.5, 0.5, 0.5),
+#   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), like = c(0, 1, 1),
+#   n_posterior = 2, ct = rlnorm(10), yrs = 1:10)
+comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
   Plot = FALSE) {
 
-  Nsim <- length(K)
+  nsim <- length(k)
 
   # if NA the prob will be zero 20 Jan 2013
   # print("how many probabilities are NAs?")
-  # print(table(is.na(ParVals$Like))) # debug
-  NA.Prob <- sum(as.numeric(is.na(Like)))
-  ind1<-which(is.na(Like))
-  Like[ind1]<-rep(0,length(ind1))
+  # print(table(is.na(ParVals$like))) # debug
+  NA.Prob <- sum(as.numeric(is.na(like)))
+  ind1<-which(is.na(like))
+  like[ind1]<-rep(0,length(ind1))
 
   # sample with replacement (just the index)
-  Ind <- sample(Nsim, Npost, replace = TRUE, prob = Like)
+  Ind <- sample(nsim, n_posterior, replace = TRUE, prob = like)
   Ind <- sort(Ind)
-  Post <- data.frame(h, K, r, a, x, Like)[Ind, ]
+  Post <- data.frame(h, k, r, a, x, like)[Ind, ]
 
-  g <- adply(Post, 1, function(x) effortdyn(h = x$h, K = x$K, r = x$r,
-    a = x$a, x = x$x, yrs = yrs, Catch = Catch, LogisticModel = TRUE))
-  g$residual <- g$Catch-g$predcatch
+  g <- adply(Post, 1, function(x) effortdyn(h = x$h, k = x$k, r = x$r,
+    a = x$a, x = x$x, yrs = yrs, ct = ct, logistic_model = TRUE))
+  g$residual <- g$ct-g$predcatch
 
   #diagnostics
   # TODO check if table(table()) is really what we want:
   repeatedSamples <- table(table(Ind)) #number of Ind with 1, 2 or more samples
   #MSD - maximum single density,should be less than 1%
-  MSD <- max(table(Ind)) / Npost * 100
+  MSD <- max(table(Ind)) / n_posterior * 100
   if (MSD >= 1) warning(paste0("Maximum single density was ", round(MSD, 2), "% but ",
     "should probably be < 1%."))
 
   ##novo
-  MIR <- max(Post$Like) / sum(Post$Like) ###maximum importance ratio or maximm importance weight
-  CV.IR <- ((1/length(Post$Like))*sum((Post$Like)^2)) -
-           ((1/length(Post$Like))*sum(Post$Like))^2
-  CV.IR <- sqrt(CV.IR)/((length(Post$Like)^(-0.5))*sum(Post$Like))
+  MIR <- max(Post$like) / sum(Post$like) ###maximum importance ratio or maximm importance weight
+  cv_ir <- ((1/length(Post$like))*sum((Post$like)^2)) -
+           ((1/length(Post$like))*sum(Post$like))^2
+  cv_ir <- sqrt(cv_ir)/((length(Post$like)^(-0.5))*sum(Post$like))
   # print(repeatedSamples)
 
   if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2), " but ",
     "should probably be < 0.04."))
 
-  #print("CV.IR - CV importance ratio, should be less than 0.04")
-  if (CV.IR >= 0.04) warning(paste0("CV importance ratio was ", round(CV.IR, 2), " but ",
+  #print("cv_ir - cv importance ratio, should be less than 0.04")
+  if (cv_ir >= 0.04) warning(paste0("CV importance ratio was ", round(cv_ir, 2), " but ",
     "should probably be < 0.04."))
 
   ##new lines 06 Jan 2013  create a file with the results
   #write.table(repeatedSamples, "MSD.txt")
   #write.table(MIR, "MIR.txt")
-  #write.table(CV.IR, "CVIR.txt")
+  #write.table(cv_ir, "cvIR.txt")
   ###end
   #Raftery and Bao 2010 diagnostics - CHECK
   #(1) Maximum importance weight = MIR
   # (2) variance of the importance weights
-  Weights <- Post$Like/sum(Post$Like)
-  Var.RW <- (Npost*Weights -1)^2 #vector
-  Var.RW <- (1/Npost)*sum(Var.RW) #scalar
+  Weights <- Post$like/sum(Post$like)
+  Var.RW <- (n_posterior*Weights -1)^2 #vector
+  Var.RW <- (1/n_posterior)*sum(Var.RW) #scalar
   # (3) entropy of the importance weights relative to uniformity
-  Entropy <- -1* sum(Weights*(log(Weights)/log(Npost)))
+  Entropy <- -1* sum(Weights*(log(Weights)/log(n_posterior)))
   # (4)Expected number of unique points after resampling
-  Exp.N <- sum((1-(1-Weights)^Npost))
+  Exp.N <- sum((1-(1-Weights)^n_posterior))
   # Effective sample size ESS
   ESS <- 1/(sum(Weights^2))
 
-  diagnostics <- c(Nsim, NA.Prob, MIR, CV.IR, MSD, Var.RW, Entropy, Exp.N, ESS)
-  names(diagnostics) <- c("N.nocrash.priors", "NA.Prob", "MIR", "CV.IR", "MSD",
+  diagnostics <- c(nsim, NA.Prob, MIR, cv_ir, MSD, Var.RW, Entropy, Exp.N, ESS)
+  names(diagnostics) <- c("N.nocrash.priors", "NA.Prob", "MIR", "cv_ir", "MSD",
     "Var.RW", "Entropy", "Exp.N", "ESS")
 
   # TODO return the data frame part as one big data frame:
