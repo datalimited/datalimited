@@ -65,7 +65,7 @@ comsir <- function(yrs, ct, k, r, x = 0.5, a = 0.8,
   norm_a = FALSE, norm_x = FALSE, nsim = 2000L, cv = 0.4, logistic_model = TRUE,
   obs = FALSE, n_posterior = 1000L) {
 
-  # TODO: note that the resilience categories weres lightly different from
+  # TODO: note that the resilience categories were slightly different from
   # CMSY initially. Was missing 'medium'.
 
   o <- comsir_priors(ct = ct,
@@ -83,7 +83,7 @@ comsir <- function(yrs, ct, k, r, x = 0.5, a = 0.8,
 }
 
 # TODO Clean up these functions!
-# TODO C++ effortdyn()
+# TODO C++ effortdyn()? Benchmark it and check
 effortdyn <- function(h, k, r, x, a, yrs, ct, logistic_model) {
   # true parameters
   hrate <- h
@@ -124,66 +124,61 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
   nsim <- length(k)
 
   # if NA the prob will be zero 20 Jan 2013
-  # print("how many probabilities are NAs?")
-  # print(table(is.na(ParVals$like))) # debug
   NA.Prob <- sum(as.numeric(is.na(like)))
   ind1<-which(is.na(like))
   like[ind1]<-rep(0,length(ind1))
 
   # sample with replacement (just the index)
-  Ind <- sample(nsim, n_posterior, replace = TRUE, prob = like)
-  Ind <- sort(Ind)
-  Post <- data.frame(h, k, r, a, x, like)[Ind, ]
+  sample_indices <- sample(nsim, n_posterior, replace = TRUE, prob = like)
+  sample_indices <- sort(sample_indices)
+  Post <- data.frame(h, k, r, a, x, like)[sample_indices, ]
 
   g <- adply(Post, 1, function(x) effortdyn(h = x$h, k = x$k, r = x$r,
     a = x$a, x = x$x, yrs = yrs, ct = ct, logistic_model = TRUE))
   g$residual <- g$ct-g$predcatch
 
-  #diagnostics
-  # TODO check if table(table()) is really what we want:
-  repeatedSamples <- table(table(Ind)) #number of Ind with 1, 2 or more samples
-  #MSD - maximum single density,should be less than 1%
-  MSD <- max(table(Ind)) / n_posterior * 100
+  # diagnostics
+  # TODO check if table(table()) is really what we want: (and not using this currently)
+  repeated_samples <- table(table(sample_indices)) # number of sample_indices with 1, 2 or more samples
+  # MSD - maximum single density,should be less than 1%
+  MSD <- max(table(sample_indices)) / n_posterior * 100
   if (MSD >= 1) warning(paste0("Maximum single density was ", round(MSD, 2), "% but ",
     "should probably be < 1%."))
 
-  ##novo
-  MIR <- max(Post$like) / sum(Post$like) ###maximum importance ratio or maximm importance weight
+  MIR <- max(Post$like) / sum(Post$like) # maximum importance ratio or maximm importance weight
   cv_ir <- ((1/length(Post$like))*sum((Post$like)^2)) -
            ((1/length(Post$like))*sum(Post$like))^2
   cv_ir <- sqrt(cv_ir)/((length(Post$like)^(-0.5))*sum(Post$like))
-  # print(repeatedSamples)
 
-  if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2), " but ",
-    "should probably be < 0.04."))
+  if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2),
+      " but should probably be < 0.04."))
 
-  #print("cv_ir - cv importance ratio, should be less than 0.04")
-  if (cv_ir >= 0.04) warning(paste0("CV importance ratio was ", round(cv_ir, 2), " but ",
-    "should probably be < 0.04."))
+  if (cv_ir >= 0.04) warning(paste0("CV importance ratio was ", round(cv_ir, 2),
+      " but should probably be < 0.04."))
 
-  ##new lines 06 Jan 2013  create a file with the results
-  #write.table(repeatedSamples, "MSD.txt")
-  #write.table(MIR, "MIR.txt")
-  #write.table(cv_ir, "cvIR.txt")
-  ###end
-  #Raftery and Bao 2010 diagnostics - CHECK
-  #(1) Maximum importance weight = MIR
+  # new lines 06 Jan 2013  create a file with the results
+  # write.table(repeated_samples, "MSD.txt")
+  # write.table(MIR, "MIR.txt")
+  # write.table(cv_ir, "cvIR.txt")
+
+  # Raftery and Bao 2010 diagnostics - CHECK
+  # (1) Maximum importance weight = MIR
   # (2) variance of the importance weights
   Weights <- Post$like/sum(Post$like)
-  Var.RW <- (n_posterior*Weights -1)^2 #vector
-  Var.RW <- (1/n_posterior)*sum(Var.RW) #scalar
+  Var.RW <- (n_posterior * Weights -1)^2 #vector
+  Var.RW <- (1 / n_posterior) * sum(Var.RW) #scalar
   # (3) entropy of the importance weights relative to uniformity
-  Entropy <- -1* sum(Weights*(log(Weights)/log(n_posterior)))
+  Entropy <- -1 * sum(Weights * (log(Weights) / log(n_posterior)))
   # (4)Expected number of unique points after resampling
-  Exp.N <- sum((1-(1-Weights)^n_posterior))
+  Exp.N <- sum((1 - (1 - Weights)^n_posterior))
   # Effective sample size ESS
-  ESS <- 1/(sum(Weights^2))
+  ESS <- 1 / (sum(Weights^2))
 
   diagnostics <- c(nsim, NA.Prob, MIR, cv_ir, MSD, Var.RW, Entropy, Exp.N, ESS)
   names(diagnostics) <- c("N.nocrash.priors", "NA.Prob", "MIR", "cv_ir", "MSD",
     "Var.RW", "Entropy", "Exp.N", "ESS")
 
-  # TODO return the data frame part as one big data frame:
+  # TODO clean up and document the output; some can be as one data frame
   list(posterior=Post, BoverBmsy=g$BoverBmsy,Biomass=g$biomass,E=g$predprop,
     C.hat=g$predcatch,Res=g$residual,Diagno=diagnostics, MSD = MSD)
 }
