@@ -1,32 +1,53 @@
 #' COM-SIR method
 #'
-#' Catch-only model with sample importance resampling.
+#' Catch-only model with sample importance resampling based on the method
+#' described in Vasconcellos and Cochrane (2005).
 #'
-#' @param x Intrinsic rate of increase in effort
-#' @param ct A time series of catch
 #' @param yrs A time series of years associated with the catch
+#' @param ct A time series of catch
+#' @param x Intrinsic rate of increase in effort. See Vasconcellos and Cochrane
+#'   (2005).
 #' @param k Stock size at carrying capacity
 #' @param r Intrinsic rate of population growth
 #' @param a Fraction of K at bioeconomic equilibrium TODO: is this correct?
 #' @param start_r A numeric vector of length 2 giving the lower and upper
 #'   bounds on the population growth rate parameter. This can either be
 #'   specified manually or by translating resiliency categories via the function
-#'   \code{\link{resilience}}
+#'   \code{\link{resilience}}.
 #' @param mink Minimum possible stock size at carrying capacity
 #' @param maxk Max possible stock size at carrying capacity
-#' @param logk Logical:
-#' @param norm_k Logical:
-#' @param norm_r Logical:
-#' @param norm_a Logical:
-#' @param norm_x Logical:
+#' @param norm_k Logical: should \code{k} have a normal prior (\code{TRUE}) or a
+#'   uniform prior between \code{mink} and \code{maxk} (\code{FALSE})?
+#' @param logk If \code{logk = TRUE} and \code{norm_k = FALSE} the prior on
+#'   \code{k} will be an exponentiated form a uniform distribution on a log
+#'   scale between \code{log(mink)} and \code{log(maxk)}.
+#' @param norm_r Logical: should {r} have a normal prior (\code{TRUE}) or a
+#'   uniform prior between \code{start_r[1]} and \code{start_r[2]}
+#'   (\code{FALSE})?
+#' @param norm_a Logical: should \code{a} have a normal prior (\code{TRUE}) or a
+#'   uniform prior between 0 and 1 (\code{FALSE})?
+#' @param norm_x Logical: should \code{x} have a normal prior (\code{TRUE}) or a
+#'   uniform prior between 0.000001 and 1 (\code{FALSE})?
 #' @param nsim Number of iterations to run before sampling
-#' @param cv Coefficient of variation on ... TODO
-#' @param logistic_model Logical:
-#' @param obs Logical:
+#' @param cv Coefficient of variation on all normal prior distributions (if a
+#'   given parameter is given a normal distribution instead of uniform
+#'   distribution via one of the \code{norm_*} arguments.
+#' @param logistic_model Logical: if \code{TRUE} then the effort dynamics model
+#'   will be a logistic model. If \code{FALSE} then the effort dynamics model will
+#'   be linear.
+#' @param obs Logical: if \code{FALSE} then catches will be assumed to be
+#'   constant from the first observation. TODO Is this right??
 #' @param n_posterior Number of posterior samples to draw
 #'
 #' @name comsir
 #' @export
+#' @references
+#' Vasconcellos, M., and K. Cochrane. 2005. Overview of World Status of
+#' Data-Limited Fisheries: Inferences from Landings Statistics. Pages 1-20 in G.
+#' H. Kruse, V. F. Gallucci, D. E. Hay, R. I. Perry, R. M. Peterman, T. C.
+#' Shirley, P. D. Spencer, B. Wilson, and D. Woodby, editors. Fisheries
+#' Assessment and Management in Data-Limited Situations. Alaska Sea Grant,
+#' University of Alaska Fairbanks.
 #' @importFrom plyr adply
 #' @examples
 #' # TODO K and r values?
@@ -37,7 +58,7 @@
 #' with(x$posterior, plot(r, k))
 NULL
 
-comsir <- function(ct, yrs, k, r, x = 0.5, a = 0.8,
+comsir <- function(yrs, ct, k, r, x = 0.5, a = 0.8,
   start_r = resilience(NA),
   mink = max(ct),
   maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
