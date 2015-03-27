@@ -8,7 +8,10 @@
 #' @param K Stock size at carrying capacity
 #' @param r Intrinsic rate of population growth
 #' @param a Fraction of K at bioeconomic equilibrium TODO: is this correct?
-#' @param resilience A character value describing the stock resilience
+#' @param start_r A numeric vector of length 2 giving the lower and upper
+#'   bounds on the population growth rate parameter. This can either be
+#'   specified manually or by translating resiliency categories via the function
+#'   \code{\link{resilience}}
 #' @param minK Minimum possible stock size at carrying capacity
 #' @param maxK Max possible stock size at carrying capacity
 #' @param logK Logical:
@@ -35,20 +38,14 @@
 NULL
 
 comsir <- function(Catch, yrs, K, r, x = 0.5, a = 0.8,
-  resilience = c(NA, "Very low", "Low", "Medium", "High"),
+  start_r = resilience(NA),
   minK = max(Catch),
   maxK = max(Catch) * 100, logK = TRUE, NormK = FALSE, Normr = FALSE,
   Norma = FALSE, Normx = FALSE, Nsim = 2000L, CV = 0.4, LogisticModel = TRUE,
   Obs = FALSE, Npost = 1000L) {
 
-  # TODO: note that this is different than CMSY! If they can be the same, pull this
-  # out into a function
-  start_r <- switch(resilience[1],
-    "Very low"     = c(0.015, 0.1),
-    "Low"          = c(0.050, 0.5),
-    "Medium"       = c(0.200, 1.0),
-    "High"         = c(0.600, 1.5),
-    "NA"           = c(0.200, 1.0)) # TODO this one is different from CMSY
+  # TODO: note that the resilience categories weres lightly different from
+  # CMSY initially. Was missing 'medium'.
 
   o <- comsir_priors(Catch = Catch,
     K = K, r = r, x = x, a = a, start_r = start_r,

@@ -16,7 +16,10 @@
 
 \item{a}{Fraction of K at bioeconomic equilibrium TODO: is this correct?}
 
-\item{resilience}{A character value describing the stock resilience}
+\item{start_r}{A numeric vector of length 2 giving the lower and upper
+bounds on the population growth rate parameter. This can either be
+specified manually or by translating resiliency categories via the function
+\code{\link{resilience}}}
 
 \item{minK}{Minimum possible stock size at carrying capacity}
 

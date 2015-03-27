@@ -5,16 +5,17 @@
 #' @details
 #' \code{cmsy} is a wrapper for \code{shaefer_cmsy} that implements suggested
 #' argument values and translates resiliency categories into ranges of intrinsic
-#' growth rate. \code{shaefer_cmsy} is also an exported function so it can be
-#' used to enter customized ranges of intrinsic growth rate. The
-#' \code{shaefer_cmsy} function is written in C++ with the \pkg{Rcpp} package
+#' growth rate. The function is written in C++ with the \pkg{Rcpp} package
 #' for speed.
 #'
 #' @param yr Numeric vector of years
 #' @param ct Numeric vector of catch
 #' @param sig_r Standard deviation of process noise
 #' @param bio_step Step size between lower and upper biomass limits in the iterim year
-#' @param resilience A character value designating the resilience of the stock
+#' @param start_r A numeric vector of length 2 giving the lower and upper
+#'   bounds on the population growth rate parameter. This can either be
+#'   specified manually or by translating resiliency categories via the function
+#'   \code{\link{resilience}}
 #' @param start_k Numeric vector of length 2 giving the lower and upper starting
 #'   bounds on stock biomass at carrying capacity
 #' @param interyr_index Index of the interim year within time series for which
@@ -62,7 +63,7 @@ cmsy <- function(
   interyr_index    = 2L,
   interbio         = c(0, 1),
   bio_step         = 0.05,
-  resilience       = c(NA, "Very low", "Low", "Medium", "High"),
+  start_r          = resilience(NA),
   start_k          = c(max(ct), 50 * max(ct)),
   startbio         = if (ct[1] / max(ct) < 0.2) c(0.5, 0.9) else c(0.2, 0.6),
   sig_r            = 0.05,
@@ -75,13 +76,6 @@ cmsy <- function(
     stop("start_k must be a vector of length 2")
   if (!identical(length(yr), length(ct)))
     stop("yr and ct must be the same length")
-
-  start_r <- switch(resilience[1],
-    "Very low"     = c(0.015, 0.1),
-    "Low"          = c(0.050, 0.5),
-    "Medium"       = c(0.200, 1.0),
-    "High"         = c(0.600, 1.5),
-    "NA"           = c(0.015, 1.5))
 
   shaefer_out <- schaefer_cmsy(
     r_lim          = start_r,

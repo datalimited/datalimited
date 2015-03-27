@@ -9,10 +9,10 @@ schaefer_cmsy(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index,
   prior_log_mean, prior_log_sd, interbio, reps)
 
 cmsy(yr, ct, prior_log_mean, prior_log_sd, interyr_index = 2L,
-  interbio = c(0, 1), bio_step = 0.05, resilience = c(NA, "Very low",
-  "Low", "Medium", "High"), start_k = c(max(ct), 50 * max(ct)),
-  startbio = if (ct[1]/max(ct) < 0.2) c(0.5, 0.9) else c(0.2, 0.6),
-  sig_r = 0.05, reps = 10000, remove_ell0 = TRUE)
+  interbio = c(0, 1), bio_step = 0.05, start_r = resilience(NA),
+  start_k = c(max(ct), 50 * max(ct)), startbio = if (ct[1]/max(ct) < 0.2)
+  c(0.5, 0.9) else c(0.2, 0.6), sig_r = 0.05, reps = 10000,
+  remove_ell0 = TRUE)
 }
 \arguments{
 \item{r_lim}{Numeric vector of lower and upper intrinsic population growth
@@ -42,7 +42,10 @@ limits in the interim year}
 
 \item{bio_step}{Step size between lower and upper biomass limits in the iterim year}
 
-\item{resilience}{A character value designating the resilience of the stock}
+\item{start_r}{A numeric vector of length 2 giving the lower and upper
+bounds on the population growth rate parameter. This can either be
+specified manually or by translating resiliency categories via the function
+\code{\link{resilience}}}
 
 \item{start_k}{Numeric vector of length 2 giving the lower and upper starting
 bounds on stock biomass at carrying capacity}
@@ -62,9 +65,7 @@ Apply the catch-MSY method from Martell and Froese (2013).
 \details{
 \code{cmsy} is a wrapper for \code{shaefer_cmsy} that implements suggested
 argument values and translates resiliency categories into ranges of intrinsic
-growth rate. \code{shaefer_cmsy} is also an exported function so it can be
-used to enter customized ranges of intrinsic growth rate. The
-\code{shaefer_cmsy} function is written in C++ with the \pkg{Rcpp} package
+growth rate. The function is written in C++ with the \pkg{Rcpp} package
 for speed.
 }
 \examples{

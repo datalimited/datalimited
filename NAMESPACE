@@ -2,6 +2,7 @@
 
 export(cmsy)
 export(comsir)
+export(resilience)
 export(schaefer_cmsy)
 importFrom(Rcpp,sourceCpp)
 importFrom(plyr,adply)
