@@ -275,7 +275,6 @@ DataFrame comsir_est(NumericVector n1,
 }
 
 // [[Rcpp::export]]
-
 NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
     NumericVector x, NumericVector a, NumericVector yrs, NumericVector ct, bool
     logistic_model) {
@@ -285,12 +284,9 @@ NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
   NumericMatrix out(nyrs * nsim, 6);
   NumericVector BoverBmsy(nyrs);
   double BMSY;
-
   int row_id = 0;
 
   for (int i=0; i<nsim; i++) {
-
-
     NumericVector predbio(nyrs, 0.0); // first arg is length, second arg is default value
     NumericVector predprop(nyrs, 0.0);
     NumericVector predcatch(nyrs, 0.0);
@@ -326,6 +322,5 @@ NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
     }
     row_id = row_id + nyrs; // set up for next slot
   }
-
   return out;
 }
