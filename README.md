@@ -1,6 +1,6 @@
 ## Stock assessment methods for data-limited fisheries
 
-[![Travis-CI Build Status](https://magnum.travis-ci.org/datalimited/datalimited.png?branch=master)](https://travis-ci.org/datalimited/datalimited)
+[![Travis-CI Build Status](https://magnum.travis-ci.org/datalimited/datalimited.png?branch=master)](https://magnum.travis-ci.org/datalimited/datalimited)
 
 The R package datalimited can be installed from GitHub with:
 
