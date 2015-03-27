@@ -51,8 +51,8 @@
 #' @importFrom plyr adply
 #' @examples
 #' # TODO K and r values?
-#' x <- comsir(ct = blue_gren$ct, yrs = blue_gren$yrs, k = 800, r = 0.6)
-#' head(x)
+#' x <- comsir(ct = blue_gren$ct, yrs = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
+#'   n_posterior = 2e3)
 #' par(mfrow = c(1, 2))
 #' hist(x$BoverBmsy)
 #' with(x$posterior, plot(r, k))
@@ -62,8 +62,8 @@ comsir <- function(yrs, ct, k, r, x = 0.5, a = 0.8,
   start_r = resilience(NA),
   mink = max(ct),
   maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
-  norm_a = FALSE, norm_x = FALSE, nsim = 2000L, cv = 0.4, logistic_model = TRUE,
-  obs = FALSE, n_posterior = 1000L) {
+  norm_a = FALSE, norm_x = FALSE, nsim = 1e6, cv = 0.4, logistic_model = TRUE,
+  obs = FALSE, n_posterior = 5e3) {
 
   # TODO: note that the resilience categories were slightly different from
   # CMSY initially. Was missing 'medium'.
@@ -79,39 +79,7 @@ comsir <- function(yrs, ct, k, r, x = 0.5, a = 0.8,
     like = o$like, ct = ct, )
 
   comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yrs = yrs,
-    n_posterior = n_posterior, ct, Plot = FALSE)
-}
-
-# TODO Clean up these functions!
-# TODO C++ effortdyn()? Benchmark it and check
-effortdyn <- function(h, k, r, x, a, yrs, ct, logistic_model) {
-  # true parameters
-  hrate <- h
-  m <- length(ct)
-  predbio<-predprop<-predcatch <- rep(0, m)
-
-  # initial conditions
-  predbio[1] <- (1.0 - hrate) * k
-  predprop[1] <- ct[1]/predbio[1]
-  predcatch[1] <- ct[1]
-
-  for (t in 2:m) {
-    #biomass dynamics
-    predbio[t] <- predbio[t-1]+ (r*predbio[t-1] * (1-(predbio[t-1]/k))) - predcatch[t-1]
-    #effort dynamics
-    if (logistic_model) { # logistic model with Bt-1
-      predprop[t] <- predprop[t-1]*(1+x*((predbio[t-1]/(k*a)) -1))
-    }
-    else { # linear model
-      predprop[t] <- predprop[t-1] + x*predprop[1]
-    }
-    predcatch[t] <- predbio[t]*predprop[t]
-  }
-  BMSY <- k/2.0
-  BoverBmsy <- predbio/BMSY
-  xx <- cbind(BoverBmsy, predbio, predprop, predcatch, ct, yrs)
-  names(xx) <- c("BoverBmsy", "biomass", "predprop", "predcatch", "obscatch", "years")
-  as.data.frame(xx)
+    n_posterior = n_posterior, ct, plot = FALSE, logistic_model = logistic_model)
 }
 
 # @examples
@@ -119,7 +87,7 @@ effortdyn <- function(h, k, r, x, a, yrs, ct, logistic_model) {
 #   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), like = c(0, 1, 1),
 #   n_posterior = 2, ct = rlnorm(10), yrs = 1:10)
 comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
-  Plot = FALSE) {
+  plot = FALSE, logistic_model = TRUE) {
 
   nsim <- length(k)
 
@@ -130,12 +98,13 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
 
   # sample with replacement (just the index)
   sample_indices <- sample(nsim, n_posterior, replace = TRUE, prob = like)
-  sample_indices <- sort(sample_indices)
-  Post <- data.frame(h, k, r, a, x, like)[sample_indices, ]
+  post <- data.frame(h, k, r, a, x, like)[sample_indices, ]
 
-  g <- adply(Post, 1, function(x) effortdyn(h = x$h, k = x$k, r = x$r,
-    a = x$a, x = x$x, yrs = yrs, ct = ct, logistic_model = TRUE))
-  g$residual <- g$ct-g$predcatch
+  g <- effortdyn(h = post$h, k = post$k, r = post$r, a = post$a,
+    x = post$x, yrs = yrs, ct = ct, logistic_model = logistic_model)
+  g <- setNames(as.data.frame(g),
+    nm = c("bbmsy", "predbio", "predprop", "predcatch", "ct", "yrs"))
+  g$residual <- g$ct - g$predcatch
 
   # diagnostics
   # TODO check if table(table()) is really what we want: (and not using this currently)
@@ -145,10 +114,10 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
   if (MSD >= 1) warning(paste0("Maximum single density was ", round(MSD, 2), "% but ",
     "should probably be < 1%."))
 
-  MIR <- max(Post$like) / sum(Post$like) # maximum importance ratio or maximm importance weight
-  cv_ir <- ((1/length(Post$like))*sum((Post$like)^2)) -
-           ((1/length(Post$like))*sum(Post$like))^2
-  cv_ir <- sqrt(cv_ir)/((length(Post$like)^(-0.5))*sum(Post$like))
+  MIR <- max(post$like) / sum(post$like) # maximum importance ratio or maximm importance weight
+  cv_ir <- ((1/length(post$like))*sum((post$like)^2)) -
+           ((1/length(post$like))*sum(post$like))^2
+  cv_ir <- sqrt(cv_ir)/((length(post$like)^(-0.5))*sum(post$like))
 
   if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2),
       " but should probably be < 0.04."))
@@ -164,7 +133,7 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
   # Raftery and Bao 2010 diagnostics - CHECK
   # (1) Maximum importance weight = MIR
   # (2) variance of the importance weights
-  Weights <- Post$like/sum(Post$like)
+  Weights <- post$like/sum(post$like)
   Var.RW <- (n_posterior * Weights -1)^2 #vector
   Var.RW <- (1 / n_posterior) * sum(Var.RW) #scalar
   # (3) entropy of the importance weights relative to uniformity
@@ -179,6 +148,6 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
     "Var.RW", "Entropy", "Exp.N", "ESS")
 
   # TODO clean up and document the output; some can be as one data frame
-  list(posterior=Post, BoverBmsy=g$BoverBmsy,Biomass=g$biomass,E=g$predprop,
+  list(posterior=post, BoverBmsy=g$bbmsy,Biomass=g$biomass,E=g$predprop,
     C.hat=g$predcatch,Res=g$residual,Diagno=diagnostics, MSD = MSD)
 }

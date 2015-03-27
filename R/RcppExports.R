@@ -30,3 +30,7 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv = 0.4, logistic_model 
     .Call('datalimited_comsir_est', PACKAGE = 'datalimited', n1, k, r, a, x, h, z, like, ct, cv, logistic_model, normal_like)
 }
 
+effortdyn <- function(h, k, r, x, a, yrs, ct, logistic_model) {
+    .Call('datalimited_effortdyn', PACKAGE = 'datalimited', h, k, r, x, a, yrs, ct, logistic_model)
+}
+

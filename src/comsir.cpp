@@ -273,3 +273,59 @@ DataFrame comsir_est(NumericVector n1,
       Named("loglike")  = cum_loglike, // log likelihood used for DIC
       Named("like")     = like);      // normalized likelihood for SIR
 }
+
+// [[Rcpp::export]]
+
+NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
+    NumericVector x, NumericVector a, NumericVector yrs, NumericVector ct, bool
+    logistic_model) {
+
+  int nyrs = ct.size();
+  int nsim = h.size();
+  NumericMatrix out(nyrs * nsim, 6);
+  NumericVector BoverBmsy(nyrs);
+  double BMSY;
+
+  int row_id = 0;
+
+  for (int i=0; i<nsim; i++) {
+
+
+    NumericVector predbio(nyrs, 0.0); // first arg is length, second arg is default value
+    NumericVector predprop(nyrs, 0.0);
+    NumericVector predcatch(nyrs, 0.0);
+
+    // initial conditions
+    predbio(0) = (1.0 - h(i)) * k(i);
+    predprop(0) = ct(0) / predbio(0);
+    predcatch(0) = ct(0);
+
+    for (int t=1; t<nyrs; t++) { // note this starts at 1 not 0
+      // biomass dynamics
+      predbio[t] = predbio(t-1) + (r(i) * predbio(t-1) * (1 - (predbio(t-1) / k(i)))) - predcatch(t-1);
+      // effort dynamics
+      if (logistic_model) { // logistic model with Bt-1
+        predprop(t) = predprop(t-1) * (1 + x(i) * ((predbio(t-1) / (k(i) * a(i))) - 1));
+      }
+      else { // linear model
+        predprop(t) = predprop(t-1) + x(i) * predprop(0);
+      }
+      predcatch(t) = predbio(t) * predprop(t);
+    }
+    BMSY = k(i) / 2.0;
+    BoverBmsy = predbio / BMSY;
+
+    for (int j=0; j<nyrs; j++) {
+      int row_id_plus_j = row_id + j;
+      out(row_id_plus_j, 0) = BoverBmsy(j);
+      out(row_id_plus_j, 1) = predbio(j);
+      out(row_id_plus_j, 2) = predprop(j);
+      out(row_id_plus_j, 3) = predcatch(j);
+      out(row_id_plus_j, 4) = ct(j);
+      out(row_id_plus_j, 5) = yrs(j);
+    }
+    row_id = row_id + nyrs; // set up for next slot
+  }
+
+  return out;
+}
