@@ -10,6 +10,7 @@
 #'   bounds on the population growth rate parameter. This can either be
 #'   specified manually or by translating resiliency categories via the function
 #'   \code{\link{resilience}}
+#' @param startbio Starting biomass
 #' @param start_k Numeric vector of length 2 giving the lower and upper starting
 #'   bounds on stock biomass at carrying capacity
 #' @param interyr_index Index of the interim year within time series for which

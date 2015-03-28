@@ -35,6 +35,8 @@ specified manually or by translating resiliency categories via the function
 \item{start_k}{Numeric vector of length 2 giving the lower and upper starting
 bounds on stock biomass at carrying capacity}
 
+\item{startbio}{Starting biomass}
+
 \item{sig_r}{Standard deviation of process noise}
 
 \item{reps}{Number of repititions to run the sampling}
