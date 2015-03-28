@@ -2,12 +2,6 @@
 #'
 #' Apply the catch-MSY method from Martell and Froese (2013).
 #'
-#' @details
-#' \code{cmsy} is a wrapper for \code{shaefer_cmsy} that implements suggested
-#' argument values and translates resiliency categories into ranges of intrinsic
-#' growth rate. The function is written in C++ with the \pkg{Rcpp} package
-#' for speed.
-#'
 #' @param yr Numeric vector of years
 #' @param ct Numeric vector of catch
 #' @param sig_r Standard deviation of process noise
@@ -31,6 +25,8 @@
 #'   (\code{r}), carrying capacity (\code{k}), log likelihood (\code{ell}), and
 #'   biomass (\code{biomass}). Each row contains an iteration for a total length
 #'   of \code{reps}.
+#' @useDynLib datalimited
+#' @importFrom Rcpp sourceCpp
 #' @references
 #' Martell, S., & Froese, R. (2013). A simple method for estimating MSY from
 #' catch and resilience. Fish and Fisheries, 14(4), 504-514.

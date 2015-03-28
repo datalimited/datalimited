@@ -1,15 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' @param r_lim Numeric vector of lower and upper intrinsic population growth
-//'   rates
-//' @param k_lim Numeric vector of lower and upper carrying capacities
-//' @param startbio A vector of possible starting biomasses to loop over
-//'
-//' @useDynLib datalimited
-//' @importFrom Rcpp sourceCpp
-//' @export
-//' @rdname cmsy
 // [[Rcpp::export]]
 DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
   NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index,
