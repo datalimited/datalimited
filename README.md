@@ -21,6 +21,15 @@ The package currently implements the following methods:
 
 C++ functions are in the `src` folder and loaded via [the Rcpp package](http://cran.r-project.org/web/packages/Rcpp/index.html) and R functions are in the `R` folder. Documentation is written with [Roxygen comments](http://r-pkgs.had.co.nz/man.html) following [the devtools package development philosophy](http://r-pkgs.had.co.nz).
 
+Load the package and read the documentation with:
+
+```R
+library("datalimited")
+help(package = "datalimited")
+?cmsy
+?comsir
+```
+
 ### References
 
 Costello, C., D. Ovando, R. Hilborn, S. D. Gaines, O. Deschenes, and S. E. Lester. 2012. Status and Solutions for the World’s Unassessed Fisheries. Science 338:517-520.
