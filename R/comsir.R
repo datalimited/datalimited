@@ -100,11 +100,12 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
   sample_indices <- sample(nsim, n_posterior, replace = TRUE, prob = like)
   post <- data.frame(h, k, r, a, x, like)[sample_indices, ]
 
-  g <- effortdyn(h = post$h, k = post$k, r = post$r, a = post$a,
-    x = post$x, yrs = yrs, ct = ct, logistic_model = logistic_model)
-  g <- setNames(as.data.frame(g),
-    nm = c("bbmsy", "predbio", "predprop", "predcatch", "ct", "yrs"))
-  g$residual <- g$ct - g$predcatch
+  quantities <- effortdyn(h = post$h, k = post$k, r = post$r, a = post$a,
+    x = post$x, yr = yr, ct = ct, logistic_model = logistic_model)
+  quantities <- setNames(as.data.frame(quantities),
+    nm = c("bbmsy", "predbio", "predprop", "predcatch", "ct", "yr"))
+  quantities$residual <- quantities$ct - quantities$predcatch
+  quantities$sample_id <- rep(seq_along(sample_indices), each = length(yr))
 
   # diagnostics
   # check if table(table()) is really what we want: (and not using this currently)
@@ -139,7 +140,6 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
   names(diagnostics) <- c("N.nocrash.priors", "NA.Prob", "MIR", "cv_ir", "MSD",
     "Var.RW", "Entropy", "Exp.N", "ESS")
 
-  # TODO clean up and document the output; some can be as one data frame
-  list(posterior=post, BoverBmsy=g$bbmsy,Biomass=g$biomass,E=g$predprop,
-    C.hat=g$predcatch,Res=g$residual,Diagno=diagnostics, MSD = MSD)
+  list(posterior = post, quantities = quantities, diagnostics = diagnostics,
+    msd = MSD)
 }
