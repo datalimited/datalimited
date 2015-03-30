@@ -9,7 +9,7 @@ summarize_bbmsy(bbmsy, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), log = TRUE,
 }
 \arguments{
 \item{bbmsy}{A numeric matrix of B/B_MSY values. Columns should represent
-samples of B/B_MSY and rows should represent years.}
+years and rows should represent samples of B/B_BMSY.}
 
 \item{probs}{A numeric vector of quantile probabilities.}
 

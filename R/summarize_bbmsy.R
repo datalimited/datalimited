@@ -1,7 +1,7 @@
 #' Summarize B/B_MSY values
 #'
 #' @param bbmsy A numeric matrix of B/B_MSY values. Columns should represent
-#'   samples of B/B_MSY and rows should represent years.
+#'   years and rows should represent samples of B/B_BMSY.
 #' @param probs A numeric vector of quantile probabilities.
 #' @param log Logical: should the mean and standard deviation be calculated on
 #'   the log scale and then exponentiated at the end?
