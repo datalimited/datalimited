@@ -23,7 +23,7 @@
 #' @param remove_ell0 Should sampled rows with \code{ell == 0} be removed
 #'   internally?
 #' @return A list containing a matrix \code{biomass} and a data frame
-#'   \code{schaefer}. The matrix has rows for each iteration and columns for
+#'   \code{quantities}. The matrix has rows for each iteration and columns for
 #'   years. The data frame contains columns for intrinsic population growth
 #'   rates (\code{r}), carrying capacity (\code{k}), log likelihood
 #'   (\code{ell}), and biomass (\code{biomass}). Each row contains an iteration
@@ -46,13 +46,13 @@ NULL
 #'
 #' x <- cmsy(blue_gren$yr, ct = blue_gren$ct, prior_log_mean = 0.035,
 #'   prior_log_sd = 0.68)
-#' head(x$schaefer)
+#' head(x$quantities)
 #' par(mfrow = c(2, 2))
 #' plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", ylab = "Catch (t)")
 #' plot(blue_gren$yr,  apply(x$biomass, 2, median)[-1], type = "o",
 #'   ylab = "Estimated biomass", xlab = "Year")
-#' hist(x$schaefer$bmsy)
-#' plot(x$schaefer$r, x$schaefer$k)
+#' hist(x$quantities$bmsy)
+#' plot(x$quantities$r, x$quantities$k)
 
 cmsy <- function(
   yr,
@@ -103,5 +103,5 @@ cmsy <- function(
     ct = ct)
   biomass_out <- t(biomass_out)
 
-  list(biomass = biomass_out, schaefer = schaefer_out)
+  list(biomass = biomass_out, quantities = schaefer_out)
 }
