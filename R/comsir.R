@@ -107,28 +107,20 @@ comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
   g$residual <- g$ct - g$predcatch
 
   # diagnostics
-  # TODO check if table(table()) is really what we want: (and not using this currently)
-  repeated_samples <- table(table(sample_indices)) # number of sample_indices with 1, 2 or more samples
-  # MSD - maximum single density,should be less than 1%
+  # check if table(table()) is really what we want: (and not using this currently)
+  # repeated_samples <- table(table(sample_indices)) # number of sample_indices with 1, 2 or more samples
   MSD <- max(table(sample_indices)) / n_posterior * 100
-  if (MSD >= 1) warning(paste0("Maximum single density was ", round(MSD, 2), "% but ",
-    "should probably be < 1%."))
-
   MIR <- max(post$like) / sum(post$like) # maximum importance ratio or maximm importance weight
   cv_ir <- ((1/length(post$like))*sum((post$like)^2)) -
            ((1/length(post$like))*sum(post$like))^2
   cv_ir <- sqrt(cv_ir)/((length(post$like)^(-0.5))*sum(post$like))
 
+  if (MSD >= 1) warning(paste0("Maximum single density was ", round(MSD, 2), "% but ",
+    "should probably be < 1%."))
   if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2),
       " but should probably be < 0.04."))
-
   if (cv_ir >= 0.04) warning(paste0("CV importance ratio was ", round(cv_ir, 2),
       " but should probably be < 0.04."))
-
-  # new lines 06 Jan 2013  create a file with the results
-  # write.table(repeated_samples, "MSD.txt")
-  # write.table(MIR, "MIR.txt")
-  # write.table(cv_ir, "cvIR.txt")
 
   # Raftery and Bao 2010 diagnostics - CHECK
   # (1) Maximum importance weight = MIR
