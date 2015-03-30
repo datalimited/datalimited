@@ -276,27 +276,27 @@ DataFrame comsir_est(NumericVector n1,
 
 // [[Rcpp::export]]
 NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
-    NumericVector x, NumericVector a, NumericVector yrs, NumericVector ct, bool
+    NumericVector x, NumericVector a, NumericVector yr, NumericVector ct, bool
     logistic_model) {
 
-  int nyrs = ct.size();
+  int nyr = ct.size();
   int nsim = h.size();
-  NumericMatrix out(nyrs * nsim, 6);
-  NumericVector BoverBmsy(nyrs);
+  NumericMatrix out(nyr * nsim, 6);
+  NumericVector BoverBmsy(nyr);
   double BMSY;
   int row_id = 0;
 
   for (int i=0; i<nsim; i++) {
-    NumericVector predbio(nyrs, 0.0); // first arg is length, second arg is default value
-    NumericVector predprop(nyrs, 0.0);
-    NumericVector predcatch(nyrs, 0.0);
+    NumericVector predbio(nyr, 0.0); // first arg is length, second arg is default value
+    NumericVector predprop(nyr, 0.0);
+    NumericVector predcatch(nyr, 0.0);
 
     // initial conditions
     predbio(0) = (1.0 - h(i)) * k(i);
     predprop(0) = ct(0) / predbio(0);
     predcatch(0) = ct(0);
 
-    for (int t=1; t<nyrs; t++) { // note this starts at 1 not 0
+    for (int t=1; t<nyr; t++) { // note this starts at 1 not 0
       // biomass dynamics
       predbio[t] = predbio(t-1) + (r(i) * predbio(t-1) * (1 - (predbio(t-1) / k(i)))) - predcatch(t-1);
       // effort dynamics
@@ -311,16 +311,16 @@ NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
     BMSY = k(i) / 2.0;
     BoverBmsy = predbio / BMSY;
 
-    for (int j=0; j<nyrs; j++) {
+    for (int j=0; j<nyr; j++) {
       int row_id_plus_j = row_id + j;
       out(row_id_plus_j, 0) = BoverBmsy(j);
       out(row_id_plus_j, 1) = predbio(j);
       out(row_id_plus_j, 2) = predprop(j);
       out(row_id_plus_j, 3) = predcatch(j);
       out(row_id_plus_j, 4) = ct(j);
-      out(row_id_plus_j, 5) = yrs(j);
+      out(row_id_plus_j, 5) = yr(j);
     }
-    row_id = row_id + nyrs; // set up for next slot
+    row_id = row_id + nyr; // set up for next slot
   }
   return out;
 }

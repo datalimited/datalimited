@@ -124,8 +124,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // effortdyn
-NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r, NumericVector x, NumericVector a, NumericVector yrs, NumericVector ct, bool logistic_model);
-RcppExport SEXP datalimited_effortdyn(SEXP hSEXP, SEXP kSEXP, SEXP rSEXP, SEXP xSEXP, SEXP aSEXP, SEXP yrsSEXP, SEXP ctSEXP, SEXP logistic_modelSEXP) {
+NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r, NumericVector x, NumericVector a, NumericVector yr, NumericVector ct, bool logistic_model);
+RcppExport SEXP datalimited_effortdyn(SEXP hSEXP, SEXP kSEXP, SEXP rSEXP, SEXP xSEXP, SEXP aSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP logistic_modelSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -135,10 +135,10 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type a(aSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type yrs(yrsSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type yr(yrSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP );
         Rcpp::traits::input_parameter< bool >::type logistic_model(logistic_modelSEXP );
-        NumericMatrix __result = effortdyn(h, k, r, x, a, yrs, ct, logistic_model);
+        NumericMatrix __result = effortdyn(h, k, r, x, a, yr, ct, logistic_model);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

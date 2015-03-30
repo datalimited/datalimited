@@ -3,7 +3,7 @@
 #' Catch-only model with sample importance resampling based on the method
 #' described in Vasconcellos and Cochrane (2005).
 #'
-#' @param yrs A time series of years associated with the catch
+#' @param yr A time series of years associated with the catch
 #' @param ct A time series of catch
 #' @param x Intrinsic rate of increase in effort. See Vasconcellos and Cochrane
 #'   (2005).
@@ -51,14 +51,14 @@
 #' @importFrom plyr adply
 #' @examples
 #' # TODO K and r values?
-#' x <- comsir(ct = blue_gren$ct, yrs = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
+#' x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
 #'   n_posterior = 2e3)
 #' par(mfrow = c(1, 2))
 #' hist(x$BoverBmsy)
 #' with(x$posterior, plot(r, k))
 NULL
 
-comsir <- function(yrs, ct, k, r, x = 0.5, a = 0.8,
+comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
   start_r = resilience(NA),
   mink = max(ct),
   maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
@@ -78,15 +78,15 @@ comsir <- function(yrs, ct, k, r, x = 0.5, a = 0.8,
   est <- comsir_est(n1 = o$n1, k = o$k, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
     like = o$like, ct = ct, )
 
-  comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yrs = yrs,
+  comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yr = yr,
     n_posterior = n_posterior, ct, plot = FALSE, logistic_model = logistic_model)
 }
 
 # @examples
 # comsir_resample(k = c(100, 101, 102), h = c(0.5, 0.5, 0.5),
 #   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), like = c(0, 1, 1),
-#   n_posterior = 2, ct = rlnorm(10), yrs = 1:10)
-comsir_resample <- function(k, r, a, x, h, like, yrs, n_posterior = 1000, ct,
+#   n_posterior = 2, ct = rlnorm(10), yr = 1:10)
+comsir_resample <- function(k, r, a, x, h, like, yr, n_posterior = 1000, ct,
   plot = FALSE, logistic_model = TRUE) {
 
   nsim <- length(k)

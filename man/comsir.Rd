@@ -4,7 +4,7 @@
 \alias{comsir}
 \title{COM-SIR method}
 \arguments{
-\item{yrs}{A time series of years associated with the catch}
+\item{yr}{A time series of years associated with the catch}
 
 \item{ct}{A time series of catch}
 
@@ -64,7 +64,7 @@ described in Vasconcellos and Cochrane (2005).
 }
 \examples{
 # TODO K and r values?
-x <- comsir(ct = blue_gren$ct, yrs = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
+x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
   n_posterior = 2e3)
 par(mfrow = c(1, 2))
 hist(x$BoverBmsy)
