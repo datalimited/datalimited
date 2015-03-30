@@ -45,10 +45,12 @@ bounds on stock biomass at carrying capacity}
 internally?}
 }
 \value{
-A data frame containing columns for intrinsic population growth rates
-  (\code{r}), carrying capacity (\code{k}), log likelihood (\code{ell}), and
-  biomass (\code{biomass}). Each row contains an iteration for a total length
-  of \code{reps}.
+A list containing a matrix \code{biomass} and a data frame
+  \code{schaefer}. The matrix has rows for each iteration and columns for
+  years. The data frame contains columns for intrinsic population growth
+  rates (\code{r}), carrying capacity (\code{k}), log likelihood
+  (\code{ell}), and biomass (\code{biomass}). Each row contains an iteration
+  for a total length of \code{reps}.
 }
 \description{
 Apply the catch-MSY method from Martell and Froese (2013).
@@ -59,13 +61,13 @@ Apply the catch-MSY method from Martell and Froese (2013).
 
 x <- cmsy(blue_gren$yr, ct = blue_gren$ct, prior_log_mean = 0.035,
   prior_log_sd = 0.68)
-head(x$shaefer)
+head(x$schaefer)
 par(mfrow = c(2, 2))
 plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", ylab = "Catch (t)")
 plot(blue_gren$yr,  apply(x$biomass, 1, median)[-1], type = "o",
   ylab = "Estimated biomass", xlab = "Year")
-hist(x$shaefer$bmsy)
-plot(x$shaefer$r, x$shaefer$k)
+hist(x$schaefer$bmsy)
+plot(x$schaefer$r, x$schaefer$k)
 }
 \references{
 Martell, S., & Froese, R. (2013). A simple method for estimating MSY from

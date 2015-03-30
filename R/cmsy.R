@@ -22,10 +22,12 @@
 #' @param reps Number of repititions to run the sampling
 #' @param remove_ell0 Should sampled rows with \code{ell == 0} be removed
 #'   internally?
-#' @return A data frame containing columns for intrinsic population growth rates
-#'   (\code{r}), carrying capacity (\code{k}), log likelihood (\code{ell}), and
-#'   biomass (\code{biomass}). Each row contains an iteration for a total length
-#'   of \code{reps}.
+#' @return A list containing a matrix \code{biomass} and a data frame
+#'   \code{schaefer}. The matrix has rows for each iteration and columns for
+#'   years. The data frame contains columns for intrinsic population growth
+#'   rates (\code{r}), carrying capacity (\code{k}), log likelihood
+#'   (\code{ell}), and biomass (\code{biomass}). Each row contains an iteration
+#'   for a total length of \code{reps}.
 #' @useDynLib datalimited
 #' @importFrom Rcpp sourceCpp
 #' @references
@@ -44,13 +46,13 @@ NULL
 #'
 #' x <- cmsy(blue_gren$yr, ct = blue_gren$ct, prior_log_mean = 0.035,
 #'   prior_log_sd = 0.68)
-#' head(x$shaefer)
+#' head(x$schaefer)
 #' par(mfrow = c(2, 2))
 #' plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", ylab = "Catch (t)")
 #' plot(blue_gren$yr,  apply(x$biomass, 1, median)[-1], type = "o",
 #'   ylab = "Estimated biomass", xlab = "Year")
-#' hist(x$shaefer$bmsy)
-#' plot(x$shaefer$r, x$shaefer$k)
+#' hist(x$schaefer$bmsy)
+#' plot(x$schaefer$r, x$schaefer$k)
 
 cmsy <- function(
   yr,
@@ -74,7 +76,7 @@ cmsy <- function(
   if (!identical(length(yr), length(ct)))
     stop("yr and ct must be the same length")
 
-  shaefer_out <- schaefer_cmsy(
+  schaefer_out <- schaefer_cmsy(
     r_lim          = start_r,
     k_lim          = start_k,
     sig_r          = sig_r,
@@ -87,18 +89,19 @@ cmsy <- function(
     interbio       = interbio,
     reps           = reps)
 
-  shaefer_out <- shaefer_out[shaefer_out$ell == 1, ]
-  shaefer_out$bmsy <- shaefer_out$k * 0.5
-  shaefer_out$msy  <- shaefer_out$r * shaefer_out$k / 4
-  shaefer_out$mean_ln_msy <- mean(log(shaefer_out$msy))
+  schaefer_out <- schaefer_out[schaefer_out$ell == 1, ]
+  schaefer_out$bmsy <- schaefer_out$k * 0.5
+  schaefer_out$msy  <- schaefer_out$r * schaefer_out$k / 4
+  schaefer_out$mean_ln_msy <- mean(log(schaefer_out$msy))
 
   biomass_out <- get_cmsy_biomass(
-    r = shaefer_out$r,
-    k = shaefer_out$k,
-    j = shaefer_out$J,
+    r = schaefer_out$r,
+    k = schaefer_out$k,
+    j = schaefer_out$J,
     sigR = sig_r,
     nyr = length(yr),
     ct = ct)
+  biomass_out <- t(biomass_out)
 
-  list(biomass = biomass_out, shaefer = shaefer_out)
+  list(biomass = biomass_out, schaefer = schaefer_out)
 }
