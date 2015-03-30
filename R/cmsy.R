@@ -49,7 +49,7 @@ NULL
 #' head(x$schaefer)
 #' par(mfrow = c(2, 2))
 #' plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", ylab = "Catch (t)")
-#' plot(blue_gren$yr,  apply(x$biomass, 1, median)[-1], type = "o",
+#' plot(blue_gren$yr,  apply(x$biomass, 2, median)[-1], type = "o",
 #'   ylab = "Estimated biomass", xlab = "Year")
 #' hist(x$schaefer$bmsy)
 #' plot(x$schaefer$r, x$schaefer$k)
