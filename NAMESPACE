@@ -3,6 +3,7 @@
 export(cmsy)
 export(comsir)
 export(resilience)
+export(summarize_bbmsy)
 importFrom(Rcpp,sourceCpp)
 importFrom(plyr,adply)
 useDynLib(datalimited)
