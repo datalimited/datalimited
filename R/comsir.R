@@ -200,7 +200,6 @@ comsir_priors <- function(ct, k, r, x, a, start_r, mink,
 
   data.frame(n1, k = k_vec, r = r_vec, z, a = a_vec, x = x_vec, h, biomass =
     predbio, prop = predprop, like = like)
-      predbio, prop = predprop, like = like)
 }
 
 comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv = 0.4,
