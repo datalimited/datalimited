@@ -200,4 +200,88 @@ comsir_priors <- function(ct, k, r, x, a, start_r, mink,
 
   data.frame(n1, k = k_vec, r = r_vec, z, a = a_vec, x = x_vec, h, biomass =
     predbio, prop = predprop, like = like)
+      predbio, prop = predprop, like = like)
+}
+
+comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv = 0.4,
+  logistic_model = FALSE, normal_like = TRUE) {
+
+  #  normal_like=true for normal likelihood
+  #  normal_like=false for lognormal likelihood
+  #
+  #  The log normal distribution has density
+  #   f(x) = 1/(sqrt(2 pi) sigma x) e^-((log x - mu)^2 / (2 sigma^2))
+  #      where mu and sigma are the mean and standard deviation of the
+  #      logarithm. The mean is E(X) = exp(mu + 1/2 sigma^2), and the
+  #      variance Var(X) = exp(2*mu + sigma^2)*(exp(sigma^2) - 1) and hence
+  #      the coefficient of variation is sqrt(exp(sigma^2) - 1) which is
+  #      approximately sigma when that is small (e.g., sigma < 1/2).
+  #     x<-seq(0.001,100,0.001)
+  #     y<-dlnorm(log(x),meanlog=log(1),sdlog=1,log=FALSE)
+  #      dlnorm(1) == dnorm(0)
+  #     z<-dnorm(log(x),mean=0,sdlog=1,log=FALSE)
+  #     plot(log(x),y,type="l")
+  #     plot(log(x),z,type="l")
+
+  nsim = length(k) #.size();
+
+  # the parameters come from the resampling part
+  # sigma = rnorm(nsim,0.001,0.0001)//  normal informative prior for sigma
+  # Set up the numbers and project to the start of the first "real" year
+  # (i.e. n1 to Nm), all simulations at once
+  # initial conditions
+  loglike     = rep(0.0, nsim)
+  pen1        = rep(0.0, nsim)
+  pen2        = rep(0.0, nsim)
+  cum_loglike = rep(0.0, nsim)
+
+  for (i in seq_along(ct)) {
+    if (i==1) {
+      predbio = n1
+      predcatch = rep(ct[1], nsim) # first catch is assumed known -- BIG ASSUMPTION ---
+      predprop = predcatch / predbio
+      inipredprop = predprop
+    } else {
+      # effort dynamics
+      if (logistic_model) { # logistic model with Bt-1
+        temp1 = posfun(predprop * (1 + x * ((predbio / (a * k) - 1))))
+      } else { # linear model
+        temp1 = posfun(predprop + x * inipredprop)
+      }
+
+      predprop[temp1[,1] >  0.99] <- 0.99
+      predprop[temp1[,1] <= 0.99] <- temp1[temp1[,1] <= 0.99, 1]
+      pen1 = pen1 + temp1[, 2]
+
+      # biomass dynamics
+      temp2 = posfun(predbio + (r * predbio * (1 - (predbio / k ))) - predcatch)
+      predbio = temp2[, 1]
+      pen2 = pen2 + temp2[, 2]
+      predcatch = predbio * predprop
+    }
+    #  assumption of cv=0.4 in Vasconcellos and Cochrane
+    if (normal_like) {
+      my_sd = cv * predcatch
+      loglike = dnorm(ct[i], predcatch, my_sd, log = TRUE) # normal Log likelihood
+      cum_loglike = cum_loglike + loglike # cummulative normal loglikelihood
+    } else {
+      loglike = dlnorm(ct(i), log(predcatch), cv, log = TRUE)
+      cum_loglike = cum_loglike + loglike;
+    }
+    # print(predbio[1])
+		# print(c(predbio,predprop,predcatch,ct[i]))
+  }
+  loglike = rep(0.0, nsim) #  set vector to 0
+  loglike = cum_loglike - pen1 - pen2 # the penalties turn out too big
+  Totlike = sum(loglike)
+  like    = exp(loglike) / sum(exp(loglike)) # re-normalize so it will add up to 1
+
+  # in some of the years the population crashes, we know this is impossible,
+  # because the population is still there (because of the catches
+
+  data.frame(n1, k, r, z, a, x, h,
+    B        = predbio,    # biomass in the latest year
+    prop     = predprop,   # harvest rate in the latest year
+    loglike  = cum_loglike, # log likelihood used for DIC
+    like     = like)      # normalized likelihood for SIR
 }

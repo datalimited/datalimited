@@ -17,10 +17,6 @@ posfun <- function(x, eps = 0.00001) {
     .Call('datalimited_posfun', PACKAGE = 'datalimited', x, eps)
 }
 
-comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv = 0.4, logistic_model = FALSE, normal_like = TRUE) {
-    .Call('datalimited_comsir_est', PACKAGE = 'datalimited', n1, k, r, a, x, h, z, like, ct, cv, logistic_model, normal_like)
-}
-
 effortdyn <- function(h, k, r, x, a, yr, ct, logistic_model) {
     .Call('datalimited_effortdyn', PACKAGE = 'datalimited', h, k, r, x, a, yr, ct, logistic_model)
 }

@@ -68,28 +68,6 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// comsir_est
-DataFrame comsir_est(NumericVector n1, NumericVector k, NumericVector r, NumericVector a, NumericVector x, NumericVector h, NumericVector z, NumericVector like, NumericVector ct, double cv, bool logistic_model, bool normal_like);
-RcppExport SEXP datalimited_comsir_est(SEXP n1SEXP, SEXP kSEXP, SEXP rSEXP, SEXP aSEXP, SEXP xSEXP, SEXP hSEXP, SEXP zSEXP, SEXP likeSEXP, SEXP ctSEXP, SEXP cvSEXP, SEXP logistic_modelSEXP, SEXP normal_likeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< NumericVector >::type n1(n1SEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type k(kSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a(aSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type h(hSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type z(zSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type like(likeSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP);
-    Rcpp::traits::input_parameter< double >::type cv(cvSEXP);
-    Rcpp::traits::input_parameter< bool >::type logistic_model(logistic_modelSEXP);
-    Rcpp::traits::input_parameter< bool >::type normal_like(normal_likeSEXP);
-    __result = Rcpp::wrap(comsir_est(n1, k, r, a, x, h, z, like, ct, cv, logistic_model, normal_like));
-    return __result;
-END_RCPP
-}
 // effortdyn
 NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r, NumericVector x, NumericVector a, NumericVector yr, NumericVector ct, bool logistic_model);
 RcppExport SEXP datalimited_effortdyn(SEXP hSEXP, SEXP kSEXP, SEXP rSEXP, SEXP xSEXP, SEXP aSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP logistic_modelSEXP) {
