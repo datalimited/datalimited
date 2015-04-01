@@ -143,3 +143,61 @@ comsir_resample <- function(k, r, a, x, h, like, yr, n_posterior = 1000, ct,
   list(posterior = post, quantities = quantities, diagnostics = diagnostics,
     msd = MSD)
 }
+
+comsir_priors <- function(ct, k, r, x, a, start_r, mink,
+  maxk, logk = TRUE, cv = 0.4, norm_k = FALSE, norm_r = FALSE,
+  norm_a = FALSE, norm_x = FALSE, logistic_model = TRUE,
+  obs = FALSE, nsim = 2000L) {
+  if (logk) {
+    k_vec <- runif(nsim, log(mink), log(maxk))
+    k_vec <- exp(k_vec)
+  } else {
+    k_vec <- runif(nsim, mink, maxk)
+  }
+  if (logk == F && norm_k == T) {
+    k_vec <- rnorm(nsim, k, cv * k)
+  }
+  if (norm_r) {
+    r_vec <- rnorm(nsim, r, cv * r)
+  } else {
+    r_vec <- runif(nsim, start_r[1], start_r[2])
+  }
+  if (norm_x) {
+    x_vec <- rnorm(nsim, x, cv * x)
+  } else {
+    x_vec <- runif(nsim, 1e-06, 1)
+  }
+  if (norm_a) {
+    a_vec <- rnorm(nsim, a, cv * a)
+  } else {
+    a_vec <- runif(nsim, 0, 1)
+  }
+  h <- rep(0, nsim)
+  z <- rep(1, nsim)
+  n1 <- (1 - h) * k_vec
+  like <- rep(1, nsim)
+  predbio <- n1
+  predcatch <- ct[1]
+  predprop <- predcatch / predbio
+  inipredprop <- predprop
+  m <- length(ct)
+  for (t in 1:m - 1) {
+    if (logistic_model)
+      predprop <- predprop * (1 + x_vec * ((predbio/(a_vec * k_vec) - 1)))
+    else predprop = predprop + x * inipredprop
+    if (obs)
+      predbio = predbio + (r_vec * predbio * (1 - (predbio/k_vec))) - ct[t]
+    else predbio = predbio + (r_vec * predbio * (1 - (predbio/k_vec))) - predcatch
+    predcatch = predbio * predprop
+
+    # can this just be vectorized?
+    like <- check_comsir_lik(nsim, predbio, predprop, like)
+    #for (i in 1:nsim) {
+      #if ((like[i] != 0 & (predbio[i] <= 0 || predprop[i] < 0)) ||
+        #is.na(like[i])) like[i] <- 0
+    #}
+  }
+
+  data.frame(n1, k = k_vec, r = r_vec, z, a = a_vec, x = x_vec, h, biomass =
+    predbio, prop = predprop, like = like)
+}

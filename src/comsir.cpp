@@ -1,119 +1,16 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// @examples
-//  ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
-//    3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
-//    9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
-//
-// out <- comsir_priors(ct = ct,
-//    k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-//    mink = max(ct), maxk = max(ct) * 100, nsim = 1e5))
 // [[Rcpp::export]]
-DataFrame comsir_priors(NumericVector ct, double k, double r, double x,
-  double a, NumericVector start_r,
-  double mink, double maxk,
-  bool logk = true,
-  double cv = 0.4, bool norm_k = false, bool norm_r = false,
-  bool norm_a = false, bool norm_x = false,
-  bool logistic_model = true, bool obs = false, int nsim = 2000L) {
-
-  NumericVector k_vec(nsim);
-  NumericVector r_vec(nsim);
-  NumericVector a_vec(nsim);
-  NumericVector x_vec(nsim);
-  NumericVector h(nsim);
-  NumericVector z(nsim);
-  NumericVector n1(nsim);
-  NumericVector like(nsim);
-  NumericVector predbio(nsim);
-  NumericVector predcatch(nsim);
-  NumericVector predprop(nsim);
-  NumericVector inipredprop(nsim);
-
-  if (logk) {
-    k_vec = exp(runif(nsim, log(mink), log(maxk)));
-  } else {
-    k_vec = runif(nsim, mink, maxk); // prior on arithmetic scale for K
-  }
-
-  if (!logk && norm_k) { // normal prior on the arithmetic scale
-    k_vec = rnorm(nsim, k, cv * k);
-  }
-
-  if (norm_r) {
-    r_vec = rnorm(nsim, r, cv * r);
-  } else {
-    r_vec = runif(nsim, start_r(0), start_r(1)); // prior for r
-  }
-
-  if (norm_x) {
-    x_vec = rnorm(nsim, x, cv * x);
-  } else {
-    x_vec = runif(nsim, 0.000001, 1.0); // prior for x
-  }
-
-  if (norm_a) {
-    a_vec = rnorm(nsim, a, cv * a);
-  } else {
-    a_vec = runif(nsim, 0.0, 1.0); // prior for a
-  }
-
-  h = rep(0.0, nsim); // h=0, start from unexploited state
-  z = rep(1.0, nsim); // z=1 is the Schaeffer model
-  n1 = (1.0 - h) * k_vec; // initial population size
-
-  // like=1 if the model does not crashes, like=0 if the model crashes
-  like = rep(1.0, nsim);
-
-  // Set up the numbers and project to the start of the first "real" year
-  // (i.e. n1 to Nm), all simulations at once
-  // initial conditions
-  predbio = n1;
-  predcatch = rep(ct(0), nsim); // the first year of catches in assumed known
-  predprop = predcatch / predbio;
-  inipredprop = predprop;
-
-  for (int i=0; i<(ct.size()-1); i++) { // TODO check this for errors
-
-    // effort dynamics
-    if (logistic_model) { // logistic model with Bt-1
-      predprop = predprop * (1.0 + x_vec * ((predbio / (a_vec * k_vec) - 1.0)));
-    } else { //linear model
-      predprop = predprop + x_vec * inipredprop;
-    }
-
-    // biomass dynamics
-    if (obs) {
-      predbio = predbio + (r_vec * predbio * ( 1.0 - (predbio / k_vec ))) - ct(i);
-    } else {
-      predbio = predbio + (r_vec * predbio * ( 1.0 - (predbio / k_vec ))) - predcatch;
-    }
-
-    predcatch = predbio * predprop;
-
-    for (int j=0; j<nsim; j++) {
-      if ((like(j) != 0.0 && (predbio(j) <= 0.0 || predprop(j) < 0.0 )) ||
-          NumericVector::is_na(like(j))) {
-        like(j) = 0.0;
-      }
+NumericVector check_comsir_lik(int nsim, NumericVector predbio, NumericVector
+    predprop, NumericVector like) {
+  for (int j=0; j<nsim; j++) {
+    if ((like(j) != 0.0 && (predbio(j) <= 0.0 || predprop(j) < 0.0 )) ||
+        NumericVector::is_na(like(j))) {
+      like(j) = 0.0;
     }
   }
-
-  // in some of the years the population crashes, we know this is impossible,
-  // because the population is still there (because of the catches)
-
-  return DataFrame::create(
-      Named("n1")      = n1,
-      Named("k")       = k_vec,
-      Named("r")       = r_vec,
-      Named("z")       = z,
-      Named("a")       = a_vec,
-      Named("x")       = x_vec,
-      Named("h")       = h,
-      Named("biomass") = predbio,
-      Named("prop")    = predprop,
-      Named("like")    = like);
+  return like;
 }
 
 // @examples
