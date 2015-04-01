@@ -1,0 +1,168 @@
+Test the R package code against the original code in Dropbox.
+
+Load the package functions:
+
+```{r}
+devtools::load_all("..")
+```
+
+The original `Priors()` function from COM-SIR:
+
+```{r}
+Priors<-function(Nsim,logK=T,MyPar=TruePar,CV=0.4,NormK=F,Normr=F,
+			Norma=F,Normx=F,Catch,minK=max(Catch), maxK=100*max(Catch),start.r=c(0.2,1),LogisticModel=T,Obs=F)
+{
+	if(logK)
+	#&& NormK==F) #uniform prior on the log(K)
+    {
+	        K<- runif(Nsim,log(minK),log(maxK))
+	        K<- exp(K)
+   	}
+	else K<-runif(Nsim,minK,maxK)# prior on arithmetic scale for K
+	
+   	if(logK==F && NormK==T) #normal prior on the arithmetic scale
+       	{K<-rnorm(Nsim,MyPar$K,CV*MyPar$K)}
+	if(Normr) r<-rnorm(Nsim,MyPar$r,CV*MyPar$r)
+	else r<-runif(Nsim,start.r[1],start.r[2])# prior for r
+	if(Normx) x<-rnorm(Nsim,MyPar$x,CV*MyPar$x)
+	#else x<-runif(Nsim,0,10)# prior for x
+	#else x<-runif(Nsim,0,0.5)# prior for x
+	else x<-runif(Nsim,0.000001,1)# prior for x
+	
+	if(Norma) a<-rnorm(Nsim,MyPar$a,CV*MyPar$a)
+	else a<-runif(Nsim,0,1)# prior for a
+	#sigma<-rnorm(Nsim,0.001,0.0001)# normal informative prior for sigma
+	#h<-runif(Nsim,0,0)# normal informative prior for initial harvest rate
+    h<-rep(0,Nsim)# h=0, start from unexploited state
+	z<-rep(1,Nsim)# z=1 is the Schaeffer model
+
+	N1<-(1-h)*K #initial population size
+  #browser()
+    Like<-rep(1,Nsim) #Like=1 if the model does not crashes, Like=0 if the model crashes
+    
+	#Set up the numbers and project to the start of the first "real" year 
+	#(i.e. N1 to Nm), all simulations at once
+	#initial conditions
+	predbio<- N1
+	predcatch<-Catch[1] #the first year of catches in assumed known
+	predprop<-predcatch/predbio
+	inipredprop<-predprop
+	m<-length(Catch)
+
+
+  #print(inipredprop)
+#   print(x);
+#   print(a);
+#   print(K);
+#   print(predprop);
+
+	 for (t in 1:m-1)
+     {
+	    #effort dynamics 
+	   	if (LogisticModel) {#logistic model with Bt-1
+				 predprop<- predprop*(1+x*((predbio/(a*K)-1)))
+		     #predprop<- predprop*(1+x) * predbio
+	
+	   		#predprop = predprop*(1+x*((predbio/(K*a)) -1))  
+      } else { #linear model 
+	   		predprop = predprop + x*inipredprop
+     }
+
+	   	#biomass dynamics
+  #print(x)
+#   print(a)
+#   print(predbio)
+
+       if(Obs) predbio = predbio + ( r * predbio * ( 1 -( predbio / K ))) - Catch[t]
+	   	else 
+        predbio = predbio + ( r * predbio * ( 1 -( predbio / K ))) - predcatch
+	   	predcatch = predbio*predprop
+        for(i in 1:Nsim) #this is an element operation ## change 07 Jan 2013 "|| is.na(Like[i])"
+			if ((Like[i]!=0 & (predbio[i]<= 0 || predprop[i]< 0 )) || is.na(Like[i]) ) Like[i]<- 0
+
+  #print(predbio)
+
+	  }
+          
+	#in some of the years the population crashes, we know this is impossible, because the population
+	# is still there (because of the catches
+	#Output
+	Params<-NULL
+	Params$N1<-N1
+	Params$K<-K
+	Params$r<-r
+	Params$z<-z
+	Params$a<-a
+	Params$x<-x
+	Params$h<-h
+	Params$B<- predbio
+	Params$Prop<-predprop
+    Params$Like<-Like
+	return(as.data.frame(Params))
+}
+```
+
+
+```{r}
+ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
+  3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
+  9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
+
+# set.seed(1)
+# system.time({
+# pkg_comsir_priors <- comsir_priors(ct = ct,
+#    k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
+#    mink = max(ct), maxk = max(ct) * 100, nsim = 1e3)
+# })
+# pkg_comsir_priors
+
+set.seed(1)
+system.time({
+orig_comsir_priors <- Priors(Nsim = 1e5, 
+  MyPar = list(k = 800, r = 0.6, x = 0.5, a = 0.8), Catch = ct, start.r = c(0.2, 1))
+})
+#orig_comsir_priors
+
+set.seed(1)
+system.time({
+pkg2_comsir_priors <- comsir_priors(ct = ct,
+   k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
+   mink = max(ct), maxk = max(ct) * 100, nsim = 1e5)
+})
+#pkg2_comsir_priors
+```
+
+Compare:
+
+```{r, width = 5, height = 10}
+par(mfrow = c(10, 2), cex = 0.5)
+for(i in 1:ncol(pkg_comsir_priors)) {
+  hist(pkg2_comsir_priors[,i], main = paste("pkg", names(pkg_comsir_priors)[i]))
+  hist(orig_comsir_priors[,i], main = paste("orig", names(pkg_comsir_priors)[i]))
+}
+```
+
+Looks good now.
+
+Checking the whole function:
+
+```{r}
+x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
+   n_posterior = 2e3)
+bbmsy <- reshape2::dcast(x$quantities, sample_id ~ yr,
+    value.var = "bbmsy")[,-1] # convert long to wide format
+bbmsy_out <- summarize_bbmsy(bbmsy, log = FALSE)
+bbmsy_out$year <- seq_len(nrow(bbmsy_out))
+library("ggplot2")
+ggplot(bbmsy_out, aes(year, bbmsy_q50)) + geom_line() + geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) + geom_hline(yintercept = 1, lty = 2)
+```
+
+Compare the original code:
+
+```{r}
+source("~/src/ensembles-old/RAM_Legacy_fits/COMSIR/FunctionsCOM")
+out <- DoProject(TruePar = as.data.frame(t(c(N1 = 800, K = 800, r = 0.6, z = 1.0, a = 0.8, x = 0.5, h = 0))), MyData = data.frame(catch = ct), Nsim = 1e6, Npost = 5e3)
+bbmsy_orig_out <- summarize_bbmsy(t(out$BoverBmsy), log = FALSE)
+bbmsy_orig_out$year <- seq_len(nrow(bbmsy_orig_out))
+ggplot(bbmsy_orig_out, aes(year, bbmsy_q50)) + geom_line() + geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) + geom_hline(yintercept = 1, lty = 2)
+```
