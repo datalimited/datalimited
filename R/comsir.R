@@ -76,7 +76,7 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
   o <- o[o$like != 0, ]
 
   est <- comsir_est(n1 = o$n1, k = o$k, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
-    like = o$like, ct = ct, )
+    like = o$like, ct = ct)
 
   comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yr = yr,
     n_posterior = n_posterior, ct, plot = FALSE, logistic_model = logistic_model)
