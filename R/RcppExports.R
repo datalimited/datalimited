@@ -9,8 +9,8 @@ get_cmsy_biomass <- function(r, k, j, sigR, nyr, ct) {
     .Call('datalimited_get_cmsy_biomass', PACKAGE = 'datalimited', r, k, j, sigR, nyr, ct)
 }
 
-comsir_priors <- function(ct, k, r, x, a, start_r, mink, maxk, logk = TRUE, cv = 0.4, norm_k = FALSE, norm_r = FALSE, norm_a = FALSE, norm_x = FALSE, logistic_model = TRUE, obs = FALSE, nsim = 2000L) {
-    .Call('datalimited_comsir_priors', PACKAGE = 'datalimited', ct, k, r, x, a, start_r, mink, maxk, logk, cv, norm_k, norm_r, norm_a, norm_x, logistic_model, obs, nsim)
+check_comsir_lik <- function(nsim, predbio, predprop, like) {
+    .Call('datalimited_check_comsir_lik', PACKAGE = 'datalimited', nsim, predbio, predprop, like)
 }
 
 posfun <- function(x, eps = 0.00001) {
