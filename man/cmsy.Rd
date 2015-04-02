@@ -8,7 +8,7 @@ cmsy(yr, ct, prior_log_mean, prior_log_sd, interyr_index = 2L,
   interbio = c(0, 1), bio_step = 0.05, start_r = resilience(NA),
   start_k = c(max(ct), 50 * max(ct)), startbio = if (ct[1]/max(ct) < 0.2)
   c(0.5, 0.9) else c(0.2, 0.6), sig_r = 0.05, reps = 10000,
-  remove_ell0 = TRUE)
+  revise_bounds = TRUE)
 }
 \arguments{
 \item{yr}{Numeric vector of years}
@@ -41,8 +41,9 @@ bounds on stock biomass at carrying capacity}
 
 \item{reps}{Number of repititions to run the sampling}
 
-\item{remove_ell0}{Should sampled rows with \code{ell == 0} be removed
-internally?}
+\item{revise_bounds}{Should the bounds on r and k be revised after fitting
+the algorithm once? The algorithm will then fit a second time with the
+revised bounds.}
 }
 \value{
 A list containing a matrix \code{biomass} and a data frame

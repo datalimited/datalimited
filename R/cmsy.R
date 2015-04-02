@@ -20,8 +20,9 @@
 #' @param prior_log_mean Prior log mean
 #' @param prior_log_sd Prior log sd
 #' @param reps Number of repititions to run the sampling
-#' @param remove_ell0 Should sampled rows with \code{ell == 0} be removed
-#'   internally?
+#' @param revise_bounds Should the bounds on r and k be revised after fitting
+#'   the algorithm once? The algorithm will then fit a second time with the
+#'   revised bounds.
 #' @return A list containing a matrix \code{biomass} and a data frame
 #'   \code{quantities}. The matrix has rows for each iteration and columns for
 #'   years. The data frame contains columns for intrinsic population growth
@@ -67,7 +68,7 @@ cmsy <- function(
   startbio         = if (ct[1] / max(ct) < 0.2) c(0.5, 0.9) else c(0.2, 0.6),
   sig_r            = 0.05,
   reps             = 1e4,
-  remove_ell0      = TRUE) {
+  revise_bounds     = TRUE) {
 
   if (!identical(length(interbio), 2L))
     stop("interbio must be a vector of length 2")
@@ -90,6 +91,47 @@ cmsy <- function(
     reps           = reps)
 
   schaefer_out <- schaefer_out[schaefer_out$ell == 1, ]
+
+  if (revise_bounds) {
+    # Repeat with revised bounds
+    # use for batch processing   ****THIS IS AN UPDATE FROM RAINER--Oct 12, 2012:
+    # finalbio <- if(ct[length(yr)]/max(ct) > 0.5) {c(0.3,0.7)} else {c(0.01,0.4)}
+    # parbound <- list(r = start_r, k = start_k, lambda = finalbio, sig_r=sig_r)
+    parbound <- list(r = start_r, k = start_k)
+    r1 	<- schaefer_out$r[schaefer_out$ell==1]
+    k1 	<- schaefer_out$k[schaefer_out$ell==1]
+    j1  <- schaefer_out$J[schaefer_out$ell==1]
+    msy1 <- r1*k1/4
+    mean_msy1 <- exp(mean(log(msy1)))
+    max_k1a <- min(k1[r1<1.1*parbound$r[1]]) ## smallest k1 near initial lower bound of r
+    max_k1b <- max(k1[r1*k1/4<mean_msy1]) ## largest k1 that gives mean MSY
+    max_k1 <- if(max_k1a < max_k1b) {max_k1a} else {max_k1b}
+    if (length(r1)<10) {
+      warning(paste0("Too few (", length(r1), ") possible r-k combinations, ",
+        "check input parameters"))
+      return(NULL)
+    } else {
+      # set new upper bound of r to 1.2 max r1
+      parbound$r[2] <- 1.2 * max(r1)
+      # set new lower bound for k to 0.9 min k1 and upper bound to max_k1
+      parbound$k <- c(0.9 * min(k1), max_k1)
+      # Repeat analysis with new r-k bounds
+      schaefer_out <- schaefer_cmsy(
+        r_lim          = parbound$r,
+        k_lim          = parbound$k,
+        sig_r          = sig_r,
+        startbio       = seq(startbio[1], startbio[2], by = bio_step),
+        yr             = yr,
+        ct             = ct,
+        interyr_index  = interyr_index,
+        prior_log_mean = prior_log_mean,
+        prior_log_sd   = prior_log_sd,
+        interbio       = interbio,
+        reps           = reps)
+      schaefer_out <- schaefer_out[schaefer_out$ell == 1, ]
+    }
+  }
+
   schaefer_out$bmsy <- schaefer_out$k * 0.5
   schaefer_out$msy  <- schaefer_out$r * schaefer_out$k / 4
   schaefer_out$mean_ln_msy <- mean(log(schaefer_out$msy))
