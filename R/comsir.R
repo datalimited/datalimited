@@ -63,7 +63,7 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
   mink = max(ct),
   maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
   norm_a = FALSE, norm_x = FALSE, nsim = 1e6, cv = 0.4, logistic_model = TRUE,
-  obs = FALSE, n_posterior = 5e3) {
+  obs = FALSE, n_posterior = 5e3, normal_like = FALSE) {
 
   # TODO: note that the resilience categories were slightly different from
   # CMSY initially. Was missing 'medium'.
@@ -74,9 +74,12 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
     norm_a = norm_a, norm_x = norm_x, logistic_model = logistic_model, obs = obs,
     cv = cv, nsim = nsim)
   o <- o[o$like > 0, ]
+  # saveRDS(o, file = "prior.rds")
 
   est <- comsir_est(n1 = o$n1, k = o$k, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
-    like = o$like, ct = ct, logistic_model = logistic_model)
+    like = o$like, ct = ct, logistic_model = logistic_model,
+    normal_like = normal_like, cv = cv)
+  # saveRDS(est, file = "est.rds")
 
   comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yr = yr,
     n_posterior = n_posterior, ct, logistic_model = logistic_model)
@@ -86,8 +89,8 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
 # comsir_resample(k = c(100, 101, 102), h = c(0.5, 0.5, 0.5),
 #   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), like = c(0, 1, 1),
 #   n_posterior = 2, ct = rlnorm(10), yr = 1:10)
-comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior = 1000L,
-  logistic_model = TRUE) {
+comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
+  logistic_model) {
 
   nsim <- length(k)
 
@@ -145,9 +148,9 @@ comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior = 1000L,
 }
 
 comsir_priors <- function(ct, k, r, x, a, start_r, mink,
-  maxk, logk = TRUE, cv = 0.4, norm_k = FALSE, norm_r = FALSE,
-  norm_a = FALSE, norm_x = FALSE, logistic_model = TRUE,
-  obs = FALSE, nsim = 2000L) {
+  maxk, logk, cv, norm_k, norm_r,
+  norm_a, norm_x, logistic_model,
+  obs, nsim) {
   if (logk) {
     k_vec <- runif(nsim, log(mink), log(maxk))
     k_vec <- exp(k_vec)
@@ -202,8 +205,8 @@ comsir_priors <- function(ct, k, r, x, a, start_r, mink,
     predbio, prop = predprop, like = like)
 }
 
-comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv = 0.4,
-  logistic_model = TRUE, normal_like = TRUE) {
+comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
+  logistic_model, normal_like) {
 
   #  normal_like=true for normal likelihood
   #  normal_like=false for lognormal likelihood
@@ -264,7 +267,7 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv = 0.4,
       loglike = dnorm(ct[i], predcatch, my_sd, log = TRUE) # normal Log likelihood
       cum_loglike = cum_loglike + loglike # cummulative normal loglikelihood
     } else {
-      loglike = dlnorm(ct(i), log(predcatch), cv, log = TRUE)
+      loglike = dlnorm(ct[i], log(predcatch), cv, log = TRUE)
       cum_loglike = cum_loglike + loglike;
     }
     # print(predbio[1])
