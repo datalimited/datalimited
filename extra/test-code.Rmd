@@ -15,15 +15,16 @@ ct <- blue_gren$ct
 set.seed(1)
 system.time({
 orig_comsir_priors <- Priors(Nsim = 1e4, 
-  MyPar = list(k = 800, r = 0.6, x = 0.5, a = 0.8), Catch = ct, start.r = c(0.2, 1),
-  LogisticModel = TRUE)
+  MyPar = list(k = 800, r = 0.6, x = 0.5, a = 0.8), Catch = ct, 
+  LogisticModel = TRUE, Obs = FALSE, start.r = c(0.2,1.0), NormK = FALSE, Normr = FALSE, Norma = FALSE, Normx = FALSE, logK = TRUE)
 })
 
 set.seed(1)
 system.time({
 pkg2_comsir_priors <- comsir_priors(ct = ct,
    k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-   mink = max(ct), maxk = max(ct) * 100, nsim = 1e4, logistic_model = TRUE)
+   mink = max(ct), maxk = max(ct) * 100, nsim = 1e4, logistic_model = TRUE, obs = FALSE, norm_k = FALSE, norm_r = FALSE, 
+  logk = TRUE, norm_x = FALSE, norm_a = FALSE)
 })
 p_pkg <- pkg2_comsir_priors
 p_orig <- orig_comsir_priors
@@ -34,7 +35,7 @@ stopifnot(identical(nrow(p_pkg), nrow(p_orig)))
 stopifnot(identical(p_pkg$biomass, p_orig$B))
 stopifnot(identical(p_pkg$prop, p_orig$Prop))
 stopifnot(identical(p_pkg$n1, p_orig$N1))
-identical(as.numeric(as.matrix(p_pkg)), as.numeric(as.matrix(p_orig)))
+stopifnot(identical(as.numeric(as.matrix(p_pkg)), as.numeric(as.matrix(p_orig))))
 ```
 
 Compare:
@@ -98,7 +99,7 @@ set.seed(123)
 system.time({x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, 
   nsim = 1e5, a = 0.8, x = 0.5, n_posterior = 5e2, start_r = c(0.2, 1.0), 
   logistic_model = TRUE, obs = FALSE, norm_k = FALSE, norm_r = FALSE, 
-  logk = TRUE, norm_x = FALSE)})
+  logk = TRUE, norm_x = FALSE, norm_a = FALSE, normal_like = FALSE)})
 
 # x <- qq
 bbmsy <- reshape2::dcast(x$quantities, sample_id ~ yr,
@@ -115,7 +116,7 @@ Compare the original code:
 set.seed(123)
 system.time({out <- DoProject(TruePar = as.data.frame(t(c(N1 = 800, K = 800, 
   r = 0.6, z = 1.0, a = 0.8, x = 0.5, h = 0))), MyData = data.frame(catch = ct), 
-  Nsim = 1e5, Npost = 5e2, LogisticModel = TRUE, EstLogisticM = TRUE, start.r = c(0.2,1.0))})
+  Nsim = 1e5, Npost = 5e2, LogisticModel = TRUE, Obs = FALSE, EstLogisticM = TRUE, start.r = c(0.2,1.0), NormK = FALSE, Normr = FALSE, Norma = FALSE, Normx = FALSE, logK = TRUE)})
 
 bbmsy_orig_out <- summarize_bbmsy(t(out$BoverBmsy), log = TRUE)
 bbmsy_orig_out$year <- seq_len(nrow(bbmsy_orig_out))
