@@ -104,7 +104,7 @@ Priors<-function(Nsim,logK=T,MyPar=TruePar,CV=0.4,NormK=F,Normr=F,
 
 ###########18 March 2013##############
 
-MYsumpars<- function(ParVals,Npost=1000,Catch,Plot=F)
+MYsumpars<- function(ParVals,Npost=1000,Catch,Plot=F, LogisticModel=FALSE)
 {
 	#Quick version of SIR #ressampling
 	#print(ParVals)
@@ -137,7 +137,7 @@ MYsumpars<- function(ParVals,Npost=1000,Catch,Plot=F)
 	    # this is an R function will sample proportional to the likelihood
 		#'sample' takes a sample of the specified size from the elements of
 	    #'x' using either with or without replacement.
-	Ind<-sort(Ind)
+	# Ind<-sort(Ind)
 	m<-length(ParVals)
 	ParVals<-as.data.frame(ParVals)
 	#[1] "N1"   "K"    "r"    "z"    "a"    "x"    "h"    "B"    "Prop" "Like"
@@ -156,12 +156,12 @@ MYsumpars<- function(ParVals,Npost=1000,Catch,Plot=F)
 	#time series of BoverBmsy
 	 #BoverBmsy=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=T)
 	#
-	BoverBmsy=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=F,What=1)
+	BoverBmsy=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=LogisticModel,What=1)
 	#=xx$BoverBmsy
 	#BoverBmsy","biomass","predprop","predcatch","obscatch"
-	biomass=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=T,What=2)
-	predprop=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=T,What=3)
-	predcatch=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=T,What=4)
+	biomass=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=LogisticModel,What=2)
+	predprop=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=LogisticModel,What=3)
+	predcatch=apply(MARGIN=1,FUN=effortdyn_orig,X=Post[,1:7],Catch=Catch,LogisticModel=LogisticModel,What=4)
 	residual= Catch-predcatch
 
 	#BoverBmsy<-matrix(NA,ncol=length(Catch),nrow=Npost)
@@ -405,12 +405,14 @@ DoProject<-function(Simul=T,MyFile="Figura1",Myseed=128,TruePar,MyData,MyPri,Est
 	names(TruePar)<-c( "N1",   "K",    "r",    "z",    "a",    "x",    "h")
 	TruePar<-as.data.frame(t(TruePar))
 	MyCatch<- MyData$catch
-	ww<-Priors(Nsim=Nsim,MyPar=TruePar,Catch=MyCatch,...)#sample from the priors & compute Likelihood L=0 if model crashes, L=1 o/w
+	ww<-Priors(Nsim=Nsim,MyPar=TruePar,Catch=MyCatch,LogisticModel=LogisticModel,...)#sample from the priors & compute Likelihood L=0 if model crashes, L=1 o/w
 	#print(paste("simulations in ",length(ww[,1])))
 	yy<-ww[ww$Like>0,]
-	#print(paste("simulations out ",length(yy$Like)))
+	saveRDS(yy, file = "priors-orig.rds")
+	#print(paste("simulations out ",length(yy$Like)))LogisticModel=LogisticModel,
 	hh<-Estimate(Post=yy,CV=MyCV,Catch=MyCatch,LogisticModel=EstLogisticM,NormalL=NormalL)#compute Likelihood for those models that do not crash
-	zz<-MYsumpars(Npost=Npost,ParVals=hh,Catch=MyCatch)# resample proportional to likelihood
+	saveRDS(hh, file = "est-orig.rds")
+	zz<-MYsumpars(Npost=Npost,ParVals=hh,Catch=MyCatch, LogisticModel=LogisticModel)# resample proportional to likelihood
 	#write.table(zz,"post.txt")
 	#write.table(yy,"posmodelprior.txt")
 	#write.table(ww,"priors.txt")
