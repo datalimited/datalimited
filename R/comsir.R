@@ -73,7 +73,7 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
     mink = mink, maxk = maxk, logk = logk, norm_k = norm_k, norm_r = norm_r,
     norm_a = norm_a, norm_x = norm_x, logistic_model = logistic_model, obs = obs,
     cv = cv, nsim = nsim)
-  o <- o[o$like != 0, ]
+  o <- o[o$like > 0, ]
 
   est <- comsir_est(n1 = o$n1, k = o$k, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
     like = o$like, ct = ct, logistic_model = logistic_model)
