@@ -3,155 +3,107 @@ Test the R package code against the original code in Dropbox.
 Load the package functions:
 
 ```{r}
+library(dplyr)
 devtools::load_all("..")
 ```
 
-The original `Priors()` function from COM-SIR:
 
 ```{r}
-Priors<-function(Nsim,logK=T,MyPar=TruePar,CV=0.4,NormK=F,Normr=F,
-			Norma=F,Normx=F,Catch,minK=max(Catch), maxK=100*max(Catch),start.r=c(0.2,1),LogisticModel=T,Obs=F)
-{
-	if(logK)
-	#&& NormK==F) #uniform prior on the log(K)
-    {
-	        K<- runif(Nsim,log(minK),log(maxK))
-	        K<- exp(K)
-   	}
-	else K<-runif(Nsim,minK,maxK)# prior on arithmetic scale for K
-	
-   	if(logK==F && NormK==T) #normal prior on the arithmetic scale
-       	{K<-rnorm(Nsim,MyPar$K,CV*MyPar$K)}
-	if(Normr) r<-rnorm(Nsim,MyPar$r,CV*MyPar$r)
-	else r<-runif(Nsim,start.r[1],start.r[2])# prior for r
-	if(Normx) x<-rnorm(Nsim,MyPar$x,CV*MyPar$x)
-	#else x<-runif(Nsim,0,10)# prior for x
-	#else x<-runif(Nsim,0,0.5)# prior for x
-	else x<-runif(Nsim,0.000001,1)# prior for x
-	
-	if(Norma) a<-rnorm(Nsim,MyPar$a,CV*MyPar$a)
-	else a<-runif(Nsim,0,1)# prior for a
-	#sigma<-rnorm(Nsim,0.001,0.0001)# normal informative prior for sigma
-	#h<-runif(Nsim,0,0)# normal informative prior for initial harvest rate
-    h<-rep(0,Nsim)# h=0, start from unexploited state
-	z<-rep(1,Nsim)# z=1 is the Schaeffer model
-
-	N1<-(1-h)*K #initial population size
-  #browser()
-    Like<-rep(1,Nsim) #Like=1 if the model does not crashes, Like=0 if the model crashes
-    
-	#Set up the numbers and project to the start of the first "real" year 
-	#(i.e. N1 to Nm), all simulations at once
-	#initial conditions
-	predbio<- N1
-	predcatch<-Catch[1] #the first year of catches in assumed known
-	predprop<-predcatch/predbio
-	inipredprop<-predprop
-	m<-length(Catch)
-
-
-  #print(inipredprop)
-#   print(x);
-#   print(a);
-#   print(K);
-#   print(predprop);
-
-	 for (t in 1:m-1)
-     {
-	    #effort dynamics 
-	   	if (LogisticModel) {#logistic model with Bt-1
-				 predprop<- predprop*(1+x*((predbio/(a*K)-1)))
-		     #predprop<- predprop*(1+x) * predbio
-	
-	   		#predprop = predprop*(1+x*((predbio/(K*a)) -1))  
-      } else { #linear model 
-	   		predprop = predprop + x*inipredprop
-     }
-
-	   	#biomass dynamics
-  #print(x)
-#   print(a)
-#   print(predbio)
-
-       if(Obs) predbio = predbio + ( r * predbio * ( 1 -( predbio / K ))) - Catch[t]
-	   	else 
-        predbio = predbio + ( r * predbio * ( 1 -( predbio / K ))) - predcatch
-	   	predcatch = predbio*predprop
-        for(i in 1:Nsim) #this is an element operation ## change 07 Jan 2013 "|| is.na(Like[i])"
-			if ((Like[i]!=0 & (predbio[i]<= 0 || predprop[i]< 0 )) || is.na(Like[i]) ) Like[i]<- 0
-
-  #print(predbio)
-
-	  }
-          
-	#in some of the years the population crashes, we know this is impossible, because the population
-	# is still there (because of the catches
-	#Output
-	Params<-NULL
-	Params$N1<-N1
-	Params$K<-K
-	Params$r<-r
-	Params$z<-z
-	Params$a<-a
-	Params$x<-x
-	Params$h<-h
-	Params$B<- predbio
-	Params$Prop<-predprop
-    Params$Like<-Like
-	return(as.data.frame(Params))
-}
-```
-
-
-```{r}
-ct <- c(512, 865, 511, 829, 935, 1390, 1260, 2240, 3370, 2770, 3050,
-  3290, 4540, 3300, 3500, 3190, 2880, 3490, 5670, 6310, 9550, 8700,
-  9130, 9160, 8490, 6400, 4420, 3680, 3190, 3960, 3290, 4220, 4220)
-
-# set.seed(1)
-# system.time({
-# pkg_comsir_priors <- comsir_priors(ct = ct,
-#    k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-#    mink = max(ct), maxk = max(ct) * 100, nsim = 1e3)
-# })
-# pkg_comsir_priors
+source("FunctionsCOM.R")
+ct <- blue_gren$ct
 
 set.seed(1)
 system.time({
-orig_comsir_priors <- Priors(Nsim = 1e5, 
-  MyPar = list(k = 800, r = 0.6, x = 0.5, a = 0.8), Catch = ct, start.r = c(0.2, 1))
+orig_comsir_priors <- Priors(Nsim = 1e4, 
+  MyPar = list(k = 800, r = 0.6, x = 0.5, a = 0.8), Catch = ct, start.r = c(0.2, 1),
+  LogisticModel = TRUE)
 })
-#orig_comsir_priors
 
 set.seed(1)
 system.time({
 pkg2_comsir_priors <- comsir_priors(ct = ct,
    k = 800, r = 0.6, x = 0.5, a = 0.8, start_r = c(0.2, 1),
-   mink = max(ct), maxk = max(ct) * 100, nsim = 1e5)
+   mink = max(ct), maxk = max(ct) * 100, nsim = 1e4, logistic_model = TRUE)
 })
-#pkg2_comsir_priors
+p_pkg <- pkg2_comsir_priors
+p_orig <- orig_comsir_priors
+
+p_pkg <- p_pkg[p_pkg$like != 0, ]
+p_orig <- p_orig[p_orig$Like != 0, ]
+stopifnot(identical(nrow(p_pkg), nrow(p_orig)))
+stopifnot(identical(p_pkg$biomass, p_orig$B))
+stopifnot(identical(p_pkg$prop, p_orig$Prop))
+stopifnot(identical(p_pkg$n1, p_orig$N1))
+identical(as.numeric(as.matrix(p_pkg)), as.numeric(as.matrix(p_orig)))
 ```
 
 Compare:
 
 ```{r, width = 5, height = 10}
-par(mfrow = c(10, 2), cex = 0.5)
-for(i in 1:ncol(pkg_comsir_priors)) {
-  hist(pkg2_comsir_priors[,i], main = paste("pkg", names(pkg_comsir_priors)[i]))
-  hist(orig_comsir_priors[,i], main = paste("orig", names(pkg_comsir_priors)[i]))
-}
+# par(mfrow = c(10, 2), cex = 0.5)
+# for(i in 1:ncol(pkg_comsir_priors)) {
+  # hist(pkg2_comsir_priors[,i], main = paste("pkg", names(pkg_comsir_priors)[i]))
+  # hist(orig_comsir_priors[,i], main = paste("orig", names(pkg_comsir_priors)[i]))
+# }
 ```
 
 Looks good now.
 
+Check the "estimation" phase:
+
+```{r}
+set.seed(1)
+system.time({est_orig <- Estimate(p_orig, Catch = ct, CV = 0.4, 
+  LogisticModel = TRUE, NormalL = TRUE)})
+set.seed(1)
+system.time({est_pkg <- comsir_est(n1 = p_pkg$n1, k = p_pkg$k, r = p_pkg$r, a = p_pkg$a, 
+  x = p_pkg$x, h = p_pkg$h, z = p_pkg$z, like = p_pkg$like, ct = ct, 
+  logistic_model = TRUE, normal_like = TRUE, cv = 0.4)})
+
+identical(est_orig$B, est_pkg$B) %>% stopifnot
+identical(est_orig$K, est_pkg$k) %>% stopifnot
+identical(est_orig$Prop, est_pkg$prop) %>% stopifnot
+identical(est_orig$Like, est_pkg$like) %>% stopifnot
+```
+
+Check the resampling phase:
+
+```{r}
+set.seed(1)
+r_pkg <- with(est_pkg, comsir_resample(k = k, r = r, a = a, x = x, h = h, 
+  like = like, yr = blue_gren$yr, n_posterior = 10L, ct = blue_gren$ct, logistic_model = TRUE))
+set.seed(1)
+r_orig <- MYsumpars(ParVals = est_orig, Npost = 10L, Catch = blue_gren$ct, LogisticModel = TRUE)
+
+r_orig$posterior %>% head
+r_pkg$posterior %>%  head
+identical(r_pkg$like, r_orig$like) %>% stopifnot
+identical(r_pkg$Biomass, r_orig$B) %>% stopifnot
+```
+
+Check effort dynamics code:
+
+```{r}
+e_pkg <- effortdyn(h = 0, k = 1000, r = 0.5, x = 0.4, a = 0.9, yr = 1:3, 
+  ct = c(500, 200, 305), logistic_model = TRUE)
+e_orig <- effortdyn_orig(TrueP = c(h = 0, K = 1000, r = 0.5, x = 0.4, a = 0.9), 
+  LogisticModel = TRUE, Catch = c(500, 200, 305), What = 1:5)
+identical(as.numeric(e_pkg[,-6]), as.numeric(e_orig)) %>% stopifnot()
+```
+
 Checking the whole function:
 
 ```{r}
-x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
-   n_posterior = 2e3)
+set.seed(123)
+system.time({x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, 
+  nsim = 1e5, a = 0.8, x = 0.5, n_posterior = 5e2, start_r = c(0.2, 1.0), 
+  logistic_model = TRUE, obs = FALSE, norm_k = FALSE, norm_r = FALSE, 
+  logk = TRUE, norm_x = FALSE)})
+
+# x <- qq
 bbmsy <- reshape2::dcast(x$quantities, sample_id ~ yr,
     value.var = "bbmsy")[,-1] # convert long to wide format
-bbmsy_out <- summarize_bbmsy(bbmsy, log = FALSE)
+bbmsy_out <- summarize_bbmsy(bbmsy, log = TRUE)
 bbmsy_out$year <- seq_len(nrow(bbmsy_out))
 library("ggplot2")
 ggplot(bbmsy_out, aes(year, bbmsy_q50)) + geom_line() + geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) + geom_hline(yintercept = 1, lty = 2)
@@ -160,9 +112,60 @@ ggplot(bbmsy_out, aes(year, bbmsy_q50)) + geom_line() + geom_ribbon(aes(ymin = b
 Compare the original code:
 
 ```{r}
-source("~/src/ensembles-old/RAM_Legacy_fits/COMSIR/FunctionsCOM")
-out <- DoProject(TruePar = as.data.frame(t(c(N1 = 800, K = 800, r = 0.6, z = 1.0, a = 0.8, x = 0.5, h = 0))), MyData = data.frame(catch = ct), Nsim = 1e6, Npost = 5e3)
-bbmsy_orig_out <- summarize_bbmsy(t(out$BoverBmsy), log = FALSE)
+set.seed(123)
+system.time({out <- DoProject(TruePar = as.data.frame(t(c(N1 = 800, K = 800, 
+  r = 0.6, z = 1.0, a = 0.8, x = 0.5, h = 0))), MyData = data.frame(catch = ct), 
+  Nsim = 1e5, Npost = 5e2, LogisticModel = TRUE, EstLogisticM = TRUE, start.r = c(0.2,1.0))})
+
+bbmsy_orig_out <- summarize_bbmsy(t(out$BoverBmsy), log = TRUE)
 bbmsy_orig_out$year <- seq_len(nrow(bbmsy_orig_out))
 ggplot(bbmsy_orig_out, aes(year, bbmsy_q50)) + geom_line() + geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) + geom_hline(yintercept = 1, lty = 2)
+
+plot(bbmsy_out$bbmsy_q50, bbmsy_orig_out$bbmsy_q50);abline(a = 0, b = 1)
 ```
+
+Plot the two:
+
+```{r}
+names(out)
+names(x)
+
+median(x$posterior$r)
+median(out$posterior$r)
+
+median(x$quantities$bbmsy)
+median(out$BoverBmsy)
+
+po <- readRDS("priors-orig.rds")
+pn <- readRDS("prior.rds")
+median(pn$biomass)
+median(po$B)
+median(pn$k)
+median(po$K)
+median(pn$prop)
+median(po$Prop)
+
+eo <- readRDS("est-orig.rds")
+en <- readRDS("est.rds")
+
+median(eo$B)
+median(en$B)
+
+median(eo$Prop)
+median(en$prop)
+
+
+# MYsumpars<- function(ParVals,Npost=1000,Catch,Plot=F, LogisticModel=FALSE)
+
+
+  
+fake_est_orig <- list(N1 = en$n1, K = en$k, r = en$r, z = en$z, a = en$a, x = en$x, h = rep(0, length(length(en$x))), B = en$B, Prop = en$prop, LogLike = en$loglike, Like = en$like)
+qq <- MYsumpars(ParVals = fake_est_orig, Npost = 5e3, Catch = blue_gren$ct, LogisticModel = TRUE)
+
+function(k, r, a, x, h, like, yr, ct, n_posterior = 1000L,
+  logistic_model = TRUE) {
+
+qq_p <- with(en, comsir_resample(k = k, r = r, a = a, x = en$x, h = h, like = en$like, yr = blue_gren$yr, ct = blue_gren$ct, n_posterior = 5e3))
+
+```
+
