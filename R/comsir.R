@@ -79,15 +79,15 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
     like = o$like, ct = ct, logistic_model = logistic_model)
 
   comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yr = yr,
-    n_posterior = n_posterior, ct, plot = FALSE, logistic_model = logistic_model)
+    n_posterior = n_posterior, ct, logistic_model = logistic_model)
 }
 
 # @examples
 # comsir_resample(k = c(100, 101, 102), h = c(0.5, 0.5, 0.5),
 #   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), like = c(0, 1, 1),
 #   n_posterior = 2, ct = rlnorm(10), yr = 1:10)
-comsir_resample <- function(k, r, a, x, h, like, yr, n_posterior = 1000, ct,
-  plot = FALSE, logistic_model = TRUE) {
+comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior = 1000L,
+  logistic_model = TRUE) {
 
   nsim <- length(k)
 
