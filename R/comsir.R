@@ -48,7 +48,6 @@
 #' Shirley, P. D. Spencer, B. Wilson, and D. Woodby, editors. Fisheries
 #' Assessment and Management in Data-Limited Situations. Alaska Sea Grant,
 #' University of Alaska Fairbanks.
-#' @importFrom plyr adply
 #' @examples
 #' # TODO K and r values?
 #' x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
