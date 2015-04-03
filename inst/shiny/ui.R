@@ -1,19 +1,33 @@
 library("shiny")
+library("dplyr")
 
 # source("helper.R")
 
+ramts <- readRDS("data/ramts.rds")
+ramts <- ramts %>% filter(!is.na(c_touse)) # TODO won't this create gaps in years?
+# stocks <- sort(unique(ramts$stocklong))
+stocks <- c(
+  "Black Grouper Gulf of Mexico",
+  "Black oreo West end of Chatham Rise",
+  "Dover sole Gulf of Alaska")
+
 shinyUI(fluidPage(
-  titlePanel("COM-SIR"),
+  titlePanel("Data-limited methods"),
 
   sidebarLayout(
     sidebarPanel(
+
+      selectInput(inputId = "stock",
+        label = "Stock",
+        choices = stocks,
+        selected = NULL),
 
       sliderInput(
         inputId = "start_r",
         label = "Starting r",
         value = c(0.2, 1.0),
-        min = 0.05,
-        max = 3.0,
+        min = 0.02,
+        max = 2.0,
         animate = TRUE)
 
 #       checkboxGroupInput("status",
@@ -29,7 +43,8 @@ shinyUI(fluidPage(
     ),
 
     mainPanel(
-      plotOutput("plot")
+      plotOutput("plot_comsir"),
+      plotOutput("plot_cmsy")
     )
   )
 ))
