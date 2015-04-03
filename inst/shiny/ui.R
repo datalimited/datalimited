@@ -8,6 +8,14 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
 
+      sliderInput(
+        inputId = "start_r",
+        label = "Starting r",
+        value = c(0.2, 1.0),
+        min = 0.05,
+        max = 3.0,
+        animate = TRUE)
+
 #       checkboxGroupInput("status",
 #         label = "Choose IUCN statuses",
 #         choices = statuses,
@@ -21,7 +29,7 @@ shinyUI(fluidPage(
     ),
 
     mainPanel(
-      dataTableOutput("table")
+      plotOutput("plot")
     )
   )
 ))
