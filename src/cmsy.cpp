@@ -2,10 +2,10 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
-  NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index,
-  double prior_log_mean, double prior_log_sd,
-  NumericVector interbio, int reps) {
+List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
+    NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index,
+    double prior_log_mean, double prior_log_sd,
+    NumericVector interbio, int reps) {
 
   int nstartbio = startbio.size();
   int nyr = yr.size();
@@ -17,7 +17,9 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
   double r;
   double k;
   NumericVector bt(nyr+1);
+  NumericVector xt(nyr+1);
   NumericMatrix out(reps, 4);
+  NumericMatrix biomass_out(reps, nyr+1);
 
   double prior_log_mean_minus_log2 = prior_log_mean - log(2); // for speed
   int interyr_index_minus_one = interyr_index - 1; // for speed
@@ -33,13 +35,13 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     for (int a=0; a<nstartbio; a++) {
       j = startbio(a);
       if (ell == 0) {
-        bt(0) = j * k * exp(R::rnorm(0, sig_r)); // set biomass in first year
+        xt = rnorm(nyr + 1, 0, sig_r);
+        bt(0) = j * k * exp(xt(0)); // set biomass in first year
         for (int i=0; i<nyr; i++) {
-          double xt = R::rnorm(0, sig_r);
           // double xt = 0.1;
           // calculate biomass as function of previous year's biomass plus net
           // production minus catch:
-          bt(i + 1) = (bt(i) + r * bt(i) * (1 - bt(i)/k) - ct(i)) * exp(xt);
+          bt(i + 1) = (bt(i) + r * bt(i) * (1 - bt(i)/k) - ct(i)) * exp(xt(i));
         }
         // Bernoulli likelihood, assign 0 or 1 to each combination of r and k
         ell = 0;
@@ -47,15 +49,15 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
         double current_bio_ratio = bt(nyr)/k;
         double tmp = R::runif(0, 1);
         double test = R::dlnorm(current_bio_ratio,
-          prior_log_mean_minus_log2, prior_log_sd, 0) /
-        R::dlnorm(exp(prior_log_mean_minus_log2),
-          prior_log_mean_minus_log2, prior_log_sd, 0);
+            prior_log_mean_minus_log2, prior_log_sd, 0) /
+          R::dlnorm(exp(prior_log_mean_minus_log2),
+              prior_log_mean_minus_log2, prior_log_sd, 0);
         if (tmp < test &&
             min(bt) > 0 &&
             max(bt) <= k &&
             bt(interyr_index_minus_one)/k >= interbio(0) && // -1 because C++
             bt(interyr_index_minus_one)/k <= interbio(1)) { // -1 because C++
-              ell = 1;
+          ell = 1;
         }
         J = j;
       }
@@ -64,39 +66,15 @@ DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     out(ii, 1) = k;
     out(ii, 2) = ell;
     out(ii, 3) = J;
+
+    biomass_out(ii, _) = bt;
   }
-  return DataFrame::create(
-    Named("r")       = out(_, 0),
-    Named("k")       = out(_, 1),
-    Named("ell")     = out(_, 2),
-    Named("J")       = out(_, 3));
+  return Rcpp::List::create(
+      Rcpp::Named("theta") =
+      Rcpp::DataFrame::create(
+        Rcpp::Named("r")       = out(_, 0),
+        Rcpp::Named("k")       = out(_, 1),
+        Rcpp::Named("ell")     = out(_, 2),
+        Rcpp::Named("J")       = out(_, 3)),
+      Rcpp::Named("biomass") = biomass_out);
 }
-
-// @return A matrix: each column is an iteration of the algorithm and each row
-//   is a year of biomass
-// [[Rcpp::export]]
-NumericMatrix get_cmsy_biomass(NumericVector r, NumericVector k, NumericVector j,
-  double sigR, int nyr, NumericVector ct) {
-  NumericMatrix BT(nyr + 1, r.size());
-  NumericVector bt(nyr + 1);
-  NumericVector xt(nyr);
-
-  for (int v=0; v<r.size(); v++) {
-    xt = rnorm(nyr, 0, sigR);
-    bt(0) = j(v) * k(v) * exp(R::rnorm(0, sigR)); // set biomass in first year
-
-  for (int i=0; i<nyr; i++) { // for all years in the time series
-      // calculate biomass as function of previous year's biomass plus
-      // net production minus catch:
-      bt(i+1) = (bt(i) + r(v) * bt(i) * (1 - bt(i)/k(v)) - ct(i)) * exp(xt(i));
-    }
-    BT(_, v) = bt; // exclude the initial year
-  }
-  return BT;
-}
-
-// @examples
-// schaefer_cmsy(r_lim = c(0.1, 0.3), k_lim = c(80, 100), sig_r = 0.1,
-//   startbio = seq(0.2, 0.6, by = 0.05), yr = 1:10, ct = rnorm(10),
-//   prior_log_mean = 0.3, prior_log_sd = 0.1, interyr_index = 2,
-//   interbio = c(0, 1), reps = 10L)

@@ -6,7 +6,7 @@
 using namespace Rcpp;
 
 // schaefer_cmsy
-DataFrame schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r, NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index, double prior_log_mean, double prior_log_sd, NumericVector interbio, int reps);
+List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r, NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index, double prior_log_mean, double prior_log_sd, NumericVector interbio, int reps);
 RcppExport SEXP datalimited_schaefer_cmsy(SEXP r_limSEXP, SEXP k_limSEXP, SEXP sig_rSEXP, SEXP startbioSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP interyr_indexSEXP, SEXP prior_log_meanSEXP, SEXP prior_log_sdSEXP, SEXP interbioSEXP, SEXP repsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
@@ -23,22 +23,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type interbio(interbioSEXP);
     Rcpp::traits::input_parameter< int >::type reps(repsSEXP);
     __result = Rcpp::wrap(schaefer_cmsy(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, prior_log_mean, prior_log_sd, interbio, reps));
-    return __result;
-END_RCPP
-}
-// get_cmsy_biomass
-NumericMatrix get_cmsy_biomass(NumericVector r, NumericVector k, NumericVector j, double sigR, int nyr, NumericVector ct);
-RcppExport SEXP datalimited_get_cmsy_biomass(SEXP rSEXP, SEXP kSEXP, SEXP jSEXP, SEXP sigRSEXP, SEXP nyrSEXP, SEXP ctSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< NumericVector >::type r(rSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type k(kSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type j(jSEXP);
-    Rcpp::traits::input_parameter< double >::type sigR(sigRSEXP);
-    Rcpp::traits::input_parameter< int >::type nyr(nyrSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP);
-    __result = Rcpp::wrap(get_cmsy_biomass(r, k, j, sigR, nyr, ct));
     return __result;
 END_RCPP
 }
