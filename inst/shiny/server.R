@@ -23,7 +23,8 @@ shinyServer(
 
       ggplot(bbmsy_out, aes(year, bbmsy_q50)) + geom_line() +
         geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) +
-        geom_hline(yintercept = 1, lty = 2)
+        geom_hline(yintercept = 1, lty = 2) +
+        geom_line(data = dat, aes(year, b_bmsy_touse), colour = "blue")
     })
 
     output$plot_cmsy <- renderPlot({
@@ -44,7 +45,8 @@ shinyServer(
       bbmsy_out$year <- dat$year
       ggplot(bbmsy_out, aes(year, bbmsy_q50)) + geom_line() +
         geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) +
-        geom_hline(yintercept = 1, lty = 2)
+        geom_hline(yintercept = 1, lty = 2) +
+        geom_line(data = dat, aes(year, b_bmsy_touse), colour = "blue")
     })
   }
 )
