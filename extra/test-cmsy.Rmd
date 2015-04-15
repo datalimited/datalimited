@@ -1,0 +1,197 @@
+Test the R package code against the original code in Dropbox.
+
+Load the package functions:
+
+```{r}
+library(dplyr)
+devtools::load_all("..")
+```
+
+
+```{r}
+ct <- blue_gren$ct
+# theta: r=ri, k=ki, sigR=sigR
+.schaefer	<- function(theta) {
+  with(as.list(theta), {  ## for all combinations of ri & ki
+    bt=0
+    ell = 0  ## initialize ell
+    J=0
+    for (j in startbt) {
+      if(ell == 0) {
+        ##
+        bt[1]=j*k*exp(rnorm(1,0, sigR))  ## set biomass in first year
+        for(i in 1:nyr) ## for all years in the time series
+        {
+          xt=rnorm(1,0, sigR)
+          
+          bt[i+1]=(bt[i]+r*bt[i]*(1-bt[i]/k)-ct[i])*exp(xt) ## calculate biomass as function of previous year's biomass plus net production minus catch
+        }
+        ##
+        ##Bernoulli likelihood, assign 0 or 1 to each combination of r and k
+        ell = 0
+        ## NEW POSTERIOR PREDICTIVE PRIOR ON FINAL YEAR BIOMASS
+        current.bio.ratio<-bt[nyr+1]/k
+        tmp <-runif(1, 0, 1)
+        test<-(dlnorm(current.bio.ratio, meanlog=prior.stock.dat$log.Mean-log(2), sdlog=prior.stock.dat$log.SD))/dlnorm(exp(prior.stock.dat$log.Mean-log(2)), meanlog=prior.stock.dat$log.Mean-log(2), sdlog=prior.stock.dat$log.SD)
+        if(tmp<test && min(bt) > 0 && max(bt) <=k && bt[which(yr==interyr)]/k>=interbio[1] && bt[which(yr==interyr)]/k<=interbio[2]){
+          ell = 1
+        }
+        ## OLD ACCEPT/REJECT
+        ##if(bt[nyr+1]/k>=lam1 && bt[nyr+1]/k <=lam2 && min(bt) > 0 && max(bt) <=k && bt[which(yr==interyr)]/k>=interbio[1] && bt[which(yr==interyr)]/k<=interbio[2])
+        ##  ell = 1
+        J=j
+      }
+      ##
+    }
+    return(list(ell=ell, J=J, r))
+  })
+}
+sraMSY	<-function(theta, N) {
+    ##This function conducts the stock reduction
+    ##analysis for N trials
+    ##args:
+    ##	theta - a list object containing:
+    ##		r (lower and upper bounds for r)
+    ##		k (lower and upper bounds for k)
+    ##		lambda (limits for current depletion)
+    ##
+    with(as.list(theta), {
+           ## CM: changed to uniform on regular scale
+           ri = runif(N, r[1], r[2])  ## get N values between r[1] and r[2], assign to ri
+           ki = exp(runif(N, log(k[1]), log(k[2])))  ## get N values between k[1] and k[2], assing to ki
+           itheta=cbind(r=ri,k=ki, lam1=lambda[1],lam2=lambda[2], sigR=sigR) ## assign ri, ki, and final biomass range to itheta
+
+           M = apply(itheta,1,.schaefer) ## call Schaefer function with parameters in itheta
+           i=1:N
+           ## prototype objective function
+           get.ell=function(i) M[[i]]$ell
+           ell = sapply(i, get.ell)
+           get.J=function(i) M[[i]]$J
+           J=sapply(i, get.J)
+           return(data.frame(r=ri,k=ki, ell=ell, J=J)	)
+         })
+  }
+
+prior.stock.dat <- list()
+prior.stock.dat$log.Mean = 0.035
+prior.stock.dat$log.SD = 0.68
+startbt = c(0.5, 0.9)
+nyr = length(ct)
+sigR = 0.05
+yr = seq_along(ct)
+interyr = 2L
+interbio = c(0, 1)
+set.seed(1)
+x_old <- sraMSY(theta = list(r = c(0.05, 0.50), k = c(max(ct), 50*max(ct)),
+    lambda = c(NA, NA)), N = 100L)
+
+set.seed(1)
+x_new <- schaefer_cmsy(r_lim = c(0.05, 0.50), k_lim = c(max(ct), 50*max(ct)), 
+  sig_r = 0.05, startbio = c(0.5, 0.9), yr = seq_along(ct), ct = ct, 
+  interyr_index = 2L, prior_log_mean = 0.035, prior_log_sd = 0.68, 
+  interbio = c(0, 1), reps = 10L)
+
+stopifnot(identical(x_old, x_new))
+```
+
+Now check `get_cmsy_biomass()`:
+
+```{r}
+getBiomass  <- function(r, k, j) {
+    BT=0
+    bt=vector()
+    for (v in 1:length(r)) {
+        xt=rnorm(nyr,0, sigR)
+        bt[1]=j[v]*k[v]*exp(rnorm(1,0, sigR))  ## set biomass in first year
+        #bt[1]=j[v]*k[v]*exp(0)  ## set biomass in first year
+        #xt=rep(0, nyr)
+        for(i in 1:nyr) ## for all years in the time series
+          {
+            #xt=rnorm(1,0, sigR)
+            bt[i+1]=(bt[i]+r[v]*bt[i]*(1-bt[i]/k[v])-ct[i])*exp(xt[i]) ## calculate biomass as function of previous year's biomass plus net production minus catch
+          }
+        BT=rbind(BT, t(t(bt)))
+        ##
+      }
+    return(BT)
+  }
+
+set.seed(1)
+xx_new <- get_cmsy_biomass(r = x_new$r, k = x_new$k, j = x_new$J, 
+  sigR = 0.05, nyr = length(ct), ct = ct)
+xx_new <- as.data.frame(xx_new)
+xx_new <- reshape2::melt(xx_new)
+
+set.seed(1)
+sigR <- 0.05
+R2 <- getBiomass(r = x_old$r, k = x_old$k, j = x_old$J)
+R2 <- R2[-1, ]
+nyr <- length(ct)
+runs<-rep(1:length(x_old$r), each=nyr+1)
+count<-rep(1:(nyr+1), length=length(x_old$r)*(nyr+1))
+runs<-t(runs)
+count<-t(count)
+xx_old <- data.frame(run = as.numeric(runs), yr = as.numeric(count), value = as.numeric(R2) )
+
+identical(as.numeric(xx_new[,2]), as.numeric(xx_old[,3]))
+```
+
+
+
+```{r}
+x1p <- cmsy(yr = seq_along(ct), ct = ct, prior_log_mean = 0.0350, prior_log_sd = 0.676, 
+  interyr_index = 2L, interbio = c(0, 1), bio_step = 0.05, 
+  start_r = resilience("low"),
+  start_k = c(max(ct), 50 * max(ct)), startbio = if (ct[1]/max(ct) < 0.2)
+    c(0.5, 0.9) else c(0.2, 0.6), sig_r = 0.05, reps = 5000L,
+  revise_bounds = TRUE)
+bbmsy2 <- summarize_bbmsy(bbmsy = x1p$biomass, log = TRUE)
+
+schaefer_out <- schaefer_cmsy(
+  r_lim          = start_r,
+  k_lim          = start_k,
+  sig_r          = sig_r,
+  startbio       = seq(startbio[1], startbio[2], by = bio_step),
+  yr             = yr,
+  ct             = ct,
+  interyr_index  = interyr_index,
+  prior_log_mean = prior_log_mean,
+  prior_log_sd   = prior_log_sd,
+  interbio       = interbio,
+  reps           = reps)
+
+```
+
+```{r}
+f <- function(r, k, ct, j) {bt <- vector(length = length(ct))
+  bt[1] <- j * k
+  for(i in seq_len(length(ct) - 1)) {
+    bt[i+1] <- bt[i] + r * bt[i] * (1 - bt[i]/k) - ct[i]
+  }
+  bt
+}
+o <- f(r = 0.5, k = max(ct)*5, ct = ct, j = 1);plot(o, type = "o", ylim = c(-1000, max(o)));abline(h = 0, lty = 2);print(o)
+```
+
+Are the `ell` values getting set correctly?
+
+```{r}
+set.seed(1)
+x_new <- schaefer_cmsy(r_lim = c(0.05, 0.50), k_lim = c(max(ct), 50*max(ct)), 
+  sig_r = 0.0, startbio = c(0.5, 0.9), yr = seq_along(ct), ct = ct, 
+  interyr_index = 2L, prior_log_mean = 0.035, prior_log_sd = 0.68, 
+  interbio = c(0, 1), reps = 500L)
+x_new <- x_new[-which(x_new$ell < 1), ]
+print(nrow(x_new))
+oo <- plyr::alply(x_new, 1, function(x) f(r = x$r, k = x$k, ct = ct, j = x$J))
+plyr::ldply(oo, min)
+```
+
+` r = 0.41942583  k = 45282.23   ell = 1  J = 0.9` appears with negative biomass. Let's look into that.
+
+```{r}
+qq <- schaefer_cmsy(r_lim = c(0.4194, 0.4194), k_lim = c(45282.23, 45282.23), 
+  sig_r = 0.0, startbio = 0.9, yr = seq_along(ct), ct = ct, 
+  interyr_index = 2L, prior_log_mean = 0.035, prior_log_sd = 0.68, 
+  interbio = c(0, 1), reps = 1L)
+```
