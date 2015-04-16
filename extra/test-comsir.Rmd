@@ -125,6 +125,17 @@ ggplot(bbmsy_orig_out, aes(year, bbmsy_q50)) + geom_line() + geom_ribbon(aes(ymi
 plot(bbmsy_out$bbmsy_q50, bbmsy_orig_out$bbmsy_q50);abline(a = 0, b = 1)
 ```
 
+Check another stock where the likelihood is getting too close to zero:
+
+```{r}
+set.seed(1)
+system.time({orig <- DoProject(TruePar = as.data.frame(t(c(N1 = 800, K = 800, 
+  r = 0.6, z = 1.0, a = 0.8, x = 0.5, h = 0))), MyData = data.frame(catch = gom$c_touse), 
+  Nsim = 1e4, Npost = 5e2, NormalL=F, LogisticModel = TRUE, Obs = FALSE, EstLogisticM = TRUE, start.r = c(0.2,1.0), NormK = FALSE, Normr = FALSE, Norma = FALSE, Normx = FALSE, logK = TRUE)})
+```
+
+
+
 Plot the two:
 
 ```{r}

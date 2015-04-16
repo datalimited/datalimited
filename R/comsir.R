@@ -48,7 +48,6 @@
 #' Shirley, P. D. Spencer, B. Wilson, and D. Woodby, editors. Fisheries
 #' Assessment and Management in Data-Limited Situations. Alaska Sea Grant,
 #' University of Alaska Fairbanks.
-#' @importFrom plyr adply
 #' @examples
 #' # TODO K and r values?
 #' x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
@@ -100,8 +99,13 @@ comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
   like[ind1]<-rep(0,length(ind1))
 
   # sample with replacement (just the index)
-  sample_indices <- sample(nsim, n_posterior, replace = TRUE, prob = like)
-  post <- data.frame(h, k, r, a, x, like)[sample_indices, ]
+  if (sum(like) > 0) {
+    sample_indices <- sample(nsim, n_posterior, replace = TRUE, prob = like)
+    post <- data.frame(h, k, r, a, x, like)[sample_indices, ]
+  } else {
+    warning("All likelihoods were too small. Returning NULL.")
+    return(NULL)
+  }
 
   quantities <- effortdyn(h = post$h, k = post$k, r = post$r, a = post$a,
     x = post$x, yr = yr, ct = ct, logistic_model = logistic_model)
@@ -276,7 +280,15 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
   loglike = rep(0.0, nsim) #  set vector to 0
   loglike = cum_loglike - pen1 - pen2 # the penalties turn out too big
   Totlike = sum(loglike)
-  like    = exp(loglike) / sum(exp(loglike)) # re-normalize so it will add up to 1
+  # if (length(unique(exp(loglike))))
+  # like    = exp(loglike) / sum(exp(loglike)) # re-normalize so it will add up to 1
+  # There can be underflow issues here
+  # One possible solution:
+  # http://stats.stackexchange.com/questions/66616/converting-normalizing-very-small-likelihood-values-to-probability/66621#66621
+  # Another solution (but very slow)
+  # loglike2 <- Rmpfr::mpfr(loglike, prec = 25L) # prevent underflow
+  # like    = as.numeric(exp(loglike2) / sum(exp(loglike2)))
+  like = as.numeric(exp(loglike) / sum(exp(loglike))) # re-normalize so it will add up to 1
 
   # in some of the years the population crashes, we know this is impossible,
   # because the population is still there (because of the catches

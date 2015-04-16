@@ -9,8 +9,8 @@ Description: Methods for assessing B/Bmsy from fisheries catch time series
 License: GPL-2
 LazyData: TRUE
 LinkingTo: Rcpp
+Suggests: ggplot2
 Depends:
     R (>= 3.1.1)
 Imports:
-    Rcpp,
-    plyr
+    Rcpp

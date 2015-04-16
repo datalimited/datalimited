@@ -5,10 +5,6 @@ schaefer_cmsy <- function(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, 
     .Call('datalimited_schaefer_cmsy', PACKAGE = 'datalimited', r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, prior_log_mean, prior_log_sd, interbio, reps)
 }
 
-get_cmsy_biomass <- function(r, k, j, sigR, nyr, ct) {
-    .Call('datalimited_get_cmsy_biomass', PACKAGE = 'datalimited', r, k, j, sigR, nyr, ct)
-}
-
 check_comsir_lik <- function(nsim, predbio, predprop, like) {
     .Call('datalimited_check_comsir_lik', PACKAGE = 'datalimited', nsim, predbio, predprop, like)
 }
