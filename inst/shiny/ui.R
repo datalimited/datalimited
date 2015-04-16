@@ -1,18 +1,10 @@
 library("shiny")
 library("dplyr")
 
-# source("helper.R")
-
-ramts <- readRDS("data/ramts.rds")
-ramts <- ramts %>% filter(!is.na(c_touse)) # TODO won't this create gaps in years?
-# stocks <- sort(unique(ramts$stocklong))
-stocks <- c(
-  "Black Grouper Gulf of Mexico",
-  "Black oreo West end of Chatham Rise",
-  "Dover sole Gulf of Alaska")
+source("helper.R")
 
 shinyUI(fluidPage(
-  titlePanel("Data-limited methods"),
+  titlePanel("Catch-MSY"),
 
   sidebarLayout(
     sidebarPanel(
@@ -22,13 +14,51 @@ shinyUI(fluidPage(
         choices = stocks,
         selected = NULL),
 
-      sliderInput(
-        inputId = "start_r",
-        label = "Starting r",
-        value = c(0.2, 1.0),
-        min = 0.02,
-        max = 2.0,
-        animate = TRUE)
+      selectInput("resilience",
+        label = "Resilience",
+        choices = c("Unknown", "Very low", "Low", "Medium", "High")),
+
+      sliderInput("sig_r",
+        label = "Recruitment variability",
+        min = 0,
+        max = 0.8,
+        value = 0.05),
+
+      sliderInput("reps",
+        label = "Number of samples",
+        min = 500,
+        max = 20000,
+        value = 3000,
+        step = 500),
+
+      sliderInput("interyr_index",
+        label = "Biomass depletion reference year",
+        min = 1L,
+        max = 10L,
+        value = 2L,
+        step = 1L),
+
+      sliderInput("interbio",
+        label = "Limits on biomass depletion in ref. year",
+        min = 0,
+        max = 1,
+        value = c(0, 1)),
+
+       checkboxInput("revise_bounds",
+         label = "Revise r and K bounds",
+         value = TRUE),
+
+       sliderInput("prior_mean",
+         label = "Mean depletion prior",
+         min = 0.1,
+         max = 4.0,
+         value = 0.8),
+
+       sliderInput("prior_sd",
+         label = "SD depletion prior",
+         min = 0.5,
+         max = 4,
+         value = 2.5)
 
 #       checkboxGroupInput("status",
 #         label = "Choose IUCN statuses",
@@ -43,7 +73,7 @@ shinyUI(fluidPage(
     ),
 
     mainPanel(
-      plotOutput("plot_comsir"),
+      # plotOutput("plot_comsir"),
       plotOutput("plot_cmsy")
     )
   )
