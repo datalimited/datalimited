@@ -176,7 +176,7 @@ BiomassData$IdLevel<- 'Species'
 
 BiomassData$Dbase<- 'FAO'
 
-OmitStatus<- AnalyzeFisheries(BiomassData,'JackStat','Year',min(BiomassData$Year):max(BiomassData$Year),RealModelSdevs,NeiModelSdevs,TransbiasBin,TransbiasIterations)
+Status<- AnalyzeFisheries(BiomassData,'JackStat','Year',min(BiomassData$Year):max(BiomassData$Year),RealModelSdevs,NeiModelSdevs,TransbiasBin,TransbiasIterations)
 
-BiomassData[,c('PrmB')]<- OmitStatus$Data$BvBmsy
+BiomassData[,c('PrmB')]<- Status$Data$BvBmsy
 
