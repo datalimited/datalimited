@@ -10,7 +10,7 @@
 #
 ###########
 rm(list=ls())
-load('extra/Ram Data.Rdata')
+load('Ram Data.Rdata')
 NumCPUs<- 1 #Can be run in parallel if desired, not really useful for jackknifing one at a time
 BaselineYear<- 2012 #Leave this as 2012
 FigureFolder<- paste('extra/PRM Figures/')
@@ -58,7 +58,7 @@ library(ggplot2)
 library(gridExtra)
 library(reshape2)
 
-sapply(list.files(pattern="[.]R$", path="extra/PRM Functions", full.names=TRUE), source) #load required functions
+sapply(list.files(pattern="[.]R$", path="PRM Functions", full.names=TRUE), source) #load required functions
 
 RamData<- RamData[RamData$Year<=BaselineYear,]
 
