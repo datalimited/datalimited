@@ -37,7 +37,7 @@ NULL
 #' assessment and fishery production potential of the seas. FAO Fisheries and
 #' Aquaculture Circular, Rome, Italy.
 #'
-#' @name ramts
+#' @name ram_ts
 #' @docType data
 #' @keywords data
 NULL
