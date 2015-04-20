@@ -11,6 +11,6 @@ LazyData: TRUE
 LinkingTo: Rcpp
 Suggests: ggplot2
 Depends:
-    R (>= 3.1.1)
+    R (>= 3.1.0)
 Imports:
     Rcpp
