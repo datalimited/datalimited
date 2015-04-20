@@ -141,11 +141,11 @@ shinyUI(fluidPage(
 
     mainPanel(
 
-
-
       tabsetPanel(
         tabPanel("Catch-MSY", plotOutput("plot_cmsy")),
-        tabPanel("COMSIR", plotOutput("plot_comsir"))
+        tabPanel("COMSIR", plotOutput("plot_comsir")),
+        tabPanel("Costello et al. PRM", plotOutput("plot_prm"))
+
       )
 
     )
