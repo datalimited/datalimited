@@ -11,7 +11,7 @@
 #' Fisheries. Science 338:517-520.
 #' @examples
 #' # format_prm()
-#' d <- dplyr::inner_join(ramts, spp_categories, by = "scientificname")
+#' d <- dplyr::inner_join(ram_ts, spp_categories, by = "scientificname")
 #' ram_prm_dat <- plyr::ddply(d, "stockid", function(x) {
 #'   format_prm(year = x$year, catch = x$catch, bbmsy = x$bbmsy_ram,
 #'     species_cat = x$spp_category[1L])
