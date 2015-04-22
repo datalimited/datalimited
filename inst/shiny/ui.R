@@ -31,7 +31,7 @@ shinyUI(fluidPage(
       sliderInput("cmsy_reps",
         label = "Number of samples",
         min = 500,
-        max = 20000,
+        max = 100000,
         value = 2000,
         step = 500),
 
@@ -93,7 +93,7 @@ shinyUI(fluidPage(
       sliderInput("comsir_reps",
         label = "Number of initial samples",
         min = 1000,
-        max = 100000,
+        max = 500000,
         value = 50000,
         step = 2000),
 

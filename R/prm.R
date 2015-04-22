@@ -81,12 +81,14 @@ format_prm <- function(year, catch, bbmsy, species_cat) {
 #' @description \code{fit_prm}: Fit a panel regression
 #'
 #' @param dat A data frame created by \code{\link{format_prm}}
+#' @param type Either linear model (the original method) or a GBM model
+#' @param ... Anything extra to pass to \code{\link[gbm]{gbm}}
 #' @export
 #' @return \code{fit_prm}: A linear model for use with \code{predict_prm}
 #' @rdname prm
 
-fit_prm <- function(dat) {
-  lm(log(bbmsy) ~
+fit_prm <- function(dat, type = c("lm", "gbm"), ...) {
+  m <- formula(log(bbmsy) ~
       species_cat +
       max_catch +
       mean_scaled_catch +
@@ -98,8 +100,11 @@ fit_prm <- function(dat) {
       catch_to_rolling_max +
       time_to_max +
       years_back +
-      initial_slope - 1,
-    data = dat)
+      initial_slope - 1)
+
+  switch(type[1],
+    lm = lm(m, data = dat),
+    gbm = gbm::gbm(m, data = dat, distribution = "gaussian", ...))
 }
 
 #' \code{predict_prm}: Predict from a panel regression model
@@ -123,7 +128,12 @@ fit_prm <- function(dat) {
 predict_prm <- function(newdata, model = datalimited::ram_prm_model,
   ci = FALSE, level = 0.95) {
 
-  p <- predict(model, newdata = newdata, se = ci)
+  if (class(model) == "lm") {
+    p <- predict(model, newdata = newdata, se = ci)
+  }
+  if (class(model) == "gbm") {
+    p <- exp(gbm::predict.gbm(model, newdata = newdata, n.trees = model$n.trees))
+  }
 
   if (!ci) {
     return(exp(p))
