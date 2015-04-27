@@ -8,15 +8,22 @@ shinyServer(
 
     # a generic function we'll use to plot B/Bmsy time series
     plot_bbmsy <- function(est_dat, orig_dat) {
-      ggplot(est_dat, aes(year, bbmsy_q50)) + geom_line(lwd = 1) +
+
+      this_theme <-  theme_bw() + theme(plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+      p1 <- ggplot(est_dat, aes(year, bbmsy_q50)) + geom_line(lwd = 1) +
         geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) +
         geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), alpha = 0.1) +
-        geom_hline(yintercept = 1, lty = 2) + theme_bw() + xlab("Year") +
+        geom_hline(yintercept = 1, lty = 2) + xlab("Year") +
         ylab(expression(B/B[MSY])) + ylim(0, 3) +
         geom_line(data = orig_dat, aes(year, b_bmsy_touse), colour = "red", lwd = 1) +
-        theme(plot.background = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank())
+        this_theme + ylab("Catch")
+
+      p2 <- ggplot(orig_dat, aes(year, c_touse), colour = "black", lwd = 1) +
+        geom_line() + this_theme
+      gridExtra::grid.arrange(p1, p2, ncol = 1)
     }
 
 
