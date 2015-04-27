@@ -49,6 +49,9 @@ shinyServer(
     })
 
     output$plot_comsir <- renderPlot({
+      print(input$comsir_a) # doesn't re-render without these?
+      print(input$comsir_x)
+      print(input$comsir_cv)
       dat <- filter(ramts, stocklong == input$stock)
       comsir_out <- comsir(ct = dat$c_touse,
         yr = dat$year,
@@ -57,6 +60,7 @@ shinyServer(
         nsim = input$comsir_reps,
         a = input$comsir_a,
         x = input$comsir_x,
+        cv = input$comsir_cv,
         n_posterior = input$comsir_n_posterior,
         start_r = resilience(input$resilience),
         logistic_model = input$comsir_logistic,
