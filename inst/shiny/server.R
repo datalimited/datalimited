@@ -59,6 +59,7 @@ shinyServer(
       print(input$comsir_a) # doesn't re-render without these?
       print(input$comsir_x)
       print(input$comsir_cv)
+      print(input$comsir_k)
       dat <- filter(ramts, stocklong == input$stock)
       comsir_out <- comsir(ct = dat$c_touse,
         yr = dat$year,
