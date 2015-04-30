@@ -15,7 +15,7 @@
 
 \item{r}{Intrinsic rate of population growth}
 
-\item{a}{Fraction of K at bioeconomic equilibrium TODO: is this correct?}
+\item{a}{Parameter in the efforts dynamic function}
 
 \item{start_r}{A numeric vector of length 2 giving the lower and upper
 bounds on the population growth rate parameter. This can either be
