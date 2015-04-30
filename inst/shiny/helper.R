@@ -1,4 +1,6 @@
 library("dplyr")
+library("datalimited")
+data("ram_ts")
 
 sci_names <- ram_ts[,c("stockid", "scientificname")]
 sci_names <- sci_names[!duplicated(sci_names), ]
