@@ -4,13 +4,18 @@
 \alias{resilience}
 \title{Translate resilience categories into population growth rate ranges}
 \usage{
-resilience(x = c("very low", "low", "medium", "high"))
+resilience(x = c("very low", "low", "medium", "high"),
+  unknown_equals_medium = TRUE)
 }
 \arguments{
 \item{x}{A character value designating the resilience of the stock. For
 convenience, this is case insensitive. Set to any value other than the
 named categories to return a default large-ranging value for population
 growth rate (\code{c(0.015, 1.5)}).}
+
+\item{unknown_equals_medium}{Logical: should an unknown designation be
+treated the same as the medium category or encompass the full range of
+popopulation growth rate (0.015, 1.5)}
 }
 \description{
 Translate resilience categories into population growth rate ranges
