@@ -188,7 +188,7 @@ comsir_priors <- function(ct, k, r, x, a, start_r, mink,
   predprop <- predcatch / predbio
   inipredprop <- predprop
   m <- length(ct)
-  for (t in 1:(m - 1)) {
+  for (t in 1:m) {
     if (logistic_model)
       predprop <- predprop * (1 + x_vec * ((predbio/(a_vec * k_vec) - 1)))
     else predprop = predprop + x * inipredprop
