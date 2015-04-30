@@ -9,7 +9,7 @@
 #'   (2005).
 #' @param k Stock size at carrying capacity
 #' @param r Intrinsic rate of population growth
-#' @param a Fraction of K at bioeconomic equilibrium TODO: is this correct?
+#' @param a Parameter in the efforts dynamic function
 #' @param start_r A numeric vector of length 2 giving the lower and upper
 #'   bounds on the population growth rate parameter. This can either be
 #'   specified manually or by translating resiliency categories via the function
