@@ -35,8 +35,6 @@
 #' @param logistic_model Logical: if \code{TRUE} then the effort dynamics model
 #'   will be a logistic model. If \code{FALSE} then the effort dynamics model will
 #'   be linear.
-#' @param obs Logical: if \code{FALSE} then catches will be assumed to be
-#'   constant from the first observation. TODO Is this right??
 #' @param n_posterior Number of posterior samples to draw
 #'
 #' @name comsir
@@ -62,10 +60,13 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
   mink = max(ct),
   maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
   norm_a = FALSE, norm_x = FALSE, nsim = 1e6, cv = 0.4, logistic_model = TRUE,
-  obs = FALSE, n_posterior = 5e3, normal_like = FALSE) {
+  n_posterior = 5e3, normal_like = FALSE) {
 
-  # TODO: note that the resilience categories were slightly different from
-  # CMSY initially. Was missing 'medium'.
+  # obs Logical: if \code{FALSE} then a measurement-error catch model is
+  # used. If \code{TRUE} then a process-error catch model is used.
+  # Note that this is hardcoded as FALSE because in the effort_dyn function
+  # there is no obs argument
+  obs <- FALSE
 
   o <- comsir_priors(ct = ct,
     k = k, r = r, x = x, a = a, start_r = start_r,

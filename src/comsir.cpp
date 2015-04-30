@@ -62,6 +62,8 @@ NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
     predcatch(0) = ct(0);
 
     for (int t=1; t<nyr; t++) { // note this starts at 1 not 0
+      // Note that there is no `obs` option here: this is assuming that
+      // `obs` is FALSE
       // biomass dynamics
       predbio[t] = predbio(t-1) + (r(i) * predbio(t-1) * (1 - (predbio(t-1) / k(i)))) - predcatch(t-1);
       // effort dynamics
