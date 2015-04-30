@@ -257,7 +257,7 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
       }
 
       predprop[temp1[,1] >  0.99] <- 0.99
-      predprop[temp1[,1] <= 0.99] <- temp1[temp1[,1] <= 0.99, 1]
+      # predprop[temp1[,1] <= 0.99] <- temp1[temp1[,1] <= 0.99, 1]
       pen1 = pen1 + temp1[, 2]
 
       # biomass dynamics
