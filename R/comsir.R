@@ -57,7 +57,7 @@ comsir <- function(yr, ct,
   a_bounds = c(0, 1),
   x_bounds = c(1e-6, 1),
   effort_bounds = c(-1, 1), obs = FALSE, dampen = FALSE,
-  cv_bounds = c(0.05, 1)) {
+  cv_bounds = c(0.4, 0.4)) {
 
   logistic_model <- TRUE
   normal_like <- FALSE
@@ -264,11 +264,11 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
     }
     #  assumption of cv=0.4 in Vasconcellos and Cochrane
     if (normal_like) {
-      my_sd = 0.4 * predcatch
+      my_sd = cv * predcatch
       loglike = dnorm(ct[i], predcatch, my_sd, log = TRUE) # normal Log likelihood
       cum_loglike = cum_loglike + loglike # cummulative normal loglikelihood
     } else {
-      loglike = dlnorm(ct[i], log(predcatch), 0.4, log = TRUE)
+      loglike = dlnorm(ct[i], log(predcatch), cv, log = TRUE)
       cum_loglike = cum_loglike + loglike;
     }
     # print(predbio[1])

@@ -28,7 +28,7 @@ shinyUI(fluidPage(
          label = "CV",
          min = 0.05,
          max = 2.0,
-         value = 0.6),
+         value = c(0.1, 1)),
 
       sliderInput("comsir_reps",
         label = "Number of initial samples",
