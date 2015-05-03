@@ -7,7 +7,7 @@ shinyServer(
   function(input, output) {
 
     # a generic function we'll use to plot B/Bmsy time series
-    plot_bbmsy <- function(est_dat, orig_dat) {
+    plot_bbmsy <- function(est_dat, orig_dat, posteriors = NULL) {
 
       this_theme <-  theme_bw() + theme(plot.background = element_blank(),
         panel.grid.major = element_blank(),
@@ -19,11 +19,21 @@ shinyServer(
         geom_hline(yintercept = 1, lty = 2) + xlab("Year") +
         ylab(expression(B/B[MSY])) + ylim(0, 3) +
         geom_line(data = orig_dat, aes(year, b_bmsy_touse), colour = "red", lwd = 1) +
-        this_theme + ylab("Catch")
+        this_theme + ylab("B/Bmsy")
 
       p2 <- ggplot(orig_dat, aes(year, c_touse), colour = "black", lwd = 1) +
         geom_line() + this_theme
-      gridExtra::grid.arrange(p1, p2, ncol = 1)
+
+      if (!is.null(posteriors)) {
+        yy <- reshape2::melt(posteriors)
+        p3 <- ggplot2::ggplot(yy, aes(value)) + geom_histogram() + facet_wrap(~variable, scales = "free")
+        p4 <- ggplot2::ggplot(posteriors, aes(r, k)) + geom_point()
+        p5 <- ggplot2::ggplot(posteriors, aes(x, a)) + geom_point()
+        # p3 <- plotmatrix(posteriors)
+        gridExtra::grid.arrange(p1, p2, p3, p4, p5, ncol = 1)
+      } else {
+        gridExtra::grid.arrange(p1, p2, ncol = 1)
+      }
     }
 
 
@@ -34,8 +44,8 @@ shinyServer(
         ct             = dat$c_touse,
         #prior_log_mean = dat$log_mean[1],
         #prior_log_sd   = dat$log_sd[1],
-        prior_log_mean = log(input$prior_mean),
-        prior_log_sd   = log(input$prior_sd),
+        # prior_log_mean = log(input$prior_mean),
+        # prior_log_sd   = log(input$prior_sd),
         start_r        = resilience(input$resilience),
         sig_r          = input$sig_r,
         reps           = input$cmsy_reps,
@@ -56,29 +66,28 @@ shinyServer(
     })
 
     output$plot_comsir <- renderPlot({
-      print(input$comsir_a) # doesn't re-render without these?
-      print(input$comsir_x)
-      print(input$comsir_cv)
-      print(input$comsir_k)
+#       print(input$comsir_a) # doesn't re-render without these?
+#       print(input$comsir_x)
+#       print(input$comsir_cv)
+#       print(input$comsir_k)
       dat <- filter(ramts, stocklong == input$stock)
+
       comsir_out <- comsir(ct = dat$c_touse,
         yr = dat$year,
-        k = input$comsir_k,
-        r = input$comsir_r,
+        #k = input$comsir_k,
+        #r = input$comsir_r,
+        # start_r = resilience(input$resilience),
+        start_r = input$comsir_r_bounds,
         nsim = input$comsir_reps,
-        a = input$comsir_a,
-        x = input$comsir_x,
-        cv = input$comsir_cv,
-        n_posterior = input$comsir_n_posterior,
-        start_r = resilience(input$resilience),
-        logistic_model = input$comsir_logistic,
+        #a = input$comsir_a,
+        #x = input$comsir_x,
+        dampen = input$comsir_dampen,
         obs = input$comsir_obs,
-        norm_k = input$comsir_norm_k,
-        norm_r = input$comsir_norm_r,
-        logk = input$comsir_logk,
-        norm_x = input$comsir_norm_x,
-        norm_a = input$comsir_norm_a,
-        normal_like = input$comsir_normal_like)
+        a_bounds = input$comsir_a_bounds,
+        x_bounds = input$comsir_x_bounds,
+        effort_bounds = input$comsir_effort_bounds,
+        cv = input$comsir_cv,
+        n_posterior = input$comsir_n_posterior)
 
       bbmsy_comsir <- reactive({
         validate(
@@ -91,8 +100,9 @@ shinyServer(
 
       bbmsy_out <- summarize_bbmsy(bbmsy_comsir(), log = TRUE)
       bbmsy_out$year <- dat$year
+      posteriors <- comsir_out$posterior
 
-      plot_bbmsy(bbmsy_out, dat)
+      plot_bbmsy(bbmsy_out, dat, posteriors)
     })
 
 
