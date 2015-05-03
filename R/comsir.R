@@ -177,7 +177,8 @@ comsir_priors <- function(ct, start_r,
   inipredprop <- predprop
   m <- length(ct)
 
-  check <- matrix(nrow = m, ncol = length(k_vec))
+  # for debugging (save catch series)
+  # check <- matrix(nrow = m, ncol = length(k_vec))
 
   for (i in 1:m) {
     if (logistic_model)
@@ -188,7 +189,7 @@ comsir_priors <- function(ct, start_r,
     else predbio = predbio + (r_vec * predbio * (1 - (predbio/k_vec))) - predcatch
     predcatch = predbio * predprop
 
-    check[i, ] <- predcatch
+    # check[i, ] <- predcatch
     # can this just be vectorized?
     like <- check_comsir_lik(nsim, predbio, predprop, like)
     #for (i in 1:nsim) {
