@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // schaefer_cmsy
-List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r, NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index, double prior_log_mean, double prior_log_sd, NumericVector interbio, int reps);
-RcppExport SEXP datalimited_schaefer_cmsy(SEXP r_limSEXP, SEXP k_limSEXP, SEXP sig_rSEXP, SEXP startbioSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP interyr_indexSEXP, SEXP prior_log_meanSEXP, SEXP prior_log_sdSEXP, SEXP interbioSEXP, SEXP repsSEXP) {
+List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r, NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index, NumericVector interbio, int reps, NumericVector finalbio);
+RcppExport SEXP datalimited_schaefer_cmsy(SEXP r_limSEXP, SEXP k_limSEXP, SEXP sig_rSEXP, SEXP startbioSEXP, SEXP yrSEXP, SEXP ctSEXP, SEXP interyr_indexSEXP, SEXP interbioSEXP, SEXP repsSEXP, SEXP finalbioSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -18,11 +18,40 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type yr(yrSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type ct(ctSEXP);
     Rcpp::traits::input_parameter< int >::type interyr_index(interyr_indexSEXP);
-    Rcpp::traits::input_parameter< double >::type prior_log_mean(prior_log_meanSEXP);
-    Rcpp::traits::input_parameter< double >::type prior_log_sd(prior_log_sdSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type interbio(interbioSEXP);
     Rcpp::traits::input_parameter< int >::type reps(repsSEXP);
-    __result = Rcpp::wrap(schaefer_cmsy(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, prior_log_mean, prior_log_sd, interbio, reps));
+    Rcpp::traits::input_parameter< NumericVector >::type finalbio(finalbioSEXP);
+    __result = Rcpp::wrap(schaefer_cmsy(r_lim, k_lim, sig_r, startbio, yr, ct, interyr_index, interbio, reps, finalbio));
+    return __result;
+END_RCPP
+}
+// comsir_effort
+double comsir_effort(double a, double x, double k, double bt);
+RcppExport SEXP datalimited_comsir_effort(SEXP aSEXP, SEXP xSEXP, SEXP kSEXP, SEXP btSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< double >::type bt(btSEXP);
+    __result = Rcpp::wrap(comsir_effort(a, x, k, bt));
+    return __result;
+END_RCPP
+}
+// comsir_bounds
+Rcpp::NumericMatrix comsir_bounds(NumericVector x_bounds, NumericVector a_bounds, NumericVector k_bounds, NumericVector effort_bounds, int nsim, bool dampen);
+RcppExport SEXP datalimited_comsir_bounds(SEXP x_boundsSEXP, SEXP a_boundsSEXP, SEXP k_boundsSEXP, SEXP effort_boundsSEXP, SEXP nsimSEXP, SEXP dampenSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type x_bounds(x_boundsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_bounds(a_boundsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type k_bounds(k_boundsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type effort_bounds(effort_boundsSEXP);
+    Rcpp::traits::input_parameter< int >::type nsim(nsimSEXP);
+    Rcpp::traits::input_parameter< bool >::type dampen(dampenSEXP);
+    __result = Rcpp::wrap(comsir_bounds(x_bounds, a_bounds, k_bounds, effort_bounds, nsim, dampen));
     return __result;
 END_RCPP
 }

@@ -8,23 +8,16 @@
 
 \item{ct}{A time series of catch}
 
-\item{x}{Intrinsic rate of increase in effort. See Vasconcellos and Cochrane
-(2005).}
-
-\item{k}{Stock size at carrying capacity}
-
-\item{r}{Intrinsic rate of population growth}
-
-\item{a}{Parameter in the efforts dynamic function}
-
 \item{start_r}{A numeric vector of length 2 giving the lower and upper
 bounds on the population growth rate parameter. This can either be
 specified manually or by translating resiliency categories via the function
 \code{\link{resilience}}.}
 
-\item{mink}{Minimum possible stock size at carrying capacity}
+\item{k_bounds}{Minimum and maximum possible stock size at carrying capacity}
 
-\item{maxk}{Max possible stock size at carrying capacity}
+\item{x_bounds}{Minimum and maximum possible x (effort dynamics parameter) values}
+
+\item{a_bounds}{Minimum and maximum possible a (effort dynamics parameter) values}
 
 \item{norm_k}{Logical: should \code{k} have a normal prior (\code{TRUE}) or a
 uniform prior between \code{mink} and \code{maxk} (\code{FALSE})?}
@@ -33,30 +26,23 @@ uniform prior between \code{mink} and \code{maxk} (\code{FALSE})?}
 \code{k} will be an exponentiated form a uniform distribution on a log
 scale between \code{log(mink)} and \code{log(maxk)}.}
 
-\item{norm_r}{Logical: should {r} have a normal prior (\code{TRUE}) or a
-uniform prior between \code{start_r[1]} and \code{start_r[2]}
-(\code{FALSE})?}
-
-\item{norm_a}{Logical: should \code{a} have a normal prior (\code{TRUE}) or a
-uniform prior between 0 and 1 (\code{FALSE})?}
-
-\item{norm_x}{Logical: should \code{x} have a normal prior (\code{TRUE}) or a
-uniform prior between 0.000001 and 1 (\code{FALSE})?}
-
 \item{nsim}{Number of iterations to run before sampling}
-
-\item{cv}{Coefficient of variation on all normal prior distributions (if a
-given parameter is given a normal distribution instead of uniform
-distribution via one of the \code{norm_*} arguments.}
 
 \item{logistic_model}{Logical: if \code{TRUE} then the effort dynamics model
 will be a logistic model. If \code{FALSE} then the effort dynamics model will
 be linear.}
 
-\item{obs}{Logical: if \code{FALSE} then catches will be assumed to be
-constant from the first observation. TODO Is this right??}
-
 \item{n_posterior}{Number of posterior samples to draw}
+
+\item{obs}{Logical: if \code{FALSE} then a measurement-error catch model is}
+
+\item{effort_bounds}{Lower and upper limits on rate of decrease and increase
+in effort from one time step to the next.}
+
+\item{dampen}{Should effort dynamics parameters be excluded that may give
+unstable dynamics?}
+
+\item{cv_bounds}{Min and max limits on residual error CV around catch}
 }
 \description{
 Catch-only model with sample importance resampling based on the method
@@ -64,7 +50,7 @@ described in Vasconcellos and Cochrane (2005).
 }
 \examples{
 # TODO K and r values?
-x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
+x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, nsim = 1e5,
   n_posterior = 2e3)
 par(mfrow = c(1, 2))
 hist(x$quantities$bbmsy)

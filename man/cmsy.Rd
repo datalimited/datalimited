@@ -4,20 +4,16 @@
 \alias{cmsy}
 \title{Catch-MSY method}
 \usage{
-cmsy(yr, ct, prior_log_mean, prior_log_sd, interyr_index = 2L,
-  interbio = c(0, 1), bio_step = 0.05, start_r = resilience(NA),
-  start_k = c(max(ct), 50 * max(ct)), startbio = if (ct[1]/max(ct) < 0.2)
-  c(0.5, 0.9) else c(0.2, 0.6), sig_r = 0.05, reps = 1e+05,
-  revise_bounds = TRUE)
+cmsy(yr, ct, interyr_index = 2L, interbio = c(0, 1), bio_step = 0.05,
+  start_r = resilience(NA), start_k = c(max(ct), 50 * max(ct)),
+  startbio = if (ct[1]/max(ct) < 0.2) c(0.5, 0.9) else c(0.2, 0.6),
+  sig_r = 0.05, reps = 1e+05, revise_bounds = TRUE, finalbio = if
+  (ct[length(ct)]/max(ct) > 0.5) c(0.3, 0.7) else c(0.01, 0.4))
 }
 \arguments{
 \item{yr}{Numeric vector of years}
 
 \item{ct}{Numeric vector of catch}
-
-\item{prior_log_mean}{Prior log mean}
-
-\item{prior_log_sd}{Prior log sd}
 
 \item{interyr_index}{Index of the interim year within time series for which
 biomass estimate is available}
@@ -44,6 +40,8 @@ bounds on stock biomass at carrying capacity}
 \item{revise_bounds}{Should the bounds on r and k be revised after fitting
 the algorithm once? The algorithm will then fit a second time with the
 revised bounds.}
+
+\item{finalbio}{Maximum and minimum biomass depletion in the final year}
 }
 \value{
 A list containing a matrix \code{biomass}; \code{bmsy}, \code{msy},
@@ -61,8 +59,7 @@ Apply the catch-MSY method from Martell and Froese (2013).
 # An example using cmsy() with a stock from the RAM Legacy database:
 # The stock is "BGRDRSE" (Blue Grenadier Southeast Australia)
 
-x <- cmsy(blue_gren$yr, ct = blue_gren$ct, prior_log_mean = 0.035,
-  prior_log_sd = 0.68, reps = 2e4)
+x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 head(x$theta)
 par(mfrow = c(2, 2))
 plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", ylab = "Catch (t)")

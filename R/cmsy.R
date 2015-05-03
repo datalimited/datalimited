@@ -21,6 +21,7 @@
 #' @param revise_bounds Should the bounds on r and k be revised after fitting
 #'   the algorithm once? The algorithm will then fit a second time with the
 #'   revised bounds.
+#' @param finalbio Maximum and minimum biomass depletion in the final year
 #' @return A list containing a matrix \code{biomass}; \code{bmsy}, \code{msy},
 #' and \code{mean_ln_msy} management quantities; and a data frame \code{theta}
 #' with the intrinsic population growth rate \code{r}, carrying capacity
