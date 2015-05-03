@@ -2,11 +2,53 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
+double comsir_effort(double a, double x, double k, double bt) {
+  return x * (bt/(k*a) - 1.0);
+}
+
+// [[Rcpp::export]]
+Rcpp::NumericMatrix comsir_bounds(NumericVector x_bounds,
+  NumericVector a_bounds, NumericVector k_bounds,
+  NumericVector effort_bounds, int nsim, bool dampen) {
+
+  int samples = 0;
+  NumericMatrix out(nsim, 5);
+  Rcpp::LogicalVector within_bounds;
+
+  while(samples < nsim) {
+    double a_ = R::runif(a_bounds(0), a_bounds(1));
+    double x_ = R::runif(x_bounds(0), x_bounds(1));
+    double k_ = exp(R::runif(log(k_bounds(0)), log(k_bounds(1))));
+    double lower = comsir_effort(a_, x_, k_, 0.0);
+    double upper = comsir_effort(a_, x_, k_, k_);
+
+    if (dampen) {
+      within_bounds =
+        lower >= effort_bounds(0) & upper <= effort_bounds(1) & x_ > 0 & x_ < -a_/(a_-1);
+    } else {
+      within_bounds =
+        lower >= effort_bounds(0) & upper <= effort_bounds(1);
+    }
+
+    if (within_bounds) {
+      // if (lower >= effort_bounds(0) & upper <= effort_bounds(1)) {
+      out(samples, 0) = a_;
+      out(samples, 1) = x_;
+      out(samples, 2) = k_;
+      out(samples, 3) = lower;
+      out(samples, 4) = upper;
+      samples = samples + 1;
+    }
+  }
+  return out;
+}
+
+// [[Rcpp::export]]
 NumericVector check_comsir_lik(int nsim, NumericVector predbio, NumericVector
-    predprop, NumericVector like) {
+  predprop, NumericVector like) {
   for (int j=0; j<nsim; j++) {
     if ((like(j) != 0.0 && (predbio(j) <= 0.0 || predprop(j) < 0.0 )) ||
-        NumericVector::is_na(like(j))) {
+      NumericVector::is_na(like(j))) {
       like(j) = 0.0;
     }
   }
@@ -41,8 +83,8 @@ NumericMatrix posfun(NumericVector x, double eps = 0.00001) {
 
 // [[Rcpp::export]]
 NumericMatrix effortdyn(NumericVector h, NumericVector k, NumericVector r,
-    NumericVector x, NumericVector a, NumericVector yr, NumericVector ct, bool
-    logistic_model) {
+  NumericVector x, NumericVector a, NumericVector yr, NumericVector ct, bool
+  logistic_model) {
 
   int nyr = ct.size();
   int nsim = h.size();

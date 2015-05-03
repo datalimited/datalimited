@@ -5,37 +5,30 @@
 #'
 #' @param yr A time series of years associated with the catch
 #' @param ct A time series of catch
-#' @param x Intrinsic rate of increase in effort. See Vasconcellos and Cochrane
-#'   (2005).
-#' @param k Stock size at carrying capacity
-#' @param r Intrinsic rate of population growth
-#' @param a Parameter in the efforts dynamic function
 #' @param start_r A numeric vector of length 2 giving the lower and upper
 #'   bounds on the population growth rate parameter. This can either be
 #'   specified manually or by translating resiliency categories via the function
 #'   \code{\link{resilience}}.
-#' @param mink Minimum possible stock size at carrying capacity
-#' @param maxk Max possible stock size at carrying capacity
+#' @param k_bounds Minimum and maximum possible stock size at carrying capacity
+#' @param x_bounds Minimum and maximum possible x (effort dynamics parameter) values
+#' @param a_bounds Minimum and maximum possible a (effort dynamics parameter) values
 #' @param norm_k Logical: should \code{k} have a normal prior (\code{TRUE}) or a
 #'   uniform prior between \code{mink} and \code{maxk} (\code{FALSE})?
 #' @param logk If \code{logk = TRUE} and \code{norm_k = FALSE} the prior on
 #'   \code{k} will be an exponentiated form a uniform distribution on a log
 #'   scale between \code{log(mink)} and \code{log(maxk)}.
-#' @param norm_r Logical: should {r} have a normal prior (\code{TRUE}) or a
-#'   uniform prior between \code{start_r[1]} and \code{start_r[2]}
-#'   (\code{FALSE})?
-#' @param norm_a Logical: should \code{a} have a normal prior (\code{TRUE}) or a
-#'   uniform prior between 0 and 1 (\code{FALSE})?
-#' @param norm_x Logical: should \code{x} have a normal prior (\code{TRUE}) or a
-#'   uniform prior between 0.000001 and 1 (\code{FALSE})?
 #' @param nsim Number of iterations to run before sampling
-#' @param cv Coefficient of variation on all normal prior distributions (if a
-#'   given parameter is given a normal distribution instead of uniform
-#'   distribution via one of the \code{norm_*} arguments.
 #' @param logistic_model Logical: if \code{TRUE} then the effort dynamics model
 #'   will be a logistic model. If \code{FALSE} then the effort dynamics model will
 #'   be linear.
 #' @param n_posterior Number of posterior samples to draw
+#' @param obs Logical: if \code{FALSE} then a measurement-error catch model is
+#    used. If \code{TRUE} then a process-error catch model is used.
+#' @param effort_bounds Lower and upper limits on rate of decrease and increase
+#'   in effort from one time step to the next.
+#' @param dampen Should effort dynamics parameters be excluded that may give
+#'   unstable dynamics?
+#' @param cv_bounds Min and max limits on residual error CV around catch
 #'
 #' @name comsir
 #' @export
@@ -48,41 +41,48 @@
 #' University of Alaska Fairbanks.
 #' @examples
 #' # TODO K and r values?
-#' x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, k = 800, r = 0.6, nsim = 1e5,
+#' x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, nsim = 1e5,
 #'   n_posterior = 2e3)
 #' par(mfrow = c(1, 2))
 #' hist(x$quantities$bbmsy)
 #' with(x$posterior, plot(r, k))
 NULL
 
-comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
+comsir <- function(yr, ct,
   start_r = resilience(NA),
-  mink = max(ct),
-  maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
-  norm_a = FALSE, norm_x = FALSE, nsim = 1e6, cv = 0.4, logistic_model = TRUE,
-  n_posterior = 5e3, normal_like = FALSE) {
+  k_bounds = c(max(ct), max(ct) * 100),
+  logk = TRUE,
+  nsim = 1e5,
+  n_posterior = 5e3, normal_like = FALSE,
+  a_bounds = c(0, 1),
+  x_bounds = c(1e-6, 1),
+  effort_bounds = c(-1, 1), obs = FALSE, dampen = FALSE,
+  cv_bounds = c(0.05, 1)) {
+
+  logistic_model <- TRUE
+  normal_like <- FALSE
 
   # obs Logical: if \code{FALSE} then a measurement-error catch model is
   # used. If \code{TRUE} then a process-error catch model is used.
   # Note that this is hardcoded as FALSE because in the effort_dyn function
   # there is no obs argument
-  obs <- FALSE
 
   o <- comsir_priors(ct = ct,
-    k = k, r = r, x = x, a = a, start_r = start_r,
-    mink = mink, maxk = maxk, logk = logk, norm_k = norm_k, norm_r = norm_r,
-    norm_a = norm_a, norm_x = norm_x, logistic_model = logistic_model, obs = obs,
-    cv = cv, nsim = nsim)
+    start_r = start_r,
+    k_bounds = k_bounds,
+    logistic_model = logistic_model, obs = obs,
+    nsim = nsim, a_bounds = a_bounds, x_bounds = x_bounds,
+    effort_bounds = effort_bounds, dampen = dampen, cv_bounds = cv_bounds)
   o <- o[o$like > 0, ]
   # saveRDS(o, file = "prior.rds")
 
   est <- comsir_est(n1 = o$n1, k = o$k, r = o$r, a = o$a, x = o$x, h = o$h, z = o$z,
     like = o$like, ct = ct, logistic_model = logistic_model,
-    normal_like = normal_like, cv = cv)
+    normal_like = normal_like, cv = o$cv, obs = obs)
   # saveRDS(est, file = "est.rds")
 
   comsir_resample(est$k, est$r, est$a, est$x, est$h, est$like, yr = yr,
-    n_posterior = n_posterior, ct, logistic_model = logistic_model)
+    n_posterior = n_posterior, ct, logistic_model = logistic_model, cv = est$cv)
 }
 
 # @examples
@@ -90,7 +90,7 @@ comsir <- function(yr, ct, k, r, x = 0.5, a = 0.8,
 #   r = c(0.1, 0.2, 0.1), a = c(1, 2, 3), x = c(1, 2, 3), like = c(0, 1, 1),
 #   n_posterior = 2, ct = rlnorm(10), yr = 1:10)
 comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
-  logistic_model) {
+  logistic_model, cv) {
 
   nsim <- length(k)
 
@@ -102,7 +102,7 @@ comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
   # sample with replacement (just the index)
   if (sum(like) > 0) {
     sample_indices <- sample(nsim, n_posterior, replace = TRUE, prob = like)
-    post <- data.frame(h, k, r, a, x, like)[sample_indices, ]
+    post <- data.frame(h, k, r, a, x, like, cv)[sample_indices, ]
   } else {
     warning("All likelihoods were too small. Returning NULL.")
     return(NULL)
@@ -121,15 +121,15 @@ comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
   MSD <- max(table(sample_indices)) / n_posterior * 100
   MIR <- max(post$like) / sum(post$like) # maximum importance ratio or maximm importance weight
   cv_ir <- ((1/length(post$like))*sum((post$like)^2)) -
-           ((1/length(post$like))*sum(post$like))^2
+    ((1/length(post$like))*sum(post$like))^2
   cv_ir <- sqrt(cv_ir)/((length(post$like)^(-0.5))*sum(post$like))
 
   if (MSD >= 1) warning(paste0("Maximum single density was ", round(MSD, 2), "% but ",
     "should probably be < 1%."))
   if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2),
-      " but should probably be < 0.04."))
+    " but should probably be < 0.04."))
   if (cv_ir >= 0.04) warning(paste0("CV importance ratio was ", round(cv_ir, 2),
-      " but should probably be < 0.04."))
+    " but should probably be < 0.04."))
 
   # Raftery and Bao 2010 diagnostics - CHECK
   # (1) Maximum importance weight = MIR
@@ -152,66 +152,57 @@ comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
     msd = MSD)
 }
 
-comsir_priors <- function(ct, k, r, x, a, start_r, mink,
-  maxk, logk, cv, norm_k, norm_r,
-  norm_a, norm_x, logistic_model,
-  obs, nsim) {
-  if (logk) {
-    k_vec <- runif(nsim, log(mink), log(maxk))
-    k_vec <- exp(k_vec)
-  } else {
-    k_vec <- runif(nsim, mink, maxk)
-  }
-  if (logk == F && norm_k == T) {
-    k_vec <- rnorm(nsim, k, cv * k)
-  }
-  if (norm_r) {
-    r_vec <- rnorm(nsim, r, cv * r)
-  } else {
-    r_vec <- runif(nsim, start_r[1], start_r[2])
-  }
-  if (norm_x) {
-    x_vec <- rnorm(nsim, x, cv * x)
-  } else {
-    x_vec <- runif(nsim, 1e-06, 1)
-  }
-  if (norm_a) {
-    a_vec <- rnorm(nsim, a, cv * a)
-  } else {
-    a_vec <- runif(nsim, 0, 1)
-  }
+comsir_priors <- function(ct, start_r,
+  nsim, x_bounds, a_bounds, k_bounds, effort_bounds, logistic_model, obs, dampen,
+  cv_bounds) {
+
+  priors <- comsir_bounds(x_bounds = x_bounds, a_bounds = a_bounds,
+    k_bounds = k_bounds, effort_bounds = effort_bounds, nsim = nsim, dampen = dampen)
+  colnames(priors) <- c("a", "x", "k", "effort_bt0", "effort_btk")
+
+  k_vec <- priors[,"k"]
+  a_vec <- priors[,"a"]
+  x_vec <- priors[,"x"]
+  r_vec <- runif(nsim, start_r[1], start_r[2])
+  cv_vec <- runif(nsim, cv_bounds[1], cv_bounds[2])
+
   h <- rep(0, nsim)
   z <- rep(1, nsim)
   n1 <- (1 - h) * k_vec
+
   like <- rep(1, nsim)
   predbio <- n1
   predcatch <- ct[1]
   predprop <- predcatch / predbio
   inipredprop <- predprop
   m <- length(ct)
-  for (t in 1:m) {
+
+  check <- matrix(nrow = m, ncol = length(k_vec))
+
+  for (i in 1:m) {
     if (logistic_model)
       predprop <- predprop * (1 + x_vec * ((predbio/(a_vec * k_vec) - 1)))
     else predprop = predprop + x * inipredprop
     if (obs)
-      predbio = predbio + (r_vec * predbio * (1 - (predbio/k_vec))) - ct[t]
+      predbio = predbio + (r_vec * predbio * (1 - (predbio/k_vec))) - ct[i]
     else predbio = predbio + (r_vec * predbio * (1 - (predbio/k_vec))) - predcatch
     predcatch = predbio * predprop
 
+    check[i, ] <- predcatch
     # can this just be vectorized?
     like <- check_comsir_lik(nsim, predbio, predprop, like)
     #for (i in 1:nsim) {
-      #if ((like[i] != 0 & (predbio[i] <= 0 || predprop[i] < 0)) ||
-        #is.na(like[i])) like[i] <- 0
+    #if ((like[i] != 0 & (predbio[i] <= 0 || predprop[i] < 0)) ||
+    #is.na(like[i])) like[i] <- 0
     #}
   }
 
   data.frame(n1, k = k_vec, r = r_vec, z, a = a_vec, x = x_vec, h, biomass =
-    predbio, prop = predprop, like = like)
+      predbio, prop = predprop, like = like, cv = cv_vec)
 }
 
 comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
-  logistic_model, normal_like) {
+  logistic_model, normal_like, obs) {
 
   #  normal_like=true for normal likelihood
   #  normal_like=false for lognormal likelihood
@@ -245,7 +236,7 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
   for (i in seq_along(ct)) {
     if (i==1) {
       predbio = n1
-      predcatch = rep(ct[1], nsim) # first catch is assumed known -- BIG ASSUMPTION ---
+      predcatch = rep(ct[1], nsim) # first catch is assumed known
       predprop = predcatch / predbio
       inipredprop = predprop
     } else {
@@ -257,26 +248,30 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
       }
 
       predprop[temp1[,1] >  0.99] <- 0.99
-      # predprop[temp1[,1] <= 0.99] <- temp1[temp1[,1] <= 0.99, 1]
+      predprop[temp1[,1] <= 0.99] <- temp1[temp1[,1] <= 0.99, 1]
       pen1 = pen1 + temp1[, 2]
 
       # biomass dynamics
-      temp2 = posfun(predbio + (r * predbio * (1 - (predbio / k ))) - predcatch)
+      if (obs) {
+        temp2 = posfun(predbio + (r * predbio * (1 - (predbio/k))) - ct[i])
+      } else {
+        temp2 = posfun(predbio + (r * predbio * (1 - (predbio / k ))) - predcatch)
+      }
       predbio = temp2[, 1]
       pen2 = pen2 + temp2[, 2]
       predcatch = predbio * predprop
     }
     #  assumption of cv=0.4 in Vasconcellos and Cochrane
     if (normal_like) {
-      my_sd = cv * predcatch
+      my_sd = 0.4 * predcatch
       loglike = dnorm(ct[i], predcatch, my_sd, log = TRUE) # normal Log likelihood
       cum_loglike = cum_loglike + loglike # cummulative normal loglikelihood
     } else {
-      loglike = dlnorm(ct[i], log(predcatch), cv, log = TRUE)
+      loglike = dlnorm(ct[i], log(predcatch), 0.4, log = TRUE)
       cum_loglike = cum_loglike + loglike;
     }
     # print(predbio[1])
-		# print(c(predbio,predprop,predcatch,ct[i]))
+    # print(c(predbio,predprop,predcatch,ct[i]))
   }
   loglike = rep(0.0, nsim) #  set vector to 0
   loglike = cum_loglike - pen1 - pen2 # the penalties turn out too big
@@ -294,7 +289,7 @@ comsir_est <- function(n1, k, r, a, x, h, z, like, ct, cv,
   # in some of the years the population crashes, we know this is impossible,
   # because the population is still there (because of the catches
 
-  data.frame(n1, k, r, z, a, x, h,
+  data.frame(n1, k, r, z, a, x, h, cv,
     B        = predbio,    # biomass in the latest year
     prop     = predprop,   # harvest rate in the latest year
     loglike  = cum_loglike, # log likelihood used for DIC
