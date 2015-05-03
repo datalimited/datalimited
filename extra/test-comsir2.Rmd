@@ -1,0 +1,51 @@
+---
+title: "Test COMSIR"
+author: "Sean Anderson"
+date: "May 1, 2015"
+output: html_document
+---
+
+```{r}
+devtools::load_all("../")
+x <- dplyr::filter(ram_ts, stocklong == "Albacore tuna Indian Ocean")
+ct <- x$catch
+
+out1 <- comsir(yr = x$year, ct = ct, k = 800, r = 0.6, x = 0.5, a = 0.8,
+  start_r = resilience("medium"),
+  mink = max(ct),
+  maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
+  norm_a = FALSE, norm_x = FALSE, nsim = 1e5, cv = 0.4, logistic_model = TRUE,
+  n_posterior = 5e3, normal_like = FALSE)
+
+par(mfrow = c(2, 3));for(i in 1:6){hist(out1$posterior[,i], main = names(out1$posterior)[i])}
+
+```
+
+Try with normal priors:
+
+```{r}
+out_normal <- comsir(yr = x$year, ct = ct, k = 800, r = 0.6, x = 0.5, a = 0.8,
+  start_r = resilience("medium"),
+  mink = max(ct),
+  maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = FALSE,
+  norm_a = TRUE, norm_x = TRUE, nsim = 1e5, cv = 0.4, logistic_model = TRUE,
+  n_posterior = 5e3, normal_like = FALSE)
+
+par(mfrow = c(2, 3));for(i in 1:6){hist(out_normal$posterior[,i], main = names(out_normal$posterior)[i])}
+
+```
+
+```{r}
+out1 <- comsir(yr = x$year, ct = ct, k = 800, r = 0.6, x = 0.5, a = 0.8,
+  start_r = resilience("medium"),
+  mink = max(ct),
+  maxk = max(ct) * 100, logk = TRUE, norm_k = FALSE, norm_r = TRUE,
+  norm_a = TRUE, norm_x = TRUE, nsim = 1e5, cv = 0.8, logistic_model = TRUE,
+  n_posterior = 5e3, normal_like = FALSE)
+
+par(mfrow = c(2, 3));for(i in 1:6){hist(out1$posterior[,i], main = names(out1$posterior)[i])}
+
+```
+
+
+
