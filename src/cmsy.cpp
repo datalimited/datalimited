@@ -3,9 +3,8 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
-    NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index,
-    double prior_log_mean, double prior_log_sd,
-    NumericVector interbio, int reps) {
+  NumericVector startbio, NumericVector yr, NumericVector ct, int interyr_index,
+  NumericVector interbio, int reps, NumericVector finalbio) {
 
   int nstartbio = startbio.size();
   int nyr = yr.size();
@@ -21,7 +20,7 @@ List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
   NumericMatrix out(reps, 4);
   NumericMatrix biomass_out(reps, nyr+1);
 
-  double prior_log_mean_minus_log2 = prior_log_mean - log(2); // for speed
+  // double prior_log_mean_minus_log2 = prior_log_mean - log(2); // for speed
   int interyr_index_minus_one = interyr_index - 1; // for speed
 
   ri = runif(reps, r_lim(0), r_lim(1)); // CM: changed to uniform on regular scale
@@ -46,17 +45,23 @@ List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
         // Bernoulli likelihood, assign 0 or 1 to each combination of r and k
         ell = 0;
         // New posterior predictive prior on final year biomass
-        double current_bio_ratio = bt(nyr)/k;
-        double tmp = R::runif(0, 1);
-        double test = R::dlnorm(current_bio_ratio,
-            prior_log_mean_minus_log2, prior_log_sd, 0) /
-          R::dlnorm(exp(prior_log_mean_minus_log2),
-              prior_log_mean_minus_log2, prior_log_sd, 0);
-        if (tmp < test &&
-            min(bt) > 0 &&
-            max(bt) <= k &&
-            bt(interyr_index_minus_one)/k >= interbio(0) && // -1 because C++
-            bt(interyr_index_minus_one)/k <= interbio(1)) { // -1 because C++
+        // double current_bio_ratio = bt(nyr)/k;
+        // double tmp = R::runif(0, 1);
+        // double test = R::dlnorm(current_bio_ratio,
+        //     prior_log_mean_minus_log2, prior_log_sd, 0) /
+        //   R::dlnorm(exp(prior_log_mean_minus_log2),
+        //       prior_log_mean_minus_log2, prior_log_sd, 0);
+        // if (tmp < test &&
+        //     min(bt) > 0 &&
+        //     max(bt) <= k &&
+        //     bt(interyr_index_minus_one)/k >= interbio(0) && // -1 because C++
+        //     bt(interyr_index_minus_one)/k <= interbio(1)) { // -1 because C++
+        //
+
+        if (bt(nyr)/k >= finalbio(0) && bt(nyr)/k <= finalbio(1) && min(bt) > 0 &&
+          max(bt) <= k && bt(interyr_index_minus_one)/k >=
+          interbio(0) && bt[interyr_index_minus_one] / k <= interbio(1)) {
+
           ell = 1;
         }
         J = j;
@@ -70,11 +75,11 @@ List schaefer_cmsy(NumericVector r_lim, NumericVector k_lim, double sig_r,
     biomass_out(ii, _) = bt;
   }
   return Rcpp::List::create(
-      Rcpp::Named("theta") =
+    Rcpp::Named("theta") =
       Rcpp::DataFrame::create(
         Rcpp::Named("r")       = out(_, 0),
         Rcpp::Named("k")       = out(_, 1),
         Rcpp::Named("ell")     = out(_, 2),
         Rcpp::Named("J")       = out(_, 3)),
-      Rcpp::Named("biomass") = biomass_out);
+        Rcpp::Named("biomass") = biomass_out);
 }

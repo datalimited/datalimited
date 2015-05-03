@@ -17,8 +17,6 @@
 #'   biomass estimate is available
 #' @param interbio A numeric vector that gives the lower and upper biomass
 #'   limits in the interim year
-#' @param prior_log_mean Prior log mean
-#' @param prior_log_sd Prior log sd
 #' @param reps Number of repititions to run the sampling
 #' @param revise_bounds Should the bounds on r and k be revised after fitting
 #'   the algorithm once? The algorithm will then fit a second time with the
@@ -47,8 +45,7 @@ NULL
 #' # An example using cmsy() with a stock from the RAM Legacy database:
 #' # The stock is "BGRDRSE" (Blue Grenadier Southeast Australia)
 #'
-#' x <- cmsy(blue_gren$yr, ct = blue_gren$ct, prior_log_mean = 0.035,
-#'   prior_log_sd = 0.68, reps = 2e4)
+#' x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 #' head(x$theta)
 #' par(mfrow = c(2, 2))
 #' plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", ylab = "Catch (t)")
@@ -68,8 +65,6 @@ NULL
 cmsy <- function(
   yr,
   ct,
-  prior_log_mean,
-  prior_log_sd,
   interyr_index    = 2L,
   interbio         = c(0, 1),
   bio_step         = 0.05,
@@ -78,7 +73,8 @@ cmsy <- function(
   startbio         = if (ct[1] / max(ct) < 0.2) c(0.5, 0.9) else c(0.2, 0.6),
   sig_r            = 0.05,
   reps             = 1e5,
-  revise_bounds     = TRUE) {
+  revise_bounds     = TRUE,
+  finalbio = if(ct[length(ct)]/max(ct) > 0.5) c(0.3,0.7) else c(0.01,0.4)) {
 
   if (!identical(length(interbio), 2L))
     stop("interbio must be a vector of length 2")
@@ -95,10 +91,9 @@ cmsy <- function(
     yr             = yr,
     ct             = ct,
     interyr_index  = interyr_index,
-    prior_log_mean = prior_log_mean,
-    prior_log_sd   = prior_log_sd,
     interbio       = interbio,
-    reps           = reps)
+    reps           = reps,
+    finalbio       = finalbio)
 
   ell_ones <- which(schaefer_out$theta$ell > 0)
   schaefer_out$theta <- schaefer_out$theta[ell_ones, ]
@@ -140,10 +135,11 @@ cmsy <- function(
         yr             = yr,
         ct             = ct,
         interyr_index  = interyr_index,
-        prior_log_mean = prior_log_mean,
-        prior_log_sd   = prior_log_sd,
+        # prior_log_mean = prior_log_mean,
+        # prior_log_sd   = prior_log_sd,
         interbio       = interbio,
-        reps           = reps)
+        reps           = reps,
+        finalbio = finalbio)
       ell_ones <- which(schaefer_out$theta$ell > 0)
       schaefer_out$theta <- schaefer_out$theta[ell_ones, ]
       schaefer_out$biomass <- schaefer_out$biomass[ell_ones, ]
