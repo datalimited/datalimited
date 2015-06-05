@@ -6,7 +6,15 @@ The R package datalimited can be installed from GitHub with:
 
 ```R
 # install.packages("devtools")
-devtools::install_github("datalimited/datalimited") 
+devtools::install_github("datalimited/datalimited", auth_token = "your-token-goes-here") 
+```
+
+You need to [create your own GitHub access token](https://github.com/settings/tokens) and insert it above with the `auth_token` argument. This just while the repository is private.
+
+Alternatively, clone the repository and install it locally:
+
+```R
+devtools::install("path/to/datalimited")
 ```
 
 Because the package includes C++ code, you will need a C++ compiler to install from the source code. RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up. We can also easily release compiled versions of the package for OS X, Windows, and Linux via GitHub and presumably CRAN that will install without a C++ compiler.
