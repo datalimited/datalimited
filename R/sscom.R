@@ -45,6 +45,62 @@ runThor2<-function(){
   start_r  <- if(res == "Very low"){c(0.015, 0.1)} else if(res == "Low") {c(0.05,0.5)} else if(res == "High") {c(0.6,1.5)}  else {c(0.2,1)} ## Medium, or default if no re
   r_min=start_r[1]
   r_max=start_r[2]
+# JAGS model 1 -- Latent Bt, Process errors for Pt and Et
+JagsModel = "
+model {
+  SigmaE ~ dunif(0.01,1)
+  SigmaP <- SigmaE
+  SigmaQ <- SigmaP
+
+  #logitB1overB0 ~ dunif(-4.6,4.6)
+  #lnr ~ dnorm(rPrior[1],rPrior[2])
+  lnr <- log(r)
+  lnB0 ~ dunif(-4.6,4.6)
+  x ~ dunif(0.01,0.5)
+  a ~ dunif(0.1,2)
+
+  #r <- exp(lnr)
+  #r ~ dunif(r_min,r_max)
+  #MSY <- B0 * r / 4
+  B0 <- exp(lnB0)
+  ln_Final_Depletion <- log(Bt[Nyears]) - lnB0
+  Final_Depletion <- exp(ln_Final_Depletion)
+  Final_Depletion_Error_Ratio <- exp(ln_Final_Depletion) / DepletionTrue[Nyears]
+  #Final_Depletion_Prior[1] ~ dlnorm( ln_Final_Depletion, Final_Depletion_Prior[2])
+  MSY_min <- B0 * r_min / 4
+  MSY_max <- B0 * r_max / 4
+  MSY ~ dunif(MSY_min,MSY_max)
+  r <- 4 * MSY / B0
+
+  #Bt[1] <- B0 * 1/(1+exp(-logitB1overB0))
+  Bt_rel[1] <- 1
+  Bt[1] <- Bt_rel[1] * B0
+  lnE0 ~ dunif(-11.5,0)    # ln(0.00001) - ln(0.1)
+  E0 <- exp(lnE0)
+  Et[1] <- E0
+  Dummy <- lnE0
+  Bupper <- 2*B0   # Necessary for when r is low, so that Bt doesn't drift to far above B0
+  Ct_hat[1] <- 0
+  for(YearI in 2:Nyears){
+    # Define time-varying precision
+    TauE[YearI] <- pow(SigmaE,-2) * pow(EffortSD[YearI],-2)
+    TauB[YearI] <- pow(SigmaP,-2) * pow(BioSD[YearI],-2)
+    TauQ[YearI] <- pow(SigmaQ,-2) * pow(Q_SD[YearI],-2)
+    # Stochastic draw for Bt given Bt_exp
+    Pt[YearI-1] <- r*Bt_rel[YearI-1]*B0 * ( 1 - Bt_rel[YearI-1] )
+    #ln_Bt_rel_exp[YearI] <- log( max( Bt_rel[YearI-1] + Pt[YearI-1] - Ct[YearI-1], -0.0001/(Bt_rel[YearI-1] + Pt[YearI-1] - Ct[YearI-1]) ) )  # 1e-10 is about the lowest I can set this
+    ln_Bt_rel_exp[YearI] <- log( max( (Bt_rel[YearI-1]*B0 + Pt[YearI-1] - Ct[YearI-1])/B0, 1e-12 ) )  # 1e-10 is about the lowest I can set this
+    Bt_rel[YearI] ~ dlnorm( ln_Bt_rel_exp[YearI], TauB[YearI]) T(0.001,Bupper)
+    Bt[YearI] <- Bt_rel[YearI] * B0
+    # Set up next effort computation used in next year's stochastic draw for Ct
+    Et[YearI] <- min( Ct[YearI] / (Bt_rel[YearI]*B0), 0.99 )
+    # Stochastic draw for Ct given Ct_hat
+    Ct_hat[YearI] <- Et[YearI-1] * ( Bt_rel[YearI-1] / (a/2) )^x * Bt_rel[YearI]*B0
+    ln_Ct_hat[YearI] <- log( Ct_hat[YearI] )
+    Ct[YearI] ~ dlnorm(ln_Ct_hat[YearI],TauQ[YearI])
+  }
+}
+"
   ## Run Settings
   ## which effort dynamics model
   ## ModelType = 1 : Process errors in biomass and effort dynamics
