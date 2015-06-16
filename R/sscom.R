@@ -1,5 +1,3 @@
-#' @importFrom R2jags TODO
-
 # JAGS model 1 -- Latent Bt, Process errors for Pt and Et
 JagsModel = "
 model {
@@ -57,10 +55,24 @@ model {
 }
 "
 
+#' SSCOM model
+#'
+#' @param start_r Lower and upper intrinsic population growth rates
+#' @param Ct Catch time series
+#' @param Year Years
+#' @importFrom R2jags jags
+#' @export
 
-sscom <- function(start_r = resilience(), Ct, Year){
-  #library(R2jags)
-  #library(matlab)
+sscom <- function(Year, Ct, start_r = resilience("unknown"),
+  NburninPrelim = 1e3,
+  NiterPrelim = 2e3
+  NthinPrelim = 1e0
+  NchainsPrelim = 100
+  NburninJags = 1e6
+  NiterJags = 3e6
+  NthinJags = 1e3
+  Nchains = 3){
+
   RunFile <- "./"
   res.list <- list()
   MaxCt <- max(Ct)
@@ -77,14 +89,6 @@ sscom <- function(start_r = resilience(), Ct, Year){
   ## ModelType = 2 : same plus variability in catch equation
   ##ModelType = 1 # 1=Bt; 2=Bt+Et
   ## JAGS settings
-  NburninPrelim <- 1e3
-  NiterPrelim <- 2e3
-  NthinPrelim <- 1e0
-  NchainsPrelim <- 100
-  NburninJags <- 1e6
-  NiterJags <- 3e6
-  NthinJags <- 1e3
-  Nchains <- 3
   ## Note! ModelType 1
   ModelType <- 1
   ## Write JAGS model
@@ -124,18 +128,18 @@ sscom <- function(start_r = resilience(), Ct, Year){
   }
 
   inits_resample <- function() {
-    Which = sample(size = 1, 1:length(RelLike), prob = RelLike)
-    lnE0 = log(Jags_prelim$BUGSoutput$sims.list$E0)[Which]
-    x = Jags_prelim$BUGSoutput$sims.list$x[Which]
-    a = Jags_prelim$BUGSoutput$sims.list$a[Which]
-    r = Jags_prelim$BUGSoutput$sims.list$r[Which]
-    MSY = Jags_prelim$BUGSoutput$sims.list$MSY[Which]
-    lnB0 = log(Jags_prelim$BUGSoutput$sims.list$B0)[Which]
-    Bt_rel = Jags_prelim$BUGSoutput$sims.list$Bt[Which, ]/
+    Which <- sample(size = 1, 1:length(RelLike), prob = RelLike)
+    lnE0 <- log(Jags_prelim$BUGSoutput$sims.list$E0)[Which]
+    x <- Jags_prelim$BUGSoutput$sims.list$x[Which]
+    a <- Jags_prelim$BUGSoutput$sims.list$a[Which]
+    r <- Jags_prelim$BUGSoutput$sims.list$r[Which]
+    MSY <- Jags_prelim$BUGSoutput$sims.list$MSY[Which]
+    lnB0 <- log(Jags_prelim$BUGSoutput$sims.list$B0)[Which]
+    Bt_rel <- Jags_prelim$BUGSoutput$sims.list$Bt[Which, ]/
       Jags_prelim$BUGSoutput$sims.list$B0[Which]
     Bt_rel[1] <- NA
-    SigmaE = Jags_prelim$BUGSoutput$sims.list$SigmaE[Which]
-    Return = list(lnE0 = lnE0, x = x, a = a, MSY = MSY, lnB0 = lnB0,
+    SigmaE <- Jags_prelim$BUGSoutput$sims.list$SigmaE[Which]
+    Return <- list(lnE0 = lnE0, x = x, a = a, MSY = MSY, lnB0 = lnB0,
       Bt_rel = Bt_rel, SigmaE = SigmaE)
     return(Return)
   }
@@ -174,11 +178,11 @@ sscom <- function(start_r = resilience(), Ct, Year){
     Neff <- Jags$BUGSoutput$summary[,'n.eff']
     Neff <- ifelse(Neff==1, NA, Neff)
     Neff <- min(Neff, na.rm=TRUE)
-    if (ModelType==1) E = array(0, dim=dim(Jags$BUGSoutput$sims.list$Bt))
-    if (ModelType==2) E = Jags$BUGSoutput$sims.list$Et
+    if (ModelType==1) E <- array(0, dim = dim(Jags$BUGSoutput$sims.list$Bt))
+    if (ModelType==2) E <- Jags$BUGSoutput$sims.list$Et
   } else {
-    BoverBmsy <- matrix(0, ncol=Nyears,
-      nrow=(NiterJags-NburninJags)/NthinJags*Nchains)
+    BoverBmsy <- matrix(0, ncol = Nyears,
+      nrow = (NiterJags-NburninJags)/NthinJags*Nchains)
     Neff <- rep(3, 100)
     names(Neff)[1:2] <- c("Ct_hat[1]","Pt[1]")
     Neff <- Neff[-match(c("Ct_hat[1]","Pt[1]"),names(Neff))]
@@ -191,7 +195,7 @@ sscom <- function(start_r = resilience(), Ct, Year){
       'b_bmsyLower' = apply(BoverBmsy,MARGIN=2,FUN=quantile,prob=0.075),
       'b_bmsy_iq25' = apply(BoverBmsy,MARGIN=2,FUN=quantile,prob=0.25),
       'b_bmsy_iq75' = apply(BoverBmsy,MARGIN=2,FUN=quantile,prob=0.75),
-      'E'=apply(E,MARGIN=2,FUN=mean),
+      'E' = apply(E,MARGIN=2,FUN=mean),
       'E_Upper' = apply(E,MARGIN=2,FUN=quantile,prob=0.925),
       'E_Lower' = apply(E,MARGIN=2,FUN=quantile,prob=0.075),
       'E_iq25' = apply(E,MARGIN=2,FUN=quantile,prob=0.25),
