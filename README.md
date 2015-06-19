@@ -9,21 +9,23 @@ The R package datalimited can be installed from GitHub with:
 devtools::install_github("datalimited/datalimited", auth_token = "your-token-goes-here") 
 ```
 
-You need to [create your own GitHub access token](https://github.com/settings/tokens) and insert it above with the `auth_token` argument. This just while the repository is private.
+You need to [create your own GitHub access token](https://github.com/settings/tokens) and insert it above with the `auth_token` argument. This is just while the repository is private.
 
 Alternatively, clone the repository and install it locally:
 
 ```R
+# install.packages("devtools")
 devtools::install("path/to/datalimited")
 ```
 
-Because the package includes C++ code, you will need a C++ compiler to install from the source code. RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up. We can also easily release compiled versions of the package for OS X, Windows, and Linux via GitHub and presumably CRAN that will install without a C++ compiler.
+Because the package includes C++ code, you will need a C++ compiler to install the package from source code (the options above both install from source code). RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up. We can also easily release compiled versions of the package for OS X, Windows, and Linux via GitHub and presumably CRAN that will install without a C++ compiler.
 
 The package implements the methods used in Rosenberg et al. (2014) including the following:
 
 - Catch-MSY based on Martell and Froese (2013); see `?cmsy`
 - Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
 - Panel regression in the style of Costello et al. (2012); see `?prm`
+- State-space catch-only model; see `?sscom`
 
 C++ functions are in the `src` folder and loaded via [the Rcpp package](http://cran.r-project.org/web/packages/Rcpp/index.html) and R functions are in the `R` folder. Documentation is written with [Roxygen comments](http://r-pkgs.had.co.nz/man.html) following [the devtools package development philosophy](http://r-pkgs.had.co.nz).
 
