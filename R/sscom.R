@@ -60,18 +60,41 @@ model {
 #' @param start_r Lower and upper intrinsic population growth rates
 #' @param Ct Catch time series
 #' @param Year Years
+#' @param NburninPrelim Number of warmup iterations during the preliminary phase
+#' @param NiterPrelim Number of preliminary iterations
+#' @param NthinPrelim Thinning of preliminary iterations
+#' @param NchainsPrelim Number of chains for preliminary iterations
+#' @param NburninJags Number of warmup iterations for main sampling phase
+#' @param NiterJags Number of sampling iterations for main sampling phase
+#' @param NthinJags Thining for main sampling phase
+#' @param Nchains Number of chains for the main sampling phase
+#' @param return_jags Logical: should the JAGS output object be returned at the
+#'   end as well. If \code{TRUE} then a list with elements \code{jags} and
+#'   \code{output} will be returned with the JAGS and SSCOM output, respectively.
 #' @importFrom R2jags jags
 #' @export
+#'
+# @examples
+# x <- sscom(blue_gren$yr, blue_gren$ct,
+#  NburninPrelim = 1e3,
+#  NiterPrelim = 2e3,
+#  NthinPrelim = 1,
+#  NchainsPrelim = 20,
+#  NburninJags = 1e3,
+#  NiterJags = 3e3,
+#  NthinJags = 2,
+#  Nchains = 3, return_jags = TRUE)
 
 sscom <- function(Year, Ct, start_r = resilience("unknown"),
   NburninPrelim = 1e3,
-  NiterPrelim = 2e3
-  NthinPrelim = 1e0
-  NchainsPrelim = 100
-  NburninJags = 1e6
-  NiterJags = 3e6
-  NthinJags = 1e3
-  Nchains = 3){
+  NiterPrelim = 2e3,
+  NthinPrelim = 1e0,
+  NchainsPrelim = 100,
+  NburninJags = 1e6,
+  NiterJags = 2e6,
+  NthinJags = 1e3,
+  Nchains = 3,
+  return_jags = FALSE){
 
   RunFile <- "./"
   res.list <- list()
@@ -149,13 +172,13 @@ sscom <- function(Year, Ct, start_r = resilience("unknown"),
   while(IterationPrelim < 1000){
     NchainsIteration <- ceiling(NchainsPrelim * (1000-2*IterationPrelim)/1000)   # Spend half of attempts at Nchains = 3
     if (NchainsIteration<1) NchainsIteration <- 1
-    Try <- try(Jags_prelim <- jags(model.file = paste(RunFile, "dnorm.bug", sep = ""),
+    Try <- try(Jags_prelim <- R2jags::jags(model.file = paste(RunFile, "dnorm.bug", sep = ""),
         inits = inits_prelim, working.directory = NULL,
         data = DataJags, parameters.to.save = Params2Save,
         n.chains = NchainsIteration, n.thin = NthinPrelim, n.iter = NiterPrelim,
         n.burnin = NburninPrelim))
     IterationPrelim = ifelse(class(Try) != "try-error", 1e+20, IterationPrelim + 1)
-    print(IterationPrelim)
+    message(IterationPrelim)
   }
   ## If it initializes, then try to run the model
   if (IterationPrelim==1e20){
@@ -163,7 +186,7 @@ sscom <- function(Year, Ct, start_r = resilience("unknown"),
         min(Jags_prelim$BUGSoutput$sims.list$deviance)))
     ##
     while(Iteration < 1000){
-      Try <- try(Jags <- jags(model.file = paste(RunFile, "dnorm.bug", sep = ""),
+      Try <- try(Jags <- R2jags::jags(model.file = paste(RunFile, "dnorm.bug", sep = ""),
           inits = inits_resample, working.directory = NULL,
           data = DataJags, parameters.to.save = Params2Save, n.chains = Nchains,
           n.thin = NthinJags, n.iter = NiterJags, n.burnin = NburninJags))
@@ -206,5 +229,9 @@ sscom <- function(Year, Ct, start_r = resilience("unknown"),
       'n_iterations' = NiterJags*Nchains,
       'effective_sample_size' = Neff,
       'method_id' = "SSCOM", MaxCt = MaxCt))
-  Results
+  if (return_jags) {
+    list(jags = Jags, output = Results)
+  } else {
+    Results
+  }
 }
