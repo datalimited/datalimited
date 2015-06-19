@@ -84,6 +84,7 @@ d <- subset(ram_prm_dat, stockid == "BGRDRSE")
 x <- predict_prm(d, model = m)
 plot(x)
 
+# with confidence intervals:
 library("ggplot2")
 x <- predict_prm(d, ci = TRUE)
 x$year <- rev(d$years_back)
