@@ -10,12 +10,13 @@ sscom(Year, Ct, start_r = resilience("unknown"), NburninPrelim = 1000,
   return_jags = FALSE)
 }
 \arguments{
-\item{Year}{Years
-NburninPrelim = 1e3,}
+\item{Year}{Years}
 
 \item{Ct}{Catch time series}
 
 \item{start_r}{Lower and upper intrinsic population growth rates}
+
+\item{NburninPrelim}{Number of warmup iterations during the preliminary phase}
 
 \item{NiterPrelim}{Number of preliminary iterations}
 
@@ -28,6 +29,8 @@ NburninPrelim = 1e3,}
 \item{NiterJags}{Number of sampling iterations for main sampling phase}
 
 \item{NthinJags}{Thining for main sampling phase}
+
+\item{Nchains}{Number of chains for the main sampling phase}
 
 \item{return_jags}{Logical: should the JAGS output object be returned at the
 end as well. If \code{TRUE} then a list with elements \code{jags} and
