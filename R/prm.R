@@ -25,7 +25,7 @@
 #' x <- predict_prm(d, model = m)
 #' plot(x)
 #'
-# with confidence intervals:
+#' # with confidence intervals:
 #' library("ggplot2")
 #' x <- predict_prm(d, ci = TRUE)
 #' x$year <- rev(d$years_back)
@@ -81,30 +81,32 @@ format_prm <- function(year, catch, bbmsy, species_cat) {
 #' @description \code{fit_prm}: Fit a panel regression
 #'
 #' @param dat A data frame created by \code{\link{format_prm}}
+#' @param eqn A formula describing the regression
 #' @param type Either linear model (the original method) or a GBM model
 #' @param ... Anything extra to pass to \code{\link[gbm]{gbm}}
 #' @export
 #' @return \code{fit_prm}: A linear model for use with \code{predict_prm}
 #' @rdname prm
 
-fit_prm <- function(dat, type = c("lm", "gbm"), ...) {
-  m <- formula(log(bbmsy) ~
-      species_cat +
-      max_catch +
-      mean_scaled_catch +
-      scaled_catch +
-      scaled_catch1 +
-      scaled_catch2 +
-      scaled_catch3 +
-      scaled_catch4 +
-      catch_to_rolling_max +
-      time_to_max +
-      years_back +
-      initial_slope - 1)
+fit_prm <- function(dat,
+  eqn = log(bbmsy) ~
+    max_catch +
+    mean_scaled_catch +
+    scaled_catch +
+    scaled_catch1 +
+    scaled_catch2 +
+    scaled_catch3 +
+    scaled_catch4 +
+    species_cat +
+    catch_to_rolling_max +
+    time_to_max +
+    years_back +
+    initial_slope - 1,
+    type = c("lm", "gbm"), ...) {
 
   switch(type[1],
-    lm = lm(m, data = dat),
-    gbm = gbm::gbm(m, data = dat, distribution = "gaussian", ...))
+    lm = lm(eqn, data = dat),
+    gbm = gbm::gbm(eqn, data = dat, distribution = "gaussian", ...))
 }
 
 #' \code{predict_prm}: Predict from a panel regression model
