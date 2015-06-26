@@ -9,7 +9,10 @@
 \usage{
 format_prm(year, catch, bbmsy, species_cat)
 
-fit_prm(dat, type = c("lm", "gbm"), ...)
+fit_prm(dat, eqn = log(bbmsy) ~ max_catch + mean_scaled_catch + scaled_catch +
+  scaled_catch1 + scaled_catch2 + scaled_catch3 + scaled_catch4 + species_cat +
+  catch_to_rolling_max + time_to_max + years_back + initial_slope - 1,
+  type = c("lm", "gbm"), ...)
 
 predict_prm(newdata, model = datalimited::ram_prm_model, ci = FALSE,
   level = 0.95)
@@ -26,6 +29,8 @@ species category. Can be from any set of species categories as long as the
 same set are used in model fitting and extrapolation.}
 
 \item{dat}{A data frame created by \code{\link{format_prm}}}
+
+\item{eqn}{A formula describing the regression}
 
 \item{type}{Either linear model (the original method) or a GBM model}
 
