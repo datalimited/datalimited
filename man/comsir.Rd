@@ -34,7 +34,8 @@ be linear.}
 
 \item{n_posterior}{Number of posterior samples to draw}
 
-\item{obs}{Logical: if \code{FALSE} then a measurement-error catch model is}
+\item{obs}{Logical: if \code{FALSE} then a measurement-error catch model is
+used. If \code{TRUE} then a process-error catch model is used.}
 
 \item{effort_bounds}{Lower and upper limits on rate of decrease and increase
 in effort from one time step to the next.}

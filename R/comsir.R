@@ -23,7 +23,7 @@
 #'   be linear.
 #' @param n_posterior Number of posterior samples to draw
 #' @param obs Logical: if \code{FALSE} then a measurement-error catch model is
-#    used. If \code{TRUE} then a process-error catch model is used.
+#'    used. If \code{TRUE} then a process-error catch model is used.
 #' @param effort_bounds Lower and upper limits on rate of decrease and increase
 #'   in effort from one time step to the next.
 #' @param dampen Should effort dynamics parameters be excluded that may give
