@@ -12,6 +12,7 @@ The R package datalimited can be installed from GitHub with:
 devtools::install_github("datalimited/datalimited", auth_token = "your-token-goes-here") 
 ```
 
+
 You need to [create your own GitHub access token](https://github.com/settings/tokens) and insert it above with the `auth_token` argument. This is just while the repository is private.
 
 Alternatively, clone the repository and install it locally:
