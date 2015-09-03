@@ -11,14 +11,14 @@
 #'   and standard deviation values of B/B_MSY.
 #' @export
 summarize_bbmsy <- function(bbmsy, probs = c(0.025, 0.25, 0.5, 0.75, 0.975),
-  log = TRUE, ...) {
+  log = FALSE, ...) {
   q <- apply(bbmsy, 2, quantile, probs = probs, ...)
   q <- as.data.frame(t(q))
   names(q) <- paste0("bbmsy_q", names(q))
   names(q) <- gsub("%", "", names(q))
   if (log) {
-    x_sd <- apply(log(bbmsy), 2, sd, ...)
-    x_mean <- apply(log(bbmsy), 2, mean, ...)
+    x_sd <- exp(apply(log(bbmsy), 2, sd, ...))
+    x_mean <- exp(apply(log(bbmsy), 2, mean, ...))
   } else {
     x_sd <- apply(bbmsy, 2, sd, ...)
     x_mean <- apply(bbmsy, 2, mean, ...)
