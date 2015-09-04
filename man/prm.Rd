@@ -75,7 +75,7 @@ These functions can also be used with new data.
 }
 \examples{
 # combine two built in datasets:
-d <- dplyr::inner_join(ram_ts, spp_categories, by = "scientificname")
+# d <- dplyr::inner_join(ram_ts, spp_categories, by = "scientificname")
 
 # ram_prm_dat is built into the package; it can be created with:
 # ram_prm_dat <- plyr::ddply(d, "stockid", function(x) {
@@ -85,11 +85,11 @@ d <- dplyr::inner_join(ram_ts, spp_categories, by = "scientificname")
 
 # ram_prm_model is built into the package, it is created in the same manner
 # as this:
-m <- fit_prm(ram_prm_dat)
+# m <- fit_prm(ram_prm_dat)
 
-# now use the model to predict B/Bmsy:
+# now predict B/Bmsy:
 d <- subset(ram_prm_dat, stockid == "BGRDRSE")
-x <- predict_prm(d, model = m)
+x <- predict_prm(d) # use the built in model
 plot(x)
 
 # with confidence intervals:

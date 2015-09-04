@@ -11,7 +11,7 @@
 #' Fisheries. Science 338:517-520.
 #' @examples
 #' # combine two built in datasets:
-#' d <- dplyr::inner_join(ram_ts, spp_categories, by = "scientificname")
+#' # d <- dplyr::inner_join(ram_ts, spp_categories, by = "scientificname")
 #'
 #' # ram_prm_dat is built into the package; it can be created with:
 #' # ram_prm_dat <- plyr::ddply(d, "stockid", function(x) {
@@ -21,11 +21,11 @@
 #'
 #' # ram_prm_model is built into the package, it is created in the same manner
 #' # as this:
-#' m <- fit_prm(ram_prm_dat)
+#' # m <- fit_prm(ram_prm_dat)
 #'
-#' # now use the model to predict B/Bmsy:
+#' # now predict B/Bmsy:
 #' d <- subset(ram_prm_dat, stockid == "BGRDRSE")
-#' x <- predict_prm(d, model = m)
+#' x <- predict_prm(d) # use the built in model
 #' plot(x)
 #'
 #' # with confidence intervals:
@@ -59,10 +59,10 @@ format_prm <- function(year, catch, bbmsy, species_cat) {
   .n <- length(catch)
   max_catch <- max(catch)
   scaled_catch <- catch / max_catch
-  scaled_catch1 <- as.numeric(lag(scaled_catch, n = 1L))
-  scaled_catch2 <- as.numeric(lag(scaled_catch, n = 2L))
-  scaled_catch3 <- as.numeric(lag(scaled_catch, n = 3L))
-  scaled_catch4 <- as.numeric(lag(scaled_catch, n = 4L))
+  scaled_catch1 <- dplyr::lag(scaled_catch, n = 1L)
+  scaled_catch2 <- dplyr::lag(scaled_catch, n = 2L)
+  scaled_catch3 <- dplyr::lag(scaled_catch, n = 3L)
+  scaled_catch4 <- dplyr::lag(scaled_catch, n = 4L)
   catch_to_rolling_max <- scaled_catch / cummax(scaled_catch)
   mean_scaled_catch <- mean(scaled_catch)
   time_to_max <- min(seq_along(catch)[catch == max(catch)])
