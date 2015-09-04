@@ -67,11 +67,8 @@ plot(blue_gren$yr,  apply(x$biomass, 2, median)[-1], type = "o",
   ylab = "Estimated biomass", xlab = "Year")
 hist(x$bmsy)
 plot(x$theta$r, x$theta$k)
-bbmsy <- x$biomass[, -1] / x$bmsy
-bbmsy_out <- summarize_bbmsy(bbmsy)
-bbmsy_out$year <- blue_gren$yr
 library("ggplot2")
-ggplot(bbmsy_out, aes(year, bbmsy_q50)) + geom_line()  +
+ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
     geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) +
     geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), alpha = 0.1) +
     geom_hline(yintercept = 1, lty = 2)
