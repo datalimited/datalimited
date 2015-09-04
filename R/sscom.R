@@ -50,9 +50,11 @@ model {
 
 #' SSCOM model
 #'
+#' State-space catch-only model
+#'
+#' @param ct Catch time series
+#' @param yr Years
 #' @param start_r Lower and upper intrinsic population growth rates
-#' @param Ct Catch time series
-#' @param Year Years
 #' @param NburninPrelim Number of warmup iterations during the preliminary phase
 #' @param NiterPrelim Number of preliminary iterations
 #' @param NthinPrelim Thinning of preliminary iterations
@@ -67,18 +69,25 @@ model {
 #' @importFrom R2jags jags
 #' @export
 #'
-# @examples
-# x <- sscom(blue_gren$yr, blue_gren$ct,
-#  NburninPrelim = 1e3,
-#  NiterPrelim = 2e3,
-#  NthinPrelim = 1,
-#  NchainsPrelim = 20,
-#  NburninJags = 1e3,
-#  NiterJags = 3e3,
-#  NthinJags = 2,
-#  Nchains = 3, return_jags = TRUE)
+#' @references
+#' Thorson, J. T., C. Minto, C. V. Minte-Vera, K. M. Kleisner and C. Longo,
+#' 2013. A new role for effort dynamics in the theory of harvested populations
+#' and data-poor stock assessment. Can. J. Fish. Aquat. Sci. 70(12):1829-1844.
+#'
+#' @examples
+#' \dontrun{
+#' x <- sscom(blue_gren$yr, blue_gren$ct,
+#'  NburninPrelim = 1e3,
+#'  NiterPrelim = 2e3,
+#'  NthinPrelim = 1,
+#'  NchainsPrelim = 20,
+#'  NburninJags = 1e3,
+#'  NiterJags = 3e3,
+#'  NthinJags = 2,
+#'  Nchains = 3, return_jags = TRUE)
+#'  }
 
-sscom <- function(Year, Ct, start_r = resilience("unknown"),
+sscom <- function(yr, ct, start_r = resilience("unknown"),
   NburninPrelim = 1e3,
   NiterPrelim = 2e3,
   NthinPrelim = 1e0,
@@ -88,6 +97,9 @@ sscom <- function(Year, Ct, start_r = resilience("unknown"),
   NthinJags = 1e3,
   Nchains = 3,
   return_jags = FALSE){
+
+  Ct <- ct
+  Year <- yr
 
   RunFile <- "./"
   res.list <- list()
@@ -222,8 +234,11 @@ sscom <- function(Year, Ct, start_r = resilience("unknown"),
       'n_iterations' = NiterJags*Nchains,
       'effective_sample_size' = Neff,
       'method_id' = "SSCOM", MaxCt = MaxCt))
+
+  bbmsy <- data.frame(year = yr, catch = ct, summarize_bbmsy(BoverBmsy))
+
   if (return_jags) {
-    list(jags = Jags, output = Results)
+    list(jags = Jags, output = Results, bbmsy = bbmsy)
   } else {
     Results
   }

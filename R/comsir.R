@@ -148,8 +148,11 @@ comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
   names(diagnostics) <- c("N.nocrash.priors", "NA.Prob", "MIR", "cv_ir", "MSD",
     "Var.RW", "Entropy", "Exp.N", "ESS")
 
+  bbmsy <- reshape2::dcast(quantities, sample_id ~ yr, value.var = "bbmsy")[, -1]
+  bbmsy <- data.frame(year = yr, catch = ct, summarize_bbmsy(bbmsy))
+
   list(posterior = post, quantities = quantities, diagnostics = diagnostics,
-    msd = MSD)
+    msd = MSD, bbmsy = bbmsy)
 }
 
 comsir_priors <- function(ct, start_r,

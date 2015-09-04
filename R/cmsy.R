@@ -54,11 +54,8 @@ NULL
 #'   ylab = "Estimated biomass", xlab = "Year")
 #' hist(x$bmsy)
 #' plot(x$theta$r, x$theta$k)
-#' bbmsy <- x$biomass[, -1] / x$bmsy
-#' bbmsy_out <- summarize_bbmsy(bbmsy)
-#' bbmsy_out$year <- blue_gren$yr
 #' library("ggplot2")
-#' ggplot(bbmsy_out, aes(year, bbmsy_q50)) + geom_line()  +
+#' ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
 #'     geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) +
 #'     geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), alpha = 0.1) +
 #'     geom_hline(yintercept = 1, lty = 2)
@@ -136,8 +133,6 @@ cmsy <- function(
         yr             = yr,
         ct             = ct,
         interyr_index  = interyr_index,
-        # prior_log_mean = prior_log_mean,
-        # prior_log_sd   = prior_log_sd,
         interbio       = interbio,
         reps           = reps,
         finalbio = finalbio)
@@ -150,6 +145,10 @@ cmsy <- function(
   schaefer_out$bmsy <- schaefer_out$theta$k * 0.5
   schaefer_out$msy  <- schaefer_out$theta$r * schaefer_out$theta$k / 4
   schaefer_out$mean_ln_msy <- mean(log(schaefer_out$msy))
+
+  bbmsy <- schaefer_out$biomass[, -1] / schaefer_out$bmsy
+  bbmsy <- data.frame(year = yr, catch = ct, summarize_bbmsy(bbmsy))
+  schaefer_out$bbmsy <- bbmsy
 
   schaefer_out
 }

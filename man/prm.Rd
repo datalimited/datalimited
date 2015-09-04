@@ -5,7 +5,7 @@
 \alias{format_prm}
 \alias{predict_prm}
 \alias{prm}
-\title{Panel regression model (Costello et al.-style model)}
+\title{Modified panel regression model}
 \usage{
 format_prm(year, catch, bbmsy, species_cat)
 
@@ -74,17 +74,20 @@ These functions can also be used with new data.
 \code{predict_prm}: Predict from a panel regression model
 }
 \examples{
-# format_prm()
+# combine two built in datasets:
 d <- dplyr::inner_join(ram_ts, spp_categories, by = "scientificname")
-ram_prm_dat <- plyr::ddply(d, "stockid", function(x) {
-  format_prm(year = x$year, catch = x$catch, bbmsy = x$bbmsy_ram,
-    species_cat = x$spp_category[1L])
-})
 
-# fit_prm()
+# ram_prm_dat is built into the package; it can be created with:
+# ram_prm_dat <- plyr::ddply(d, "stockid", function(x) {
+#   format_prm(year = x$year, catch = x$catch, bbmsy = x$bbmsy_ram,
+#     species_cat = x$spp_category[1L])
+# })
+
+# ram_prm_model is built into the package, it is created in the same manner
+# as this:
 m <- fit_prm(ram_prm_dat)
 
-# predict_prm()
+# now use the model to predict B/Bmsy:
 d <- subset(ram_prm_dat, stockid == "BGRDRSE")
 x <- predict_prm(d, model = m)
 plot(x)
@@ -92,9 +95,8 @@ plot(x)
 # with confidence intervals:
 library("ggplot2")
 x <- predict_prm(d, ci = TRUE)
-x$year <- rev(d$years_back)
-ggplot(x, aes(year, fit)) +
-  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#00000040") +
+ggplot(x$bbmsy, aes(year, bbmsy_q50)) +
+  geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), fill = "#00000040") +
   geom_line() +
   ylab(expression(B/B[MSY]))
 }

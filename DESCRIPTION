@@ -15,4 +15,5 @@ Depends:
 Imports:
     Rcpp,
     gbm,
-    R2jags
+    R2jags,
+    reshape2

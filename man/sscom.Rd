@@ -4,15 +4,15 @@
 \alias{sscom}
 \title{SSCOM model}
 \usage{
-sscom(Year, Ct, start_r = resilience("unknown"), NburninPrelim = 1000,
+sscom(yr, ct, start_r = resilience("unknown"), NburninPrelim = 1000,
   NiterPrelim = 2000, NthinPrelim = 1, NchainsPrelim = 100,
   NburninJags = 1e+06, NiterJags = 2e+06, NthinJags = 1000, Nchains = 3,
   return_jags = FALSE)
 }
 \arguments{
-\item{Year}{Years}
+\item{yr}{Years}
 
-\item{Ct}{Catch time series}
+\item{ct}{Catch time series}
 
 \item{start_r}{Lower and upper intrinsic population growth rates}
 
@@ -37,6 +37,24 @@ end as well. If \code{TRUE} then a list with elements \code{jags} and
 \code{output} will be returned with the JAGS and SSCOM output, respectively.}
 }
 \description{
-SSCOM model
+State-space catch-only model
+}
+\examples{
+\dontrun{
+x <- sscom(blue_gren$yr, blue_gren$ct,
+ NburninPrelim = 1e3,
+ NiterPrelim = 2e3,
+ NthinPrelim = 1,
+ NchainsPrelim = 20,
+ NburninJags = 1e3,
+ NiterJags = 3e3,
+ NthinJags = 2,
+ Nchains = 3, return_jags = TRUE)
+ }
+}
+\references{
+Thorson, J. T., C. Minto, C. V. Minte-Vera, K. M. Kleisner and C. Longo,
+2013. A new role for effort dynamics in the theory of harvested populations
+and data-poor stock assessment. Can. J. Fish. Aquat. Sci. 70(12):1829-1844.
 }
 
