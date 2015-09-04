@@ -147,8 +147,9 @@ predict_prm <- function(newdata, model = datalimited::ram_prm_model,
 
     out1 <- prm_ci(p, level = 0.95)
     out2 <- prm_ci(p, level = 0.50)
-    out1 <- dplyr::rename(out1, bbmsy_q2.5 = lower, bbmsy_q50 = fit, bbmsy_q97.5 = upper)
-    out2 <- dplyr::rename(out2, bbmsy_q25 = lower, bbmsy_q75 = upper)
+    out1 <- dplyr::rename_(out1, bbmsy_q2.5 = "lower", bbmsy_q50 = "fit",
+      bbmsy_q97.5 = "upper")
+    out2 <- dplyr::rename_(out2, bbmsy_q25 = "lower", bbmsy_q75 = "upper")
     out2$fit <- NULL
     out1$median <- out1$fit
     bbmsy <- data.frame(year = newdata$year, catch = newdata$catch, out1, out2)
