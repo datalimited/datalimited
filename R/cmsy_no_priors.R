@@ -60,7 +60,7 @@ NULL
 #'     geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), alpha = 0.1) +
 #'     geom_hline(yintercept = 1, lty = 2)
 
-cmsy <- function(
+cmsy_no_priors <- function(
   yr,
   ct,
   interyr_index    = 2L,
