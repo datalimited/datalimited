@@ -146,7 +146,7 @@ cmsy <- function(
   schaefer_out$msy  <- schaefer_out$theta$r * schaefer_out$theta$k / 4
   schaefer_out$mean_ln_msy <- mean(log(schaefer_out$msy))
 
-  bbmsy <- schaefer_out$biomass[, -nrow(schaefer_out)] / schaefer_out$bmsy
+  bbmsy <- schaefer_out$biomass[, -ncol(schaefer_out$biomass)] / schaefer_out$bmsy
   bbmsy <- data.frame(year = yr, catch = ct, summarize_bbmsy(bbmsy))
   schaefer_out$bbmsy <- bbmsy
 
