@@ -128,8 +128,10 @@ comsir_resample <- function(k, r, a, x, h, like, yr, ct, n_posterior,
     "should probably be < 1%."))
   if (MIR >= 0.04) warning(paste0("Maximum importance ratio was ", round(MIR, 2),
     " but should probably be < 0.04."))
-  if (cv_ir >= 0.04) warning(paste0("CV importance ratio was ", round(cv_ir, 2),
-    " but should probably be < 0.04."))
+  tryCatch({
+    if (cv_ir >= 0.04) warning(paste0("CV importance ratio was ", round(cv_ir, 2),
+      " but should probably be < 0.04."))
+  }, error = function(e) warning(e))
 
   # Raftery and Bao 2010 diagnostics - CHECK
   # (1) Maximum importance weight = MIR
