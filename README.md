@@ -32,14 +32,6 @@ x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 names(x)
 #> [1] "theta"       "biomass"     "bmsy"        "msy"         "mean_ln_msy"
 #> [6] "bbmsy"
-head(x$theta)
-#>            r        k ell    J
-#> 14 0.4000687 51768.79   1 0.65
-#> 21 0.4982639 42917.72   1 0.50
-#> 24 0.4354341 52793.06   1 0.65
-#> 62 0.4961527 44042.52   1 0.50
-#> 92 0.4505604 46764.53   1 0.65
-#> 96 0.3941562 59326.26   1 0.85
 par(mfrow = c(2, 2))
 plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", 
   ylab = "Catch (t)")

@@ -40,7 +40,6 @@ library("datalimited")
 set.seed(1)
 x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 names(x)
-head(x$theta)
 par(mfrow = c(2, 2))
 plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", 
   ylab = "Catch (t)")
