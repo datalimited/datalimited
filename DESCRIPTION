@@ -3,10 +3,28 @@ Type: Package
 Title: Data-limited fisheries assessment methods
 Version: 0.0.2
 Date: 2016-11-08
-Author: Many other people to be filled in
-Maintainer: Sean C. Anderson <sandrsn@uw.edu>
-Description: Methods for assessing B/Bmsy from fisheries catch time series.
-License: GPL-2
+Authors@R: c(
+    person("Sean", "Anderson", "sandrsn@uw.edu", c("aut", "cre")),
+    person("Jamie", "Afflerbach", "aut"),
+    person("Andrew", "Cooper, "aut"),
+    person("Mark", "Dickey-Collas", "aut"),
+    person("Olaf", "Jensen, "aut"),
+    person("Kristin", "Kleisner, "aut"),
+    person("Catherine", "Longo", "aut"),
+    person("Giacomo Chato", "Osio", "aut"),
+    person("Daniel", "Ovando", "aut"),
+    person("Carolina", "Minte-Vera", "aut"),
+    person("Coilin", "Minto", "aut"),
+    person("Iago", "Mosqueira", "aut"),
+    person("Andrew", "Rosenberg, "aut"),
+    person("Elizabeth", "Selig, "aut")
+    person("James", "Thorson, "aut"),
+    person("Jessica", "Walsh, "aut")
+    )
+Description: Methods for assessing B/Bmsy from fisheries catch time series
+    combined with assumptions about life-history parameters, depletion levels,
+    and other prior information. Implements CMSY, COMSIR, SSCOM, and mPRM.
+License: GPL-3
 LazyData: TRUE
 LinkingTo: Rcpp
 Suggests:
