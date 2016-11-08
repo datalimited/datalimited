@@ -2,7 +2,7 @@ language: r
 cache: packages
 sudo: false
 
-r_binary_packages: rjagsbefore_install:
+before_install:
   - sudo add-apt-repository ppa:marutter/rrutter -y
   - sudo apt-get update
   - sudo apt-get install r-cran-rjags
