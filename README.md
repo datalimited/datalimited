@@ -1,27 +1,16 @@
-## Stock assessment methods for data-limited fisheries
+## Stock-assessment methods for data-limited fisheries
 
-<!--
-Commented out because R2jags appears to be unavailable on TravisCI currently.
 [![Build Status](https://magnum.travis-ci.com/datalimited/datalimited.svg?token=QExyQi6ySw3SZD4gggYN&branch=master)](https://magnum.travis-ci.com/datalimited/datalimited)
--->
 
 The R package datalimited can be installed from GitHub with:
 
 ```R
 # install.packages("devtools")
-devtools::install_github("datalimited/datalimited", auth_token = "your-token-goes-here") 
+devtools::install_github("hadley/devtools") # temporarily needed due to a bug 
+devtools::install_github("datalimited/datalimited") 
 ```
 
-You need to [create your own GitHub access token](https://github.com/settings/tokens) and insert it above with the `auth_token` argument. This is just while the repository is private.
-
-Alternatively, clone the repository and install it locally:
-
-```R
-# install.packages("devtools")
-devtools::install("path/to/datalimited")
-```
-
-Because the package includes C++ code, you will need a C++ compiler to install the package from source code (the options above both install from source code). RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up. We can also easily release compiled versions of the package for OS X, Windows, and Linux via GitHub and presumably CRAN that will install without a C++ compiler.
+Because the package includes C++ code, you will need a C++ compiler to install the package from source code. RStudio has a [good article](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites) on setting this up.
 
 The package implements the methods used in Rosenberg et al. (2014) including the following:
 
@@ -29,10 +18,6 @@ The package implements the methods used in Rosenberg et al. (2014) including the
 - Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
 - Panel regression in the style of Costello et al. (2012); see `?prm`
 - State-space catch-only model; see `?sscom`
-
-C++ functions are in the `src` folder and loaded via [the Rcpp package](http://cran.r-project.org/web/packages/Rcpp/index.html) and R functions are in the `R` folder. Documentation is written with [Roxygen comments](http://r-pkgs.had.co.nz/man.html) following [the devtools package development philosophy](http://r-pkgs.had.co.nz).
-
-Load the package and read the documentation with:
 
 ```R
 library("datalimited")
