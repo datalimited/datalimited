@@ -1,11 +1,11 @@
 Package: datalimited
 Type: Package
 Title: Data-limited fisheries assessment methods
-Version: 0.0.1
-Date: 2015-06-19
+Version: 0.0.2
+Date: 2016-11-08
 Author: Many other people to be filled in
-Maintainer: Sean C. Anderson <sean_anderson@sfu.ca>
-Description: Methods for assessing B/Bmsy from fisheries catch time series
+Maintainer: Sean C. Anderson <sandrsn@uw.edu>
+Description: Methods for assessing B/Bmsy from fisheries catch time series.
 License: GPL-2
 LazyData: TRUE
 LinkingTo: Rcpp
@@ -14,7 +14,7 @@ Suggests:
     plyr,
     dplyr
 Depends:
-    R (>= 3.1.1)
+    R (>= 3.3.1)
 Imports:
     Rcpp,
     gbm,
