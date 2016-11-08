@@ -32,6 +32,8 @@
 #'
 #' @useDynLib datalimited
 #' @importFrom Rcpp sourceCpp
+#' @importFrom stats coef dlnorm dnorm lm predict qnorm quantile runif sd
+#'   setNames
 #' @references
 #' Martell, S., & Froese, R. (2013). A simple method for estimating MSY from
 #' catch and resilience. Fish and Fisheries, 14(4), 504-514.
