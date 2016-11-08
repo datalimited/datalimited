@@ -1,13 +1,24 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-Stock-assessment methods for data-limited fisheries
-===================================================
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# Stock-assessment methods for data-limited fisheries
 
 [![Build Status](https://magnum.travis-ci.com/datalimited/datalimited.svg?token=QExyQi6ySw3SZD4gggYN&branch=master)](https://magnum.travis-ci.com/datalimited/datalimited)
 
 The R package datalimited can be installed from GitHub with:
 
-``` r
+```{r, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("hadley/devtools") # temporarily needed due to a bug 
 devtools::install_github("datalimited/datalimited")
@@ -17,28 +28,18 @@ Because the package includes C++ code, you will need a C++ compiler to install t
 
 The package implements the methods used in Rosenberg et al. (2014) including the following:
 
--   Catch-MSY based on Martell and Froese (2013); see `?cmsy`
--   Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
--   Panel regression in the style of Costello et al. (2012); see `?prm`
--   State-space catch-only model; see `?sscom`
+- Catch-MSY based on Martell and Froese (2013); see `?cmsy`
+- Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
+- Panel regression in the style of Costello et al. (2012); see `?prm`
+- State-space catch-only model; see `?sscom`
 
-An example with `cmsy()`
-------------------------
+## An example with `cmsy()`
 
-``` r
+```{r cmsy}
 library("datalimited")
 x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 names(x)
-#> [1] "theta"       "biomass"     "bmsy"        "msy"         "mean_ln_msy"
-#> [6] "bbmsy"
 head(x$theta)
-#>            r        k ell    J
-#> 25 0.6914553 35633.34   1 0.55
-#> 32 0.5277614 42598.74   1 0.55
-#> 38 0.4409560 50077.08   1 0.55
-#> 64 0.5893820 39651.48   1 0.60
-#> 71 0.8300237 31956.33   1 0.50
-#> 95 0.3837625 55542.74   1 0.80
 par(mfrow = c(2, 2))
 plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", 
   ylab = "Catch (t)")
@@ -46,11 +47,6 @@ plot(blue_gren$yr,  apply(x$biomass, 2, median)[-1], type = "o",
   ylab = "Estimated biomass", xlab = "Year")
 hist(x$bmsy)
 plot(x$theta$r, x$theta$k, col = "#00000030")
-```
-
-![](README-cmsy-1.png)
-
-``` r
 library("ggplot2")
 ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
     geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) +
@@ -58,10 +54,7 @@ ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
     geom_hline(yintercept = 1, lty = 2) + theme_light()
 ```
 
-![](README-cmsy-2.png)
-
-References
-----------
+## References
 
 Costello, C., D. Ovando, R. Hilborn, S. D. Gaines, O. Deschenes, and S. E. Lester. 2012. Status and solutions for the world’s unassessed fisheries. Science 338:517-520.
 
