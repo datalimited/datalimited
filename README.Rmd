@@ -31,12 +31,13 @@ The package implements the methods used in Rosenberg et al. (2014) including the
 - Catch-MSY based on Martell and Froese (2013); see `?cmsy`
 - Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
 - Panel regression in the style of Costello et al. (2012); see `?prm`
-- State-space catch-only model; see `?sscom`
+- State-space catch-only model from Thorson et al. (2013); see `?sscom`
 
 ## An example with `cmsy()`
 
 ```{r cmsy}
 library("datalimited")
+set.seed(1)
 x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 names(x)
 head(x$theta)

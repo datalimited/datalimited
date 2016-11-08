@@ -20,25 +20,26 @@ The package implements the methods used in Rosenberg et al. (2014) including the
 -   Catch-MSY based on Martell and Froese (2013); see `?cmsy`
 -   Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
 -   Panel regression in the style of Costello et al. (2012); see `?prm`
--   State-space catch-only model; see `?sscom`
+-   State-space catch-only model from Thorson et al. (2013); see `?sscom`
 
 An example with `cmsy()`
 ------------------------
 
 ``` r
 library("datalimited")
+set.seed(1)
 x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 names(x)
 #> [1] "theta"       "biomass"     "bmsy"        "msy"         "mean_ln_msy"
 #> [6] "bbmsy"
 head(x$theta)
 #>            r        k ell    J
-#> 25 0.6914553 35633.34   1 0.55
-#> 32 0.5277614 42598.74   1 0.55
-#> 38 0.4409560 50077.08   1 0.55
-#> 64 0.5893820 39651.48   1 0.60
-#> 71 0.8300237 31956.33   1 0.50
-#> 95 0.3837625 55542.74   1 0.80
+#> 14 0.4000687 51768.79   1 0.65
+#> 21 0.4982639 42917.72   1 0.50
+#> 24 0.4354341 52793.06   1 0.65
+#> 62 0.4961527 44042.52   1 0.50
+#> 92 0.4505604 46764.53   1 0.65
+#> 96 0.3941562 59326.26   1 0.85
 par(mfrow = c(2, 2))
 plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", 
   ylab = "Catch (t)")
