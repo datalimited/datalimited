@@ -1,6 +1,7 @@
 language: r
 cache: packages
 sudo: false
+r_binary_packages: rjags
 
 notifications:
   email:
