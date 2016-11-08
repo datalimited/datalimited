@@ -56,7 +56,7 @@ comsir <- function(yr, ct,
   n_posterior = 5e3, normal_like = FALSE,
   a_bounds = c(0, 1),
   x_bounds = c(1e-6, 1),
-  effort_bounds = c(-1, 1), obs = FALSE, dampen = FALSE,
+  effort_bounds = c(-Inf, Inf), obs = FALSE, dampen = FALSE,
   cv_bounds = c(0.4, 0.4)) {
 
   logistic_model <- TRUE
