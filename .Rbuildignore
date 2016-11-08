@@ -3,3 +3,4 @@
 ^extra$
 ^data-raw$
 ^\.travis\.yml$
+inst/shiny/
