@@ -17,7 +17,7 @@ Authors@R: c(
     person("Coilin", "Minto", "aut"),
     person("Iago", "Mosqueira", "aut"),
     person("Andrew", "Rosenberg, "aut"),
-    person("Elizabeth", "Selig, "aut")
+    person("Elizabeth", "Selig, "aut"),
     person("James", "Thorson, "aut"),
     person("Jessica", "Walsh, "aut")
     )
