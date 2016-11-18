@@ -1,6 +1,6 @@
 Package: datalimited
 Type: Package
-Title: Data-limited fisheries assessment methods
+Title: Stock assessment methods for data-limited fisheries
 Version: 0.0.2
 Date: 2016-11-08
 Authors@R: c(
