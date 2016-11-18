@@ -4,27 +4,29 @@ Title: Data-limited fisheries assessment methods
 Version: 0.0.2
 Date: 2016-11-08
 Authors@R: c(
-    person("Sean", "Anderson", email = "sandrsn@uw.edu", role = c("aut", "cre")),
+    person(c("Sean", "C."), "Anderson", email = "sandrsn@uw.edu", role = c("aut", "cre")),
     person("Jamie", "Afflerbach", role = "aut"),
-    person("Andrew", "Cooper", role = "aut"),
+    person(c("Andrew", "B."), "Cooper", role = "aut"),
     person("Mark", "Dickey-Collas", role = "aut"),
-    person("Olaf", "Jensen", role = "aut"),
-    person("Kristin", "Kleisner", role = "aut"),
+    person(c("Olaf", "P."), "Jensen", role = "aut"),
+    person(c("Kristin", "M."), "Kleisner", role = "aut"),
     person("Catherine", "Longo", role = "aut"),
     person("Giacomo Chato", "Osio", role = "aut"),
     person("Daniel", "Ovando", role = "aut"),
     person("Carolina", "Minte-Vera", role = "aut"),
     person("Coilin", "Minto", role = "aut"),
     person("Iago", "Mosqueira", role = "aut"),
-    person("Andrew", "Rosenberg", role = "aut"),
-    person("Elizabeth", "Selig", role = "aut"),
-    person("James", "Thorson", role = "aut"),
-    person("Jessica", "Walsh", role = "aut")
+    person(c("Andrew", "A."), "Rosenberg", role = "aut"),
+    person(c("Elizabeth", "R."), "Selig", role = "aut"),
+    person(c("James", "T."), "Thorson", role = "aut"),
+    person(c("Jessica", "C."), "Walsh", role = "aut")
     )
 Description: Methods for assessing B/Bmsy from fisheries catch time series
     combined with assumptions about life-history parameters, depletion levels,
     and other prior information. Implements CMSY, COMSIR, SSCOM, and mPRM.
 License: GPL-3
+URL: https://github.com/datalimited/datalimited
+BugReports: https://github.com/datalimited/datalimited/issues
 LazyData: TRUE
 LinkingTo: Rcpp
 Suggests:
