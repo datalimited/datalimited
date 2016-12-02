@@ -5,7 +5,12 @@ Stock-assessment methods for data-limited fisheries
 
 [![Build Status](https://magnum.travis-ci.com/datalimited/datalimited.svg?token=QExyQi6ySw3SZD4gggYN&branch=master)](https://magnum.travis-ci.com/datalimited/datalimited)
 
-The R package datalimited can be installed from GitHub with:
+Installation
+------------
+
+Before installing datalimited, you will need to [install JAGS](http://mcmc-jags.sourceforge.net) and have a [C++ compiler set up](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
+
+The R package datalimited can then be installed from GitHub with:
 
 ``` r
 # install.packages("devtools")
