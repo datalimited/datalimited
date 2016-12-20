@@ -121,9 +121,8 @@ fit_prm <- function(dat,
 #'   \code{\link{ram_prm_model}}.
 #' @param ci Should confidence intervals on B/B_MSY be returned?
 #' @return \code{predict_prm}: If \code{ci = FALSE}, a vector of predictions of
-#'   B/B_MSY. If \code{ci = TRUE}, a data frame with columns for B/B_MSY
-#'   \code{fit} and lower and upper confidence intervals \code{lower},
-#'   \code{upper}. Note that the model is fitted to log(B/B_MSY) and the output
+#'   B/B_MSY. If \code{ci = TRUE}, a data frame.
+#'   Note that the model is fitted to log(B/B_MSY) and the output
 #'   from \code{predict_prm} is exponentiated so the prediction represents an
 #'   estimate of median B/B_MSY.
 #' @export
