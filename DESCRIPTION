@@ -1,8 +1,8 @@
 Package: datalimited
 Type: Package
 Title: Stock assessment methods for data-limited fisheries
-Version: 0.0.2
-Date: 2016-11-08
+Version: 0.0.2.9000
+Date: 2016-12-20
 Authors@R: c(
     person(c("Sean", "C."), "Anderson", email = "sandrsn@uw.edu", role = c("aut", "cre")),
     person("Jamie", "Afflerbach", role = "aut"),
