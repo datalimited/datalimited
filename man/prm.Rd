@@ -14,8 +14,7 @@ fit_prm(dat, eqn = log(bbmsy) ~ max_catch + mean_scaled_catch + scaled_catch +
   catch_to_rolling_max + time_to_max + years_back + initial_slope - 1,
   type = c("lm", "gbm"), ...)
 
-predict_prm(newdata, model = datalimited::ram_prm_model, ci = FALSE,
-  level = 0.95)
+predict_prm(newdata, model = datalimited::ram_prm_model, ci = FALSE)
 }
 \arguments{
 \item{year}{A numeric vector of years}
@@ -32,7 +31,8 @@ same set are used in model fitting and extrapolation.}
 
 \item{eqn}{A formula describing the regression}
 
-\item{type}{Either linear model (the original method) or a GBM model}
+\item{type}{Either linear model (\code{"lm"}; the original method) or a
+\code{\link[gbm]{gbm}} model (\code{"gbm"})}
 
 \item{...}{Anything extra to pass to \code{\link[gbm]{gbm}}}
 
@@ -44,8 +44,6 @@ Defaults to a cached version of a model fit to the RAM database,
 \code{\link{ram_prm_model}}.}
 
 \item{ci}{Should confidence intervals on B/B_MSY be returned?}
-
-\item{level}{Confidence interval level}
 }
 \value{
 \code{format_prm}: A data frame formatted for use with \code{fit_prm} or
@@ -95,7 +93,7 @@ plot(x)
 # with confidence intervals:
 library("ggplot2")
 x <- predict_prm(d, ci = TRUE)
-ggplot(x$bbmsy, aes(year, bbmsy_q50)) +
+ggplot(x, aes(year, bbmsy_q50)) +
   geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), fill = "#00000040") +
   geom_line() +
   ylab(expression(B/B[MSY]))
