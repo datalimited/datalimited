@@ -8,7 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "README-figs/"
 )
 ```
 
@@ -24,7 +24,6 @@ The R package datalimited can then be installed from GitHub with:
 
 ```{r, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("hadley/devtools") # temporarily needed due to a bug 
 devtools::install_github("datalimited/datalimited")
 ```
 

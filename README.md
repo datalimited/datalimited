@@ -46,7 +46,7 @@ hist(x$bmsy)
 plot(x$theta$r, x$theta$k, col = "#00000030")
 ```
 
-![](README-cmsy-1.png)
+![](README-figs/cmsy-1.png)
 
 ``` r
 library("ggplot2")
@@ -56,7 +56,7 @@ ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
     geom_hline(yintercept = 1, lty = 2) + theme_light()
 ```
 
-![](README-cmsy-2.png)
+![](README-figs/cmsy-2.png)
 
 References
 ----------

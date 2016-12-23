@@ -3,4 +3,7 @@
 ^extra$
 ^data-raw$
 ^\.travis\.yml$
-inst/shiny/
+^inst/shiny$
+^README-figs$
+^cran-comments\.md$
+^README\.Rmd$
