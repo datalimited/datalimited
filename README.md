@@ -55,6 +55,36 @@ ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
 
 ![](README-figs/cmsy-2.png)
 
+Citation
+--------
+
+To cite the package, cite the authors of the original assessment method (shown below), Rosenberg et al. (2014), and:
+
+``` r
+citation("datalimited")
+#> 
+#> To cite package 'datalimited' in publications use:
+#> 
+#>   Sean C. Anderson, Jamie Afflerbach, Andrew B. Cooper, Mark
+#>   Dickey-Collas, Olaf P. Jensen, Kristin M. Kleisner, Catherine
+#>   Longo, Giacomo Chato Osio, Daniel Ovando, Carolina Minte-Vera,
+#>   Coilin Minto, Iago Mosqueira, Andrew A. Rosenberg, Elizabeth R.
+#>   Selig, James T. Thorson and Jessica C. Walsh (2016).
+#>   datalimited: Stock Assessment Methods for Data-limited
+#>   Fisheries. R package version 0.0.3.
+#>   https://github.com/datalimited/datalimited
+#> 
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Manual{,
+#>     title = {datalimited: Stock Assessment Methods for Data-limited Fisheries},
+#>     author = {Sean C. Anderson and Jamie Afflerbach and Andrew B. Cooper and Mark Dickey-Collas and Olaf P. Jensen and Kristin M. Kleisner and Catherine Longo and Giacomo Chato Osio and Daniel Ovando and Carolina Minte-Vera and Coilin Minto and Iago Mosqueira and Andrew A. Rosenberg and Elizabeth R. Selig and James T. Thorson and Jessica C. Walsh},
+#>     year = {2016},
+#>     note = {R package version 0.0.3},
+#>     url = {https://github.com/datalimited/datalimited},
+#>   }
+```
+
 References
 ----------
 

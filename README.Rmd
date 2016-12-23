@@ -55,6 +55,15 @@ ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
     geom_hline(yintercept = 1, lty = 2) + theme_light()
 ```
 
+## Citation
+
+To cite the package, cite the authors of the original assessment method (shown below), Rosenberg et al. (2014), and:
+
+```{r}
+citation("datalimited")
+```
+
+
 ## References
 
 Costello, C., D. Ovando, R. Hilborn, S. D. Gaines, O. Deschenes, and S. E. Lester. 2012. Status and solutions for the world’s unassessed fisheries. Science 338:517-520.
