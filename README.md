@@ -71,7 +71,7 @@ citation("datalimited")
 #>   Coilin Minto, Iago Mosqueira, Andrew A. Rosenberg, Elizabeth R.
 #>   Selig, James T. Thorson and Jessica C. Walsh (2016).
 #>   datalimited: Stock Assessment Methods for Data-limited
-#>   Fisheries. R package version 0.0.3.
+#>   Fisheries. R package version 0.1.0.
 #>   https://github.com/datalimited/datalimited
 #> 
 #> A BibTeX entry for LaTeX users is
@@ -80,7 +80,7 @@ citation("datalimited")
 #>     title = {datalimited: Stock Assessment Methods for Data-limited Fisheries},
 #>     author = {Sean C. Anderson and Jamie Afflerbach and Andrew B. Cooper and Mark Dickey-Collas and Olaf P. Jensen and Kristin M. Kleisner and Catherine Longo and Giacomo Chato Osio and Daniel Ovando and Carolina Minte-Vera and Coilin Minto and Iago Mosqueira and Andrew A. Rosenberg and Elizabeth R. Selig and James T. Thorson and Jessica C. Walsh},
 #>     year = {2016},
-#>     note = {R package version 0.0.3},
+#>     note = {R package version 0.1.0},
 #>     url = {https://github.com/datalimited/datalimited},
 #>   }
 ```
