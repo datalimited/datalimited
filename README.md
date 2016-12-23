@@ -3,7 +3,7 @@
 Stock assessment methods for data-limited fisheries
 ===================================================
 
-[![Build Status](https://magnum.travis-ci.com/datalimited/datalimited.svg?token=QExyQi6ySw3SZD4gggYN&branch=master)](https://magnum.travis-ci.com/datalimited/datalimited)
+[![Build Status](https://magnum.travis-ci.com/datalimited/datalimited.svg?token=QExyQi6ySw3SZD4gggYN&branch=master)](https://magnum.travis-ci.com/datalimited/datalimited) [![DOI](https://zenodo.org/badge/32663566.svg)](https://zenodo.org/badge/latestdoi/32663566)
 
 Installation
 ------------
