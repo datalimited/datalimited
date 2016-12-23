@@ -50,7 +50,7 @@ model {
 
 #' SSCOM model
 #'
-#' State-space catch-only model
+#' State-space catch-only model from Thorson et al. (2013).
 #'
 #' @param ct Catch time series
 #' @param yr Years

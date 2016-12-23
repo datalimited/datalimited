@@ -37,7 +37,7 @@ end as well. If \code{TRUE} then a list with elements \code{jags} and
 \code{output} will be returned with the JAGS and SSCOM output, respectively.}
 }
 \description{
-State-space catch-only model
+State-space catch-only model from Thorson et al. (2013).
 }
 \examples{
 \dontrun{
