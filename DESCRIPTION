@@ -32,7 +32,8 @@ LinkingTo: Rcpp
 Suggests:
     ggplot2,
     plyr,
-    dplyr
+    dplyr,
+    testthat
 Depends:
     R (>= 3.3.1)
 Imports:
