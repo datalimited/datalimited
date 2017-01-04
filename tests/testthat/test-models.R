@@ -1,5 +1,7 @@
 context("Models run")
 
+set.seed(1)
+
 test_that("CMSY runs", {
   x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
   expect_equal(class(x$bbmsy), "data.frame")
