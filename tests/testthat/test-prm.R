@@ -1,4 +1,4 @@
-context("mPRM")
+context("mPRM data are formatted correctly")
 
 dat <- format_prm(
   year = 1:10,
