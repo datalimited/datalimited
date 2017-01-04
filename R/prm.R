@@ -35,6 +35,15 @@
 #'   geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), fill = "#00000040") +
 #'   geom_line() +
 #'   ylab(expression(B/B[MSY]))
+#'
+#' # format and predict on a new fake dataset:
+#' set.seed(1)
+#' dat <- format_prm(
+#'   year = 1:10,
+#'   catch = rlnorm(10),
+#'   species_cat = "Cods, hakes, haddocks")
+#' head(dat)
+#' predict_prm(dat)
 NULL
 
 #' @description \code{format_prm}: Format a series of predictors for a panel
@@ -42,7 +51,9 @@ NULL
 #'
 #' @param year A numeric vector of years
 #' @param catch A numeric vector of catches
-#' @param bbmsy A numeric vector of B/B_MSY
+#' @param bbmsy A numeric vector of B/B_MSY (only needed if passing the output
+#'   to \code{fit_prm}; leave as \code{NULL} if passing output to
+#'   \code{predict_prm})
 #' @param species_cat A single character value of a
 #'   species category. Can be from any set of species categories as long as the
 #'   same set are used in model fitting and extrapolation.
@@ -51,9 +62,9 @@ NULL
 #'   \code{predict_prm}
 #' @rdname prm
 
-format_prm <- function(year, catch, bbmsy, species_cat) {
+format_prm <- function(year, catch, species_cat, bbmsy = NULL) {
 
-  stopifnot(identical(length(catch), length(bbmsy)))
+  if (is.null(bbmsy)) bbmsy <- rep(NA, length(catch))
   stopifnot(identical(length(species_cat), 1L))
 
   .n <- length(catch)

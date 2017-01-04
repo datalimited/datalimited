@@ -7,7 +7,7 @@
 \alias{prm}
 \title{Modified panel regression model}
 \usage{
-format_prm(year, catch, bbmsy, species_cat)
+format_prm(year, catch, species_cat, bbmsy = NULL)
 
 fit_prm(dat, eqn = log(bbmsy) ~ max_catch + mean_scaled_catch + scaled_catch +
   scaled_catch1 + scaled_catch2 + scaled_catch3 + scaled_catch4 + species_cat +
@@ -21,11 +21,13 @@ predict_prm(newdata, model = datalimited::ram_prm_model, ci = FALSE)
 
 \item{catch}{A numeric vector of catches}
 
-\item{bbmsy}{A numeric vector of B/B_MSY}
-
 \item{species_cat}{A single character value of a
 species category. Can be from any set of species categories as long as the
 same set are used in model fitting and extrapolation.}
+
+\item{bbmsy}{A numeric vector of B/B_MSY (only needed if passing the output
+to \code{fit_prm}; leave as \code{NULL} if passing output to
+\code{predict_prm})}
 
 \item{dat}{A data frame created by \code{\link{format_prm}}}
 
@@ -96,6 +98,15 @@ ggplot(x, aes(year, bbmsy_q50)) +
   geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), fill = "#00000040") +
   geom_line() +
   ylab(expression(B/B[MSY]))
+
+# format and predict on a new fake dataset:
+set.seed(1)
+dat <- format_prm(
+  year = 1:10,
+  catch = rlnorm(10),
+  species_cat = "Cods, hakes, haddocks")
+head(dat)
+predict_prm(dat)
 }
 \references{
 Costello, C., D. Ovando, R. Hilborn, S. D. Gaines, O. Deschenes,
