@@ -1,39 +1,47 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-Stock assessment methods for data-limited fisheries
-===================================================
 
-[![Build Status](https://magnum.travis-ci.com/datalimited/datalimited.svg?token=QExyQi6ySw3SZD4gggYN&branch=master)](https://magnum.travis-ci.com/datalimited/datalimited) [![DOI](https://zenodo.org/badge/32663566.svg)](https://zenodo.org/badge/latestdoi/32663566)
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-figs/"
+)
+```
 
-Installation
-------------
+# Stock assessment methods for data-limited fisheries
+
+[![Build Status](https://magnum.travis-ci.com/datalimited/datalimited.svg?token=QExyQi6ySw3SZD4gggYN&branch=master)](https://magnum.travis-ci.com/datalimited/datalimited)
+[![DOI](https://zenodo.org/badge/32663566.svg)](https://zenodo.org/badge/latestdoi/32663566)
+
+## Installation
 
 Before installing datalimited, you will need to [install JAGS](http://mcmc-jags.sourceforge.net) and have a [C++ compiler set up](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
 
 The R package datalimited can then be installed from GitHub with:
 
-``` r
+```{r, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("datalimited/datalimited")
 ```
 
 The package implements the methods used in Rosenberg et al. (2014) including the following:
 
--   Catch-MSY based on Martell and Froese (2013); see `?cmsy`
--   Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
--   Panel regression in the style of Costello et al. (2012); see `?prm`
--   State-space catch-only model from Thorson et al. (2013); see `?sscom`
+- Catch-MSY based on Martell and Froese (2013); see `?cmsy`
+- Catch-only method with sample importance resampling based on asconcellos and Cochrane (2005); see `?comsir`
+- Panel regression in the style of Costello et al. (2012); see `?prm`
+- State-space catch-only model from Thorson et al. (2013); see `?sscom`
 
-An example with `cmsy()`
-------------------------
+## An example with `cmsy()`
 
-``` r
+```{r cmsy}
 library("datalimited")
 set.seed(1)
 x <- cmsy(blue_gren$yr, ct = blue_gren$ct, reps = 2e4)
 names(x)
-#> [1] "theta"       "biomass"     "bmsy"        "msy"         "mean_ln_msy"
-#> [6] "bbmsy"
 par(mfrow = c(2, 2))
 plot(blue_gren$yr, blue_gren$ct, type = "o", xlab = "Year", 
   ylab = "Catch (t)")
@@ -41,11 +49,6 @@ plot(blue_gren$yr,  apply(x$biomass, 2, median)[-1], type = "o",
   ylab = "Estimated biomass", xlab = "Year")
 hist(x$bmsy)
 plot(x$theta$r, x$theta$k, col = "#00000030")
-```
-
-![](README-figs/cmsy-1.png)
-
-``` r
 library("ggplot2")
 ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
     geom_ribbon(aes(ymin = bbmsy_q25, ymax = bbmsy_q75), alpha = 0.2) +
@@ -53,40 +56,16 @@ ggplot(x$bbmsy, aes(year, bbmsy_q50)) + geom_line()  +
     geom_hline(yintercept = 1, lty = 2) + theme_light()
 ```
 
-![](README-figs/cmsy-2.png)
-
-Citation
---------
+## Citation
 
 To cite the package, cite the authors of the original assessment method (shown below), Rosenberg et al. (2014), and:
 
-``` r
+```{r}
 citation("datalimited")
-#> 
-#> To cite package 'datalimited' in publications use:
-#> 
-#>   Sean C. Anderson, Jamie Afflerbach, Andrew B. Cooper, Mark
-#>   Dickey-Collas, Olaf P. Jensen, Kristin M. Kleisner, Catherine
-#>   Longo, Giacomo Chato Osio, Daniel Ovando, Carolina Minte-Vera,
-#>   Coilin Minto, Iago Mosqueira, Andrew A. Rosenberg, Elizabeth R.
-#>   Selig, James T. Thorson and Jessica C. Walsh (2016).
-#>   datalimited: Stock Assessment Methods for Data-limited
-#>   Fisheries. R package version 0.1.0.
-#>   https://github.com/datalimited/datalimited
-#> 
-#> A BibTeX entry for LaTeX users is
-#> 
-#>   @Manual{,
-#>     title = {datalimited: Stock Assessment Methods for Data-limited Fisheries},
-#>     author = {Sean C. Anderson and Jamie Afflerbach and Andrew B. Cooper and Mark Dickey-Collas and Olaf P. Jensen and Kristin M. Kleisner and Catherine Longo and Giacomo Chato Osio and Daniel Ovando and Carolina Minte-Vera and Coilin Minto and Iago Mosqueira and Andrew A. Rosenberg and Elizabeth R. Selig and James T. Thorson and Jessica C. Walsh},
-#>     year = {2016},
-#>     note = {R package version 0.1.0},
-#>     url = {https://github.com/datalimited/datalimited},
-#>   }
 ```
 
-References
-----------
+
+## References
 
 Costello, C., D. Ovando, R. Hilborn, S. D. Gaines, O. Deschenes, and S. E. Lester. 2012. Status and solutions for the world’s unassessed fisheries. Science 338:517-520.
 

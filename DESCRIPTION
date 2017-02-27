@@ -1,20 +1,41 @@
 Package: datalimited
 Type: Package
-Title: Data-limited fisheries assessment methods
-Version: 0.0.1
-Date: 2015-06-19
-Author: Many other people to be filled in
-Maintainer: Sean C. Anderson <sean_anderson@sfu.ca>
+Title: Stock Assessment Methods for Data-limited Fisheries
+Version: 0.1.0
+Date: 2016-12-23
+Authors@R: c(
+    person(c("Sean", "C."), "Anderson", email = "sandrsn@uw.edu", role = c("aut", "cre")),
+    person("Jamie", "Afflerbach", role = "aut"),
+    person(c("Andrew", "B."), "Cooper", role = "aut"),
+    person("Mark", "Dickey-Collas", role = "aut"),
+    person(c("Olaf", "P."), "Jensen", role = "aut"),
+    person(c("Kristin", "M."), "Kleisner", role = "aut"),
+    person("Catherine", "Longo", role = "aut"),
+    person("Giacomo Chato", "Osio", role = "aut"),
+    person("Daniel", "Ovando", role = "aut"),
+    person("Carolina", "Minte-Vera", role = "aut"),
+    person("Coilin", "Minto", role = "aut"),
+    person("Iago", "Mosqueira", role = "aut"),
+    person(c("Andrew", "A."), "Rosenberg", role = "aut"),
+    person(c("Elizabeth", "R."), "Selig", role = "aut"),
+    person(c("James", "T."), "Thorson", role = "aut"),
+    person(c("Jessica", "C."), "Walsh", role = "aut")
+    )
 Description: Methods for assessing B/Bmsy from fisheries catch time series
-License: GPL-2
+    combined with assumptions about life-history parameters, depletion levels,
+    and other prior information. Implements CMSY, COMSIR, SSCOM, and mPRM.
+License: GPL-3
+URL: https://github.com/datalimited/datalimited
+BugReports: https://github.com/datalimited/datalimited/issues
 LazyData: TRUE
 LinkingTo: Rcpp
 Suggests:
     ggplot2,
     plyr,
-    dplyr
+    dplyr,
+    testthat
 Depends:
-    R (>= 3.1.1)
+    R (>= 3.3.1)
 Imports:
     Rcpp,
     gbm,

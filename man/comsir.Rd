@@ -46,11 +46,10 @@ unstable dynamics?}
 \item{cv_bounds}{Min and max limits on residual error CV around catch}
 }
 \description{
-Catch-only model with sample importance resampling based on the method
+Catch-only model with sampling-importance-resampling based on the method
 described in Vasconcellos and Cochrane (2005).
 }
 \examples{
-# TODO K and r values?
 x <- comsir(ct = blue_gren$ct, yr = blue_gren$yr, nsim = 1e5,
   n_posterior = 2e3)
 par(mfrow = c(1, 2))

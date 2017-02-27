@@ -7,32 +7,34 @@
 \alias{prm}
 \title{Modified panel regression model}
 \usage{
-format_prm(year, catch, bbmsy, species_cat)
+format_prm(year, catch, species_cat, bbmsy = NULL)
 
 fit_prm(dat, eqn = log(bbmsy) ~ max_catch + mean_scaled_catch + scaled_catch +
   scaled_catch1 + scaled_catch2 + scaled_catch3 + scaled_catch4 + species_cat +
   catch_to_rolling_max + time_to_max + years_back + initial_slope - 1,
   type = c("lm", "gbm"), ...)
 
-predict_prm(newdata, model = datalimited::ram_prm_model, ci = FALSE,
-  level = 0.95)
+predict_prm(newdata, model = datalimited::ram_prm_model, ci = FALSE)
 }
 \arguments{
 \item{year}{A numeric vector of years}
 
 \item{catch}{A numeric vector of catches}
 
-\item{bbmsy}{A numeric vector of B/B_MSY}
-
 \item{species_cat}{A single character value of a
 species category. Can be from any set of species categories as long as the
 same set are used in model fitting and extrapolation.}
+
+\item{bbmsy}{A numeric vector of B/B_MSY (only needed if passing the output
+to \code{fit_prm}; leave as \code{NULL} if passing output to
+\code{predict_prm})}
 
 \item{dat}{A data frame created by \code{\link{format_prm}}}
 
 \item{eqn}{A formula describing the regression}
 
-\item{type}{Either linear model (the original method) or a GBM model}
+\item{type}{Either linear model (\code{"lm"}; the original method) or a
+\code{\link[gbm]{gbm}} model (\code{"gbm"})}
 
 \item{...}{Anything extra to pass to \code{\link[gbm]{gbm}}}
 
@@ -44,8 +46,6 @@ Defaults to a cached version of a model fit to the RAM database,
 \code{\link{ram_prm_model}}.}
 
 \item{ci}{Should confidence intervals on B/B_MSY be returned?}
-
-\item{level}{Confidence interval level}
 }
 \value{
 \code{format_prm}: A data frame formatted for use with \code{fit_prm} or
@@ -54,9 +54,8 @@ Defaults to a cached version of a model fit to the RAM database,
 \code{fit_prm}: A linear model for use with \code{predict_prm}
 
 \code{predict_prm}: If \code{ci = FALSE}, a vector of predictions of
-  B/B_MSY. If \code{ci = TRUE}, a data frame with columns for B/B_MSY
-  \code{fit} and lower and upper confidence intervals \code{lower},
-  \code{upper}. Note that the model is fitted to log(B/B_MSY) and the output
+  B/B_MSY. If \code{ci = TRUE}, a data frame.
+  Note that the model is fitted to log(B/B_MSY) and the output
   from \code{predict_prm} is exponentiated so the prediction represents an
   estimate of median B/B_MSY.
 }
@@ -95,10 +94,19 @@ plot(x)
 # with confidence intervals:
 library("ggplot2")
 x <- predict_prm(d, ci = TRUE)
-ggplot(x$bbmsy, aes(year, bbmsy_q50)) +
+ggplot(x, aes(year, bbmsy_q50)) +
   geom_ribbon(aes(ymin = bbmsy_q2.5, ymax = bbmsy_q97.5), fill = "#00000040") +
   geom_line() +
   ylab(expression(B/B[MSY]))
+
+# format and predict on a new fake dataset:
+set.seed(1)
+dat <- format_prm(
+  year = 1:10,
+  catch = rlnorm(10),
+  species_cat = "Cods, hakes, haddocks")
+head(dat)
+predict_prm(dat)
 }
 \references{
 Costello, C., D. Ovando, R. Hilborn, S. D. Gaines, O. Deschenes,
